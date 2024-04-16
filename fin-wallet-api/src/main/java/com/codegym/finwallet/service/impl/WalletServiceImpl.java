@@ -11,7 +11,12 @@ public class WalletServiceImpl implements WalletService {
     @Autowired
     private WalletRepository walletRepository;
     @Override
-    public Wallet edit(Long id) {
-        return walletRepository.save(walletRepository.findById(id).get());
+    public Wallet update(Wallet wallet) {
+        return walletRepository.save(wallet);
+    }
+
+    @Override
+    public void delete(Long id) {
+        walletRepository.deleteById(id);
     }
 }

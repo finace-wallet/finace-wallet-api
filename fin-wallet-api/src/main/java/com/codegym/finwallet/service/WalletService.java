@@ -3,6 +3,6 @@ package com.codegym.finwallet.service;
 import com.codegym.finwallet.entity.Wallet;
 
 public interface WalletService {
-    Wallet edit(Long id);
-
+    Wallet update(Wallet wallet);
+    void delete(Long id);
 }
