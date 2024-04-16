@@ -1,5 +1,5 @@
 package com.codegym.finwallet.service;
-
+import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
