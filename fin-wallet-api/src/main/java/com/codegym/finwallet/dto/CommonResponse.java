@@ -4,14 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
+@Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-@Builder
-public class AppUserDto {
-    private Long id;
-    private String username;
-    private String password;
-    private String email;
+public class CommonResponse {
+    private Object data;
+    private String message;
+    private HttpStatus status;
 }

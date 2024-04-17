@@ -1,6 +1,7 @@
 package com.codegym.finwallet.controller;
 
 import com.codegym.finwallet.dto.AppUserDto;
+import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.service.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1")
 public class AuthController {
     private final AppUserService appUserService;
 
@@ -23,5 +24,11 @@ public class AuthController {
     public ResponseEntity<String> registerUser(@RequestBody AppUserDto appUserDto) {
         appUserService.saveUser(appUserDto);
         return ResponseEntity.ok("User registered successfully.");
+    }
+
+    @PostMapping ("/forget-password")
+    public ResponseEntity<CommonResponse> forgetPassword(@RequestBody AppUserDto appUserDto) {
+        CommonResponse commonResponse = appUserService.forgotPassword(appUserDto);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 }
