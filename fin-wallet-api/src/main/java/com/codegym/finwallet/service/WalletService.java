@@ -4,7 +4,13 @@ import com.codegym.finwallet.entity.Wallet;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface WalletService extends GeneralService<Wallet> {
-    Page<Wallet> findAllByUser(Pageable pageable, AppUser appUser);
-    Iterable<Wallet> findAllByUser(AppUser appUser);
+import java.util.Optional;
+
+public interface WalletService {
+    Page<Wallet> findAllByUser(Pageable pageable, String username);
+    Iterable<Wallet> findAllByUser(String username);
+    Wallet save(Wallet wallet);
+    void remove(Long id);
+    Page<Wallet> findAll(Pageable pageable);
+    Optional<Wallet> findById(Long id);
 }
