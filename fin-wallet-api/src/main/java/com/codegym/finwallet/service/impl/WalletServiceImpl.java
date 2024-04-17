@@ -1,7 +1,8 @@
-package com.codegym.finwallet.service;
+package com.codegym.finwallet.service.impl;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.WalletRepository;
+import com.codegym.finwallet.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

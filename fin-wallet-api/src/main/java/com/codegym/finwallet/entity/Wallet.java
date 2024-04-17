@@ -31,8 +31,8 @@ public class Wallet {
     private String description;
     private boolean isDelete;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private AppUser appUser;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "user_id")
+//    private AppUser appUser;
     
 }
