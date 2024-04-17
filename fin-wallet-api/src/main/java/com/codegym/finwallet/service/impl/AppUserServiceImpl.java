@@ -3,21 +3,28 @@ package com.codegym.finwallet.service.impl;
 import com.codegym.finwallet.constant.VarConstant;
 import com.codegym.finwallet.dto.AppUserDto;
 import com.codegym.finwallet.dto.CommonResponse;
+import com.codegym.finwallet.dto.payload.request.LoginRequest;
+import com.codegym.finwallet.dto.payload.response.LoginResponse;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Role;
 import com.codegym.finwallet.repository.AppUserRepo;
 import com.codegym.finwallet.repository.RoleRepo;
 import com.codegym.finwallet.service.AppUserService;
+import com.codegym.finwallet.service.JwtService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -30,6 +37,10 @@ public class AppUserServiceImpl implements AppUserService {
     private int passwordLength = VarConstant.PASSWORD_MAX_LENGTH;
     private String SUBJECT = VarConstant.SUBJECT;
     private final JavaMailSender mailSender;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+    private final String loginSuccessMessage = VarConstant.MESSAGE_LOGIN_SUCCESS;
+    private final String loginFailMessage = VarConstant.MESSAGE_LOGIN_FAIL;
 
 
     @Override
@@ -96,5 +107,35 @@ public class AppUserServiceImpl implements AppUserService {
                         .build());
     }
 
+    @Override
+    public CommonResponse Login(LoginRequest loginRequest, HttpServletResponse response) {
+        AppUser appUser = modelMapper.map(loginRequest, AppUser.class);
+        Authentication authentication ;
+        try{
+           authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                            appUser.getEmail(),
+                            appUser.getPassword()
+                    )
+            );
+        }catch (AuthenticationException e){
+            return CommonResponse.builder()
+                    .data(null)
+                    .message(loginFailMessage + loginRequest.getEmail())
+                    .status(HttpStatus.NOT_FOUND)
+                    .build();
+        }
 
+
+        if (authentication.isAuthenticated()) {
+            String accessToken = jwtService.GenerateToken(loginRequest.getEmail());
+            LoginResponse loginResponse = modelMapper.map(appUser, LoginResponse.class);
+            loginResponse.setAccessToken(accessToken);
+            return CommonResponse.builder()
+                    .data(loginResponse)
+                    .message(loginSuccessMessage)
+                    .status(HttpStatus.OK)
+                    .build();
+        }
+        return null;
+    }
 }

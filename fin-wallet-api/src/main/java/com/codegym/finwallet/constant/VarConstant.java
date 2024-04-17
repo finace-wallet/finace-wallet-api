@@ -9,4 +9,8 @@ public interface VarConstant {
     String SUBJECT = "Mật khẩu mới của bạn là: ";
 
     int PASSWORD_MAX_LENGTH = 16;
+
+    String MESSAGE_LOGIN_SUCCESS = "Login successful";
+
+    String MESSAGE_LOGIN_FAIL = "Can't login with email: ";
 }
