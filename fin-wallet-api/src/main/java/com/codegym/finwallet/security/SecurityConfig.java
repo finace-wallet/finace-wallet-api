@@ -18,8 +18,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
-@EnableMethodSecurity
+//@EnableWebSecurity
+//@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -34,7 +34,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/v1/login", "/api/v1/register").permitAll()
+                .requestMatchers("/api/v1/login", "/api/v1/register","/api/v1/forget-password").permitAll()
 //                .and().build();
                 .and()
                 .authorizeHttpRequests().requestMatchers("/api/v1/**")
