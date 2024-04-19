@@ -15,4 +15,10 @@ public interface VarConstant {
     String MESSAGE_LOGIN_FAIL = "Can't login with email: ";
 
     String FIND_PROFILE_FAIL = "Can't find profile: ";
+
+    String CHANGE_PASSWORD_SUCCESSFUL = "ChangePassword successfully";
+
+    String USER_NOT_FOUND = "User not found";
+
+    String DELETE_USER_SUCCESSFUL = "Delete user successfully";
 }

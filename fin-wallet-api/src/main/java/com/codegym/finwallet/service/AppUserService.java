@@ -2,6 +2,7 @@ package com.codegym.finwallet.service;
 
 import com.codegym.finwallet.dto.AppUserDto;
 import com.codegym.finwallet.dto.CommonResponse;
+import com.codegym.finwallet.dto.payload.request.ChangePasswordRequest;
 import com.codegym.finwallet.dto.payload.request.LoginRequest;
 import com.codegym.finwallet.dto.payload.request.UpdateProfileRequest;
 import com.codegym.finwallet.entity.AppUser;
@@ -18,4 +19,6 @@ public interface AppUserService {
 
     CommonResponse Login(LoginRequest loginRequest, HttpServletResponse response);
 
+    boolean changePassword(ChangePasswordRequest changePasswordRequest);
+    boolean deleteUser();
 }
