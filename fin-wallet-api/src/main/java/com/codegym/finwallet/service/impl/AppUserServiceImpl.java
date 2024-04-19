@@ -3,6 +3,7 @@ package com.codegym.finwallet.service.impl;
 import com.codegym.finwallet.constant.VarConstant;
 import com.codegym.finwallet.dto.AppUserDto;
 import com.codegym.finwallet.dto.CommonResponse;
+import com.codegym.finwallet.dto.payload.request.ChangePasswordRequest;
 import com.codegym.finwallet.dto.payload.request.LoginRequest;
 import com.codegym.finwallet.dto.payload.request.UpdateProfileRequest;
 import com.codegym.finwallet.dto.payload.response.LoginResponse;
@@ -31,6 +32,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -66,6 +68,35 @@ public class AppUserServiceImpl implements AppUserService {
         profile.setAppUser(appUser);
         appUserRepo.save(appUser);
         profileRepository.save(profile);
+    }
+
+    @Override
+    public boolean changePassword(ChangePasswordRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        if (email != null) {
+            AppUser appUser = appUserRepo.findByEmail(email);
+            if (passwordEncoder.matches(request.getCurrentPassword(), appUser.getPassword())) {
+                appUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+                appUserRepo.save(appUser);
+                return true;
+            }
+        }
+        return  false;
+    }
+
+    @Override
+    public boolean deleteUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();;
+        String email = authentication.getName();
+        if (email != null) {
+            AppUser appUser = appUserRepo.findByEmail(email);
+            appUser.setDelete(true);
+            appUserRepo.save(appUser);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
