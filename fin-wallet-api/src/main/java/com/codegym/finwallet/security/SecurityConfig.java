@@ -35,7 +35,7 @@ public class SecurityConfig {
         return http.csrf().disable()
                 .authorizeHttpRequests().requestMatchers("/**").permitAll().and()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/v1/login", "/api/v1/register").permitAll()
+                .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register","/api/v1/auth/forget-password","/api/v1/wallets/**").permitAll()
 //                .and().build();
                 .and()
                 .authorizeHttpRequests().requestMatchers("/api/v1/**")

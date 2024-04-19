@@ -11,6 +11,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -20,12 +22,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private static final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
         logger.debug("Entering in loadUserByUsername Method...");
-        AppUser user = userRepository.findByUsername(username);
-        if(user == null){
-            logger.error("Username not found: " + username);
+        Optional<AppUser> user = userRepository.findAppUserByEmail(email);
+        if(user.isEmpty()){
+            logger.error("Username not found: " + email);
             throw new UsernameNotFoundException("could not found user..!!");
         }
         logger.info("User Authenticated Successfully..!!!");

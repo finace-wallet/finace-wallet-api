@@ -33,6 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+
 //        String authHeader = request.getHeader("Authorization");
 //        String token = null;
 //        String username = null;
@@ -50,10 +51,25 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 //            }
 //
 //        }
+//        String authHeader = request.getHeader("Authorization");
+//        String token = null;
+//        String email = null;
+//        if(authHeader != null && authHeader.startsWith("Bearer ")){
+//            token = authHeader.substring(7);
+//            email = jwtService.extractUsername(token);
+//        }
+//
+//        if(email != null && SecurityContextHolder.getContext().getAuthentication() == null){
+//            UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(email);
+//            if(jwtService.validateToken(token, userDetails)){
+//                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+//                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+//                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         UserDetails userDetails = new UserDetails() {
             @Override
             public Collection<? extends GrantedAuthority> getAuthorities() {
                 return null;
+
             }
 
             @Override

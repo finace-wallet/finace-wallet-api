@@ -14,6 +14,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -31,8 +34,9 @@ public class Wallet {
     private String description;
     private boolean isDelete;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private AppUser appUser;
+
+    @ManyToMany(mappedBy = "wallets")
+    private List<AppUser> users = new ArrayList<>();
+
 
 }
