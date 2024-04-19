@@ -2,7 +2,7 @@ package com.codegym.finwallet.security;
 
 
 import com.codegym.finwallet.entity.AppUser;
-import com.codegym.finwallet.repository.AppUserRepo;
+import com.codegym.finwallet.repository.AppUserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    private AppUserRepo userRepository;
+    private AppUserRepository userRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 
