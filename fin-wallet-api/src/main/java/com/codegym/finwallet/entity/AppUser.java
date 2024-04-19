@@ -42,6 +42,14 @@ public class AppUser {
     )
     private List<Role> roles = new ArrayList<>();
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "user_wallet",
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "wallet_id", referencedColumnName = "id")}
+    )
+    private List<Wallet> wallets = new ArrayList<>();
+
     @OneToOne(mappedBy = "appUser",cascade = CascadeType.ALL)
     private Profile profile;
 }

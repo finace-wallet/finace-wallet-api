@@ -29,6 +29,7 @@ public class AuthController {
         return ResponseEntity.ok("User registered successfully.");
     }
 
+
     @PostMapping ("/forget-password")
     public ResponseEntity<CommonResponse> forgetPassword(@RequestBody AppUserDto appUserDto) {
         CommonResponse commonResponse = appUserService.forgotPassword(appUserDto);
