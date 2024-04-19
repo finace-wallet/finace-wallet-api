@@ -13,4 +13,6 @@ public interface VarConstant {
     String MESSAGE_LOGIN_SUCCESS = "Login successful";
 
     String MESSAGE_LOGIN_FAIL = "Can't login with email: ";
+
+    String FIND_PROFILE_FAIL = "Can't find profile: ";
 }
