@@ -10,19 +10,20 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public class CustomUserDetails extends AppUser implements UserDetails {
 
-    private String username;
+    private String email;
     private String password;
     Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(AppUser byUsername) {
-        this.username = byUsername.getUsername();
-        this.password= byUsername.getPassword();
+    public CustomUserDetails(Optional<AppUser> byUsername) {
+        this.email = byUsername.get().getEmail();
+        this.password= byUsername.get().getPassword();
         List<GrantedAuthority> auths = new ArrayList<>();
 
-        for(Role role : byUsername.getRoles()){
+        for(Role role : byUsername.get().getRoles()){
 
             auths.add(new SimpleGrantedAuthority(role.getRoleType().toUpperCase()));
         }
@@ -41,7 +42,7 @@ public class CustomUserDetails extends AppUser implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
     }
 
     @Override
