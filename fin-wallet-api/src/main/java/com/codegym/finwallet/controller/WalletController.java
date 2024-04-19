@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin("*")
 @RequestMapping("/api/v1/wallets")
 @RequiredArgsConstructor
 public class WalletController {
