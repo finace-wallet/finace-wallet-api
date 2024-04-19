@@ -1,5 +1,6 @@
 package com.codegym.finwallet.controller;
 
+import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepo;
 import com.codegym.finwallet.service.JwtService;
@@ -27,15 +28,10 @@ import java.util.Optional;
 public class WalletController {
 
     private final WalletServiceImpl walletService;
-    private final AppUserRepo appUserRepo;
-    private final JwtService jwtService;
-
-
 
     @GetMapping
-    public ResponseEntity<Page<Wallet>> getAllWallet(Pageable pageable, @RequestHeader("Authorization") String tokenHeader){
-        String username = jwtService.extractUsername(tokenHeader);
-        Page<Wallet> walletsPage = walletService.findAllByEmail(pageable,username);//trả về page(walletDTo)
+    public ResponseEntity<Page<Wallet>> getAllWallet(Pageable pageable){
+        Page<Wallet> walletsPage = walletService.findAllByEmail(pageable);
         return new ResponseEntity<>(walletsPage, HttpStatus.OK);
     }
 
@@ -46,10 +42,9 @@ public class WalletController {
         return new ResponseEntity<>(wallet,HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<Wallet> createWallet(@RequestBody Wallet wallet) {
-        return new ResponseEntity<>(walletService.save(wallet), HttpStatus.CREATED);
+    @PostMapping("/create")
+    public ResponseEntity<Wallet> createWallet(@RequestBody WalletRequest request) {
+        return new ResponseEntity<>(walletService.save(request), HttpStatus.CREATED);
     }
-
 
 }

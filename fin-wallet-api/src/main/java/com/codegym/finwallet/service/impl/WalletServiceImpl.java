@@ -1,10 +1,12 @@
 package com.codegym.finwallet.service.impl;
+import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepo;
 import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,14 +20,18 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class WalletServiceImpl implements WalletService {
     private final WalletRepository walletRepository;
+    private final ModelMapper modelMapper;
 
     @Override
-    public Page<Wallet> findAllByEmail(Pageable pageable, String email) {
+    public Page<Wallet> findAllByEmail(Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
         return walletRepository.findAllByEmail(pageable,email);
     }
 
     @Override
-    public Wallet save(Wallet wallet) {
+    public Wallet save(WalletRequest request) {
+        Wallet wallet = modelMapper.map(request,Wallet.class);
         return walletRepository.save(wallet);
     }
 

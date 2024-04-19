@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,4 +49,7 @@ public class AppUser {
             inverseJoinColumns = {@JoinColumn(name = "wallet_id", referencedColumnName = "id")}
     )
     private List<Wallet> wallets = new ArrayList<>();
+
+    @OneToOne(mappedBy = "appUser",cascade = CascadeType.ALL)
+    private Profile profile;
 }
