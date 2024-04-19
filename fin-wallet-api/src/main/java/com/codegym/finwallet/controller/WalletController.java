@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,18 +32,10 @@ public class WalletController {
     private final AppUserRepo appUserRepo;
     private final JwtService jwtService;
 
-//    @Autowired
-//    public WalletController(WalletServiceImpl walletService, AppUserRepo appUserRepo, JwtService jwtService) {
-//        this.walletService = walletService;
-//        this.appUserRepo = appUserRepo;
-//        this.jwtService = jwtService;
-//    }
+
 
     @GetMapping
     public ResponseEntity<Page<Wallet>> getAllWallet(Pageable pageable, @RequestHeader("Authorization") String tokenHeader){
-//        String token = tokenHeader.substring(7);
-//        String users = jwtService.extractUsername(token);
-//        AppUser user = appUserRepo.findByUsername(users);
         String username = jwtService.extractUsername(tokenHeader);
         Page<Wallet> walletsPage = walletService.findAllByUser(pageable,username);//trả về page(walletDTo)
         return new ResponseEntity<>(walletsPage, HttpStatus.OK);
@@ -50,9 +43,6 @@ public class WalletController {
 
     @GetMapping("/listWallet")
     public ResponseEntity<Iterable<Wallet>> getAllWallet1(@RequestHeader("Authorization") String tokenHeader) {
-//        String token = tokenHeader.substring(7);
-//        String users = jwtService.extractUsername(token);
-//        AppUser user = appUserRepo.findByUsername(users);
         String username = jwtService.extractUsername(tokenHeader);
         Iterable<Wallet> walletsPage = walletService.findAllByUser(username);
         return new ResponseEntity<>(walletsPage,HttpStatus.OK);
@@ -65,7 +55,21 @@ public class WalletController {
     }
 
     @PostMapping
-    public ResponseEntity<Wallet> create(@RequestBody Wallet wallet) {
+    public ResponseEntity<Wallet> save(@RequestBody Wallet wallet) {
         return new ResponseEntity<>(walletService.save(wallet), HttpStatus.CREATED);
     }
+
+//    @PostMapping("/upload")
+//    public ResponseEntity<Wallet> createWallet(@ModelAttribute Wallet wallet,@RequestHeader("Authorization") String tokenHeader){
+//        String username = jwtService.extractUsername(tokenHeader);
+//        Wallet wallets = new Wallet();
+//        wallets.setAmount(wallet.getAmount());
+//        wallets.setIcon(wallet.getIcon());
+//        wallets.setName(wallet.getName());
+//        wallets.setDescription(wallet.getDescription());
+//        wallets.setCurrentType(wallet.getCurrentType());
+//        wallets.setUser(appUserRepo.findByUsername(username));
+//        walletService.save(wallet);
+//
+//    }
 }

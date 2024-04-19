@@ -13,4 +13,5 @@ public interface WalletService {
     void remove(Long id);
     Page<Wallet> findAll(Pageable pageable);
     Optional<Wallet> findById(Long id);
+    
 }
