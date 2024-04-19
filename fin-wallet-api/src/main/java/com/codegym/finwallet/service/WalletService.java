@@ -7,11 +7,9 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 public interface WalletService {
-    Page<Wallet> findAllByUser(Pageable pageable, String username);
-    Iterable<Wallet> findAllByUser(String username);
+    Page<Wallet> findAllByEmail(Pageable pageable, String email);
     Wallet save(Wallet wallet);
     void remove(Long id);
-    Page<Wallet> findAll(Pageable pageable);
-    Optional<Wallet> findById(Long id);
-    
+    Wallet findById(Long id);
+
 }

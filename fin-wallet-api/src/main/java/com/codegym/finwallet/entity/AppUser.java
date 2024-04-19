@@ -41,7 +41,7 @@ public class AppUser {
     )
     private List<Role> roles = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_wallet",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},

@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,18 +18,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class WalletServiceImpl implements WalletService {
     private final WalletRepository walletRepository;
-    private final AppUserRepo appUserRepo;
 
     @Override
-    public Page<Wallet> findAllByUser(Pageable pageable, String username) {
-        AppUser user = appUserRepo.findByUsername(username);
-        return walletRepository.findAllByUser(pageable,user);
-    }
-
-    @Override
-    public Iterable<Wallet> findAllByUser(String username) {
-        AppUser user = appUserRepo.findByUsername(username);
-        return walletRepository.findAllByUser(user);
+    public Page<Wallet> findAllByEmail(Pageable pageable, String email) {
+        return walletRepository.findAllByEmail(pageable,email);
     }
 
     @Override
@@ -41,13 +35,13 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public Page<Wallet> findAll(Pageable pageable) {
-        return walletRepository.findAll(pageable);
-    }
-
-    @Override
-    public Optional<Wallet> findById(Long id) {
-        return walletRepository.findById(id);
+    public Wallet findById(Long id) {
+        Optional<Wallet> wallet = walletRepository.findById(id);
+        Wallet newWallet = new Wallet();
+        if (wallet.isPresent()){
+             newWallet = wallet.get();
+        }
+        return newWallet;
     }
 
 }
