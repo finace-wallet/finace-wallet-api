@@ -33,9 +33,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf().disable()
-                .authorizeHttpRequests().requestMatchers("/**").permitAll().and()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register","/api/v1/auth/forget-password","/api/v1/wallets/**").permitAll()
+                .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register","/api/v1/auth/forget-password"
+                        ).permitAll()
 //                .and().build();
                 .and()
                 .authorizeHttpRequests().requestMatchers("/api/v1/**")

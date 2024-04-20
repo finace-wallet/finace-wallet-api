@@ -1,17 +1,19 @@
 package com.codegym.finwallet.service.impl;
 
-import com.codegym.finwallet.dto.WalletDto;
+import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.WalletService;
+import com.google.api.Http;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,7 @@ public class WalletServiceImpl implements WalletService {
         return walletRepository.save(wallet);
     }
 
+
     @Override
     public void remove(Long id) {
         walletRepository.deleteById(id);
@@ -51,6 +54,34 @@ public class WalletServiceImpl implements WalletService {
              newWallet = wallet.get();
         }
         return newWallet;
+    }
+
+    @Override
+    public CommonResponse editWallet(Long id, WalletRequest walletRequest) {
+        try{
+            Wallet wallet = findById(id);
+            float curentAmount = wallet.getAmount();
+            float inputAmound = walletRequest.getAmount();
+            float newAmount = curentAmount + inputAmound;
+            wallet.setAmount(newAmount);
+            wallet.setIcon(wallet.getIcon());
+            wallet.setName(walletRequest.getName());
+            wallet.setDescription(walletRequest.getDescription());
+            walletRepository.save(wallet);
+
+            return CommonResponse.builder()
+                    .data(wallet)
+                    .message("Thành công!")
+                    .status(HttpStatus.OK)
+                    .build();
+        }catch (SecurityException e){
+            return CommonResponse.builder()
+                    .data(null)
+                    .message("Thất bại")
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build();
+        }
+
     }
 
 

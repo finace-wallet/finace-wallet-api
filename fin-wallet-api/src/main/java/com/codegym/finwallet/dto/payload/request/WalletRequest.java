@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class WalletRequest {
     private String icon;
-    private double amount;
+    private float amount;
     private String currentType;
     private String description;
     private String name;
