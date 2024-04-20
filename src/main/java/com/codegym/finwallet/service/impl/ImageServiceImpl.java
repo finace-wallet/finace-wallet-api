@@ -1,6 +1,6 @@
 package com.codegym.finwallet.service.impl;
 
-import com.codegym.finwallet.constant.VarConstant;
+import com.codegym.finwallet.constant.UserConstant;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.response.ProfileResponse;
 import com.codegym.finwallet.entity.Profile;
@@ -14,6 +14,7 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,24 +36,32 @@ import java.util.UUID;
 public class ImageServiceImpl implements ImageService {
     private final ModelMapper modelMapper;
     private final ProfileRepository profileRepository;
-    private final String USER_PROFILE_AVATAR_SUCCESS_MESSAGE = VarConstant.USER_PROFILE_AVATAR_SUCCESS;
-    private final String USER_PROFILE_AVATAR_FAIL_MESSAGE = VarConstant.USER_PROFILE_AVATAR_FAIL_MESSAGE;
-    private final String BUCKET_NAME = VarConstant.BUCKET_NAME;
-    private final String PRIVATE_KEY_FILE_NAME = VarConstant.PRIVATE_KEY_FILE_NAME;
-    private final String CONTENT_TYPE_MEDIA = VarConstant.CONTENT_TYPE_MEDIA;
-    private final String IMAGE_DOWNLOAD_URL = VarConstant.IMAGE_DOWNLOAD_URL;
+
+    @Value("${firebase.bucket-name}")
+    private String fbBucketName;
+
+    @Value("${firebase.private-key}")
+    private String fbPrivateKey;
+
+    @Value("${firebase.content-type}")
+    private String fbContentType;
+
+    @Value("${firebase.image-download-url}")
+    private String fbImgDownloadUrl;
 
     @Override
     public String uploadFile(File file, String fileName) throws IOException {
-        BlobId blobId = BlobId.of(BUCKET_NAME, fileName);
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(CONTENT_TYPE_MEDIA).build();
-        InputStream inputStream = ImageService.class.getClassLoader().getResourceAsStream(PRIVATE_KEY_FILE_NAME);
-        Credentials credentials = GoogleCredentials.fromStream(inputStream);
-        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
-        storage.create(blobInfo, Files.readAllBytes(file.toPath()));
+        BlobId blobId = BlobId.of(fbBucketName, fileName);
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(fbContentType).build();
+        InputStream inputStream = ImageService.class.getClassLoader().getResourceAsStream(fbPrivateKey);
 
-        String DOWNLOAD_URL = IMAGE_DOWNLOAD_URL;
-        return String.format(DOWNLOAD_URL, URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+        if (inputStream != null) {
+            Credentials credentials = GoogleCredentials.fromStream(inputStream);
+            Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+            storage.create(blobInfo, Files.readAllBytes(file.toPath()));
+        }
+
+        return String.format(fbImgDownloadUrl, URLEncoder.encode(fileName, StandardCharsets.UTF_8));
     }
 
     @Override
@@ -74,7 +83,7 @@ public class ImageServiceImpl implements ImageService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         Optional<Profile> profileOptional = profileRepository.findProfileByEmail(email);
-        Profile profile = new Profile();
+        Profile profile;
         ProfileResponse profileResponse = new ProfileResponse();
         try {
             String fileName = multipartFile.getOriginalFilename();
@@ -92,13 +101,13 @@ public class ImageServiceImpl implements ImageService {
             }
             return CommonResponse.builder()
                     .data(profileResponse)
-                    .message(USER_PROFILE_AVATAR_SUCCESS_MESSAGE)
+                    .message(UserConstant.USER_PROFILE_AVATAR_SUCCESS)
                     .status(HttpStatus.OK)
                     .build();
         } catch (Exception e) {
             return CommonResponse.builder()
                     .data(null)
-                    .message(USER_PROFILE_AVATAR_FAIL_MESSAGE)
+                    .message(UserConstant.USER_PROFILE_AVATAR_FAIL_MESSAGE)
                     .status(HttpStatus.BAD_REQUEST)
                     .build();
         }

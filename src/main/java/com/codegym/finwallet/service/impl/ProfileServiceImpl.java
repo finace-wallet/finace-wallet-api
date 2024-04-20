@@ -1,6 +1,7 @@
 package com.codegym.finwallet.service.impl;
 
-import com.codegym.finwallet.constant.VarConstant;
+import com.codegym.finwallet.constant.AuthConstant;
+import com.codegym.finwallet.constant.UserConstant;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.ProfileRequest;
 import com.codegym.finwallet.entity.Profile;
@@ -19,13 +20,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
     private final ProfileRepository profileRepository;
-    private String FIND_PROFILE_FAILE_MESSAGE = VarConstant.FIND_PROFILE_FAIL;
     private final ModelMapper modelMapper;
 
     @Override
     public Profile findProfileByEmail(String email) {
         Optional<Profile> profile = profileRepository.findProfileByEmail(email);
-        return  profile.orElseThrow(() -> new RuntimeException(FIND_PROFILE_FAILE_MESSAGE + email));
+        return  profile.orElseThrow(() -> new RuntimeException(UserConstant.FIND_PROFILE_FAIL + email));
     }
 
     @Override
