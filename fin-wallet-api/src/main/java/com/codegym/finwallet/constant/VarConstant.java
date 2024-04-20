@@ -22,7 +22,15 @@ public interface VarConstant {
 
     String DELETE_USER_SUCCESSFUL = "Delete user successfully";
 
-    String UPDATE_PROFILE_AVATAR_SUCCESS = "Update profile successful";
+    String USER_PROFILE_AVATAR_SUCCESS = "Update profile successful";
 
-    String UPDATE_PROFILE_AVATAR_FAIL = "Image couldn't upload, Something went wrong!";
+    String USER_PROFILE_AVATAR_FAIL_MESSAGE = "Image couldn't upload, Something went wrong!";
+
+    String BUCKET_NAME = "fin-wallet-ee07d.appspot.com";
+
+    String PRIVATE_KEY_FILE_NAME = "firebase-private-key.json";
+
+    String CONTENT_TYPE_MEDIA = "media";
+
+    String IMAGE_DOWNLOAD_URL = "https://firebasestorage.googleapis.com/v0/b/fin-wallet-ee07d.appspot.com/o/%s?alt=media";
 }

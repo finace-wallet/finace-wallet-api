@@ -2,7 +2,7 @@ package com.codegym.finwallet.service.impl;
 
 import com.codegym.finwallet.constant.VarConstant;
 import com.codegym.finwallet.dto.CommonResponse;
-import com.codegym.finwallet.dto.payload.request.UpdateProfileRequest;
+import com.codegym.finwallet.dto.payload.request.ProfileRequest;
 import com.codegym.finwallet.entity.Profile;
 import com.codegym.finwallet.repository.ProfileRepository;
 import com.codegym.finwallet.service.ProfileService;
@@ -34,7 +34,7 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public CommonResponse UpdateProfile(UpdateProfileRequest request) {
+    public CommonResponse updateProfile(ProfileRequest request) {
         CommonResponse commonResponse = new CommonResponse();
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

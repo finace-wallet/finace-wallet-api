@@ -5,7 +5,6 @@ import com.codegym.finwallet.dto.AppUserDto;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.ChangePasswordRequest;
 import com.codegym.finwallet.dto.payload.request.LoginRequest;
-import com.codegym.finwallet.dto.payload.request.UpdateProfileRequest;
 import com.codegym.finwallet.dto.payload.response.LoginResponse;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Profile;
@@ -32,7 +31,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.Random;
 
 @Service
