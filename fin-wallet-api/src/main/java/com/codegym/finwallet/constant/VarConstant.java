@@ -16,6 +16,12 @@ public interface VarConstant {
 
     String FIND_PROFILE_FAIL = "Can't find profile: ";
 
+    String CHANGE_PASSWORD_SUCCESSFUL = "ChangePassword successfully";
+
+    String USER_NOT_FOUND = "User not found";
+
+    String DELETE_USER_SUCCESSFUL = "Delete user successfully";
+
     String UPDATE_PROFILE_AVATAR_SUCCESS = "Update profile successful";
 
     String UPDATE_PROFILE_AVATAR_FAIL = "Image couldn't upload, Something went wrong!";
