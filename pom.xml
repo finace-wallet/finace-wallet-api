@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.codegym</groupId>
-	<artifactId>fin-wallet</artifactId>
+	<artifactId>fin-wallet-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>fin-wallet</name>
+	<name>fin-wallet-api</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>21</java.version>
