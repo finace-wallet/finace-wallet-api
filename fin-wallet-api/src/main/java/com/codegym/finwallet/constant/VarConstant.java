@@ -15,4 +15,8 @@ public interface VarConstant {
     String MESSAGE_LOGIN_FAIL = "Can't login with email: ";
 
     String FIND_PROFILE_FAIL = "Can't find profile: ";
+
+    String UPDATE_PROFILE_AVATAR_SUCCESS = "Update profile successful";
+
+    String UPDATE_PROFILE_AVATAR_FAIL = "Image couldn't upload, Something went wrong!";
 }

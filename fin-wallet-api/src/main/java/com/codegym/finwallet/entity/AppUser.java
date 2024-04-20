@@ -42,6 +42,6 @@ public class AppUser {
     )
     private List<Role> roles = new ArrayList<>();
 
-    @OneToOne(mappedBy = "appUser",cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "appUser",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Profile profile;
 }

@@ -25,12 +25,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.flywaydb/flyway-mysql -->
-		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-mysql</artifactId>
-			<version>10.10.0</version>
-		</dependency>
+<!--		&lt;!&ndash; https://mvnrepository.com/artifact/org.flywaydb/flyway-mysql &ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>org.flywaydb</groupId>-->
+<!--			<artifactId>flyway-mysql</artifactId>-->
+<!--			<version>10.10.0</version>-->
+<!--		</dependency>-->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
