@@ -20,4 +20,4 @@ CREATE TABLE user_roles(
     FOREIGN KEY (role_id) REFERENCES role(id)
 );
 
-CREATE TABLE 
+CREATE TABLE
