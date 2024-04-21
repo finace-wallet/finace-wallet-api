@@ -1,6 +1,6 @@
 package com.codegym.finwallet.controller;
 
-import com.codegym.finwallet.constant.VarConstant;
+import com.codegym.finwallet.constant.UserConstant;
 import com.codegym.finwallet.dto.AppUserDto;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.ChangePasswordRequest;
@@ -22,9 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final AppUserService appUserService;
-    private final String CHANGE_PASSWORD_SUCCESSFUL = VarConstant.CHANGE_PASSWORD_SUCCESSFUL;
-    private final String USER_NOT_FOUND = VarConstant.USER_NOT_FOUND;
-    private final String DELETE_USER_SUCCESSFUL = VarConstant.DELETE_USER_SUCCESSFUL;
 
     @Autowired
     public AuthController(AppUserService appUserService) {
@@ -41,9 +38,9 @@ public class AuthController {
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
         boolean isChanged = appUserService.changePassword(request);
         if (isChanged) {
-            return ResponseEntity.ok().body(CHANGE_PASSWORD_SUCCESSFUL);
+            return ResponseEntity.ok().body(UserConstant.CHANGE_PASSWORD_SUCCESSFUL);
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(USER_NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(UserConstant.USER_NOT_FOUND);
         }
     }
 
@@ -51,9 +48,9 @@ public class AuthController {
     private ResponseEntity<?> deleteUserById() {
         boolean delete = appUserService.deleteUser();
         if (delete) {
-            return ResponseEntity.ok().body(DELETE_USER_SUCCESSFUL);
+            return ResponseEntity.ok().body(UserConstant.DELETE_USER_SUCCESSFUL);
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(USER_NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(UserConstant.USER_NOT_FOUND);
         }
     }
 

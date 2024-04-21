@@ -1,7 +1,7 @@
 package com.codegym.finwallet.service;
 
 import com.codegym.finwallet.dto.CommonResponse;
-import com.codegym.finwallet.dto.payload.request.UpdateProfileRequest;
+import com.codegym.finwallet.dto.payload.request.ProfileRequest;
 import com.codegym.finwallet.entity.Profile;
 
 public interface ProfileService {
@@ -9,5 +9,5 @@ public interface ProfileService {
 
     void saveProfile(Profile profile);
 
-    CommonResponse UpdateProfile(UpdateProfileRequest request);
+    CommonResponse updateProfile(ProfileRequest request);
 }

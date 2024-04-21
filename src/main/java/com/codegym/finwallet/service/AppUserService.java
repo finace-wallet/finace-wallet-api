@@ -4,8 +4,6 @@ import com.codegym.finwallet.dto.AppUserDto;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.ChangePasswordRequest;
 import com.codegym.finwallet.dto.payload.request.LoginRequest;
-import com.codegym.finwallet.dto.payload.request.UpdateProfileRequest;
-import com.codegym.finwallet.entity.AppUser;
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface AppUserService {

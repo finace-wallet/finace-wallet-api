@@ -18,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -36,7 +38,13 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public Wallet save(WalletRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        AppUser appUser = appUserRepository.findByEmail(email);
+        List<AppUser> appUsers = new ArrayList<>();
+        appUsers.add(appUser);
         Wallet wallet = modelMapper.map(request,Wallet.class);
+        wallet.setUsers(appUsers);
         return walletRepository.save(wallet);
     }
 
@@ -64,7 +72,7 @@ public class WalletServiceImpl implements WalletService {
             float inputAmound = walletRequest.getAmount();
             float newAmount = curentAmount + inputAmound;
             wallet.setAmount(newAmount);
-            wallet.setIcon(wallet.getIcon());
+            wallet.setIcon(walletRequest.getIcon());
             wallet.setName(walletRequest.getName());
             wallet.setDescription(walletRequest.getDescription());
             walletRepository.save(wallet);

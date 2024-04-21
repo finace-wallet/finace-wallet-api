@@ -1,11 +1,11 @@
 package com.codegym.finwallet.service.impl;
 
-import com.codegym.finwallet.constant.VarConstant;
+import com.codegym.finwallet.constant.AuthConstant;
+import com.codegym.finwallet.constant.UserConstant;
 import com.codegym.finwallet.dto.AppUserDto;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.ChangePasswordRequest;
 import com.codegym.finwallet.dto.payload.request.LoginRequest;
-import com.codegym.finwallet.dto.payload.request.UpdateProfileRequest;
 import com.codegym.finwallet.dto.payload.response.LoginResponse;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Profile;
@@ -37,7 +37,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.Collections;
 import java.util.Random;
 
 @Service
@@ -48,13 +48,9 @@ public class AppUserServiceImpl implements AppUserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepo;
     private final ModelMapper modelMapper;
-    private int passwordLength = VarConstant.PASSWORD_MAX_LENGTH;
-    private String SUBJECT = VarConstant.SUBJECT;
     private final JavaMailSender mailSender;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
-    private final String loginSuccessMessage = VarConstant.MESSAGE_LOGIN_SUCCESS;
-    private final String loginFailMessage = VarConstant.MESSAGE_LOGIN_FAIL;
     private final ProfileRepository profileRepository;
     private final WalletRepository walletRepository;
 
@@ -66,8 +62,8 @@ public class AppUserServiceImpl implements AppUserService {
         appUser.setEmail(appUserDto.getEmail());
         appUser.setPassword(passwordEncoder.encode(appUserDto.getPassword()));
 
-        Role role = roleRepo.findByRoleType(VarConstant.ROLE_TYPE_USER);
-        appUser.setRoles(Arrays.asList(role));
+        Role role = roleRepo.findByRoleType(AuthConstant.ROLE_TYPE_USER);
+        appUser.setRoles(Collections.singletonList(role));
         appUser.setActive(true);
 
 
@@ -121,7 +117,7 @@ public class AppUserServiceImpl implements AppUserService {
 
         Random random = new Random();
 
-        for (int i = 0; i < passwordLength; i++) {
+        for (int i = 0; i < UserConstant.PASSWORD_MAX_LENGTH; i++) {
             int randomIndex = random.nextInt(allChars.length());
             password.append(allChars.charAt(randomIndex));
         }
@@ -133,7 +129,7 @@ public class AppUserServiceImpl implements AppUserService {
     public void sendEmail(String email, String newPassword) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
-        message.setSubject(SUBJECT);
+        message.setSubject(UserConstant.SUBJECT);
         message.setText(newPassword);
         mailSender.send(message);
     }
@@ -174,7 +170,7 @@ public class AppUserServiceImpl implements AppUserService {
         }catch (AuthenticationException e){
             return CommonResponse.builder()
                     .data(null)
-                    .message(loginFailMessage + loginRequest.getEmail())
+                    .message(UserConstant.MESSAGE_LOGIN_FAIL + loginRequest.getEmail())
                     .status(HttpStatus.NOT_FOUND)
                     .build();
         }
@@ -186,7 +182,7 @@ public class AppUserServiceImpl implements AppUserService {
             loginResponse.setAccessToken(accessToken);
             return CommonResponse.builder()
                     .data(loginResponse)
-                    .message(loginSuccessMessage)
+                    .message(UserConstant.MESSAGE_LOGIN_SUCCESS)
                     .status(HttpStatus.OK)
                     .build();
         }
