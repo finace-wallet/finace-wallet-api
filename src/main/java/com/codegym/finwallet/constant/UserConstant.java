@@ -16,4 +16,6 @@ public class UserConstant {
     public static final String CREATE_USER_FAIL_MESSAGE = "Can't create user with email: ";
     public static final String SEND_PASSWORD_SUCCESSFUL_MESSAGE = "Send password successfully";
     public static final String SEND_PASSWORD_FAIL_MESSAGE = "Can't send password with email: ";
+    public static final String LOGOUT_SUCCESSFUL_MESSAGE = "Logout successfully";
+    public static final String LOGOUT_FAIL_MESSAGE = "Can't logout!";
 }

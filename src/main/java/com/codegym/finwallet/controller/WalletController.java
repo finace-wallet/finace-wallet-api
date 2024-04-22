@@ -4,8 +4,8 @@ package com.codegym.finwallet.controller;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.Wallet;
-import com.codegym.finwallet.service.impl.WalletServiceImpl;
 import com.codegym.finwallet.service.WalletService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -29,19 +28,19 @@ public class WalletController {
     private final WalletService walletService;
 
 
-    @PutMapping("/edit-wallet/{id}")
-    public ResponseEntity<?> update(@Valid @RequestBody WalletRequest walletRequest, @PathVariable Long id){
-        CommonResponse commonResponse = walletService.editWallet(id,walletRequest);
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<?> update(@RequestBody WalletRequest walletRequest, @PathVariable Long id){
+        CommonResponse commonResponse = walletService.editWallet(walletRequest,id);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        walletService.remove(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PutMapping("/delete/{id}")
+    public ResponseEntity<CommonResponse> delete(@PathVariable Long id) {
+        CommonResponse commonResponse = walletService.deleteWallet(id);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 
-    @GetMapping
+    @GetMapping("/list")
     public ResponseEntity<Page<Wallet>> getAllWallet(Pageable pageable){
         Page<Wallet> walletsPage = walletService.findAllByEmail(pageable);
         return new ResponseEntity<>(walletsPage, HttpStatus.OK);
@@ -55,8 +54,9 @@ public class WalletController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Wallet> createWallet(@RequestBody WalletRequest request) {
-        return new ResponseEntity<>(walletService.save(request), HttpStatus.CREATED);
+    public ResponseEntity<CommonResponse> createWallet(@RequestBody WalletRequest request) {
+        CommonResponse commonResponse = walletService.createWallet(request);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 
 }
