@@ -50,11 +50,6 @@ public class WalletServiceImpl implements WalletService {
 
 
     @Override
-    public Wallet edit(Long id) {
-        return walletRepository.save(walletRepository.findById(id).get());
-    }
-
-    @Override
     public void remove(Long id) {
         walletRepository.deleteById(id);
     }

@@ -15,11 +15,9 @@ import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.repository.RoleRepository;
 
 import com.codegym.finwallet.entity.Wallet;
-
+import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.repository.ProfileRepository;
-
 import com.codegym.finwallet.repository.WalletRepository;
-
 import com.codegym.finwallet.service.AppUserService;
 import com.codegym.finwallet.service.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,15 +34,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
 public class AppUserServiceImpl implements AppUserService {
-
-    private final AppUserRepository appUserRepo;
+    private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepo;
     private final ModelMapper modelMapper;
@@ -72,7 +68,7 @@ public class AppUserServiceImpl implements AppUserService {
         Wallet wallet = new Wallet();
         walletRepository.save(wallet);
         profile.setAppUser(appUser);
-        appUserRepo.save(appUser);
+        appUserRepository.save(appUser);
         profileRepository.save(profile);
     }
 
@@ -81,10 +77,10 @@ public class AppUserServiceImpl implements AppUserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         if (email != null) {
-            AppUser appUser = appUserRepo.findByEmail(email);
+            AppUser appUser = appUserRepository.findByEmail(email);
             if (passwordEncoder.matches(request.getCurrentPassword(), appUser.getPassword())) {
                 appUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
-                appUserRepo.save(appUser);
+                appUserRepository.save(appUser);
                 return true;
             }
         }
@@ -96,9 +92,9 @@ public class AppUserServiceImpl implements AppUserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();;
         String email = authentication.getName();
         if (email != null) {
-            AppUser appUser = appUserRepo.findByEmail(email);
+            AppUser appUser = appUserRepository.findByEmail(email);
             appUser.setDelete(true);
-            appUserRepo.save(appUser);
+            appUserRepository.save(appUser);
             return true;
         } else {
             return false;
@@ -139,10 +135,10 @@ public class AppUserServiceImpl implements AppUserService {
         String email = appUserDto.getEmail();
         String newPassword = generatePassword();
         String newPassEncode = passwordEncoder.encode(newPassword);
-        return appUserRepo.findAppUserByEmail(email)
+        return appUserRepository.findAppUserByEmail(email)
                 .map(appUser -> {
                     appUser.setPassword(newPassEncode);
-                    appUserRepo.save(appUser);
+                    appUserRepository.save(appUser);
                     sendEmail(email,newPassword);
                     return CommonResponse.builder()
                             .data(null)
