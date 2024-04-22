@@ -1,25 +1,22 @@
 package com.codegym.finwallet.service.impl;
 
 import com.codegym.finwallet.constant.AuthConstant;
+import com.codegym.finwallet.constant.CharacterConstant;
 import com.codegym.finwallet.constant.UserConstant;
-import com.codegym.finwallet.dto.AppUserDto;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.ChangePasswordRequest;
+import com.codegym.finwallet.dto.payload.request.ForgotPasswordRequest;
 import com.codegym.finwallet.dto.payload.request.LoginRequest;
+import com.codegym.finwallet.dto.payload.request.RegisterRequest;
 import com.codegym.finwallet.dto.payload.response.LoginResponse;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Profile;
 import com.codegym.finwallet.entity.Role;
-
-import com.codegym.finwallet.repository.AppUserRepository;
-import com.codegym.finwallet.repository.RoleRepository;
-
 import com.codegym.finwallet.entity.Wallet;
-
+import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.repository.ProfileRepository;
-
+import com.codegym.finwallet.repository.RoleRepository;
 import com.codegym.finwallet.repository.WalletRepository;
-
 import com.codegym.finwallet.service.AppUserService;
 import com.codegym.finwallet.service.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,17 +33,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
 public class AppUserServiceImpl implements AppUserService {
 
-    private final AppUserRepository appUserRepo;
+    private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepo;
+    private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
     private final JavaMailSender mailSender;
     private final AuthenticationManager authenticationManager;
@@ -54,26 +51,38 @@ public class AppUserServiceImpl implements AppUserService {
     private final ProfileRepository profileRepository;
     private final WalletRepository walletRepository;
 
-
     @Override
-    public void saveUser(AppUserDto appUserDto) {
-        AppUser appUser = new AppUser();
-        appUser.setUsername(appUserDto.getUsername());
-        appUser.setEmail(appUserDto.getEmail());
-        appUser.setPassword(passwordEncoder.encode(appUserDto.getPassword()));
+    public CommonResponse createUser(RegisterRequest request) {
+        String email = request.getEmail();
+        Optional<AppUser> appUserOptional = appUserRepository.findAppUserByEmail(email);
+        if (appUserOptional.isEmpty()  && isRoleExist()){
+            AppUser appUser = new AppUser();
+            appUser.setEmail(request.getEmail());
+            appUser.setPassword(passwordEncoder.encode(request.getPassword()));
+            Role role = roleRepository.findByRoleType(AuthConstant.ROLE_TYPE_USER);
+            appUser.setActive(true);
+            appUser.setDelete(false);
 
-        Role role = roleRepo.findByRoleType(AuthConstant.ROLE_TYPE_USER);
-        appUser.setRoles(Collections.singletonList(role));
-        appUser.setActive(true);
+            Profile profile = new Profile();
+            Wallet wallet = new Wallet();
+            wallet.setUsers(Collections.singletonList(appUser));
+            walletRepository.save(wallet);
+            profile.setAppUser(appUser);
+            appUserRepository.save(appUser);
+            profileRepository.save(profile);
 
+            return CommonResponse.builder()
+                    .data(null)
+                    .message(UserConstant.CREATE_USER_SUCCESSFUL_MESSAGE)
+                    .status(HttpStatus.CREATED)
+                    .build();
 
-
-        Profile profile = new Profile();
-        Wallet wallet = new Wallet();
-        walletRepository.save(wallet);
-        profile.setAppUser(appUser);
-        appUserRepo.save(appUser);
-        profileRepository.save(profile);
+        }
+        return CommonResponse.builder()
+                .data(null)
+                .message(UserConstant.CREATE_USER_FAIL_MESSAGE + email)
+                .status(HttpStatus.BAD_REQUEST)
+                .build();
     }
 
     @Override
@@ -81,10 +90,10 @@ public class AppUserServiceImpl implements AppUserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         if (email != null) {
-            AppUser appUser = appUserRepo.findByEmail(email);
+            AppUser appUser = appUserRepository.findByEmail(email);
             if (passwordEncoder.matches(request.getCurrentPassword(), appUser.getPassword())) {
                 appUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
-                appUserRepo.save(appUser);
+                appUserRepository.save(appUser);
                 return true;
             }
         }
@@ -96,9 +105,9 @@ public class AppUserServiceImpl implements AppUserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();;
         String email = authentication.getName();
         if (email != null) {
-            AppUser appUser = appUserRepo.findByEmail(email);
+            AppUser appUser = appUserRepository.findByEmail(email);
             appUser.setDelete(true);
-            appUserRepo.save(appUser);
+            appUserRepository.save(appUser);
             return true;
         } else {
             return false;
@@ -106,14 +115,29 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
+    public boolean isRoleExist() {
+        return roleRepository.existsByRoleType(AuthConstant.ROLE_TYPE_USER);
+    }
+
+    @Override
+    public boolean isUserActiveAndNotDelete(String email) {
+        AppUser user = appUserRepository.findByEmail(email);
+        boolean isUserActive = user.isActive();
+        boolean isUserDelete = user.isDelete();
+        if (isUserActive && !isUserDelete) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public String generatePassword() {
         StringBuilder password = new StringBuilder();
-        String upperCaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        String lowerCaseChars = "abcdefghijklmnopqrstuvwxyz";
-        String numericChars = "0123456789";
-        String specialChars = "!@#$%^&*()-_=+[{]}|;:,<.>?";
 
-        String allChars = upperCaseChars + lowerCaseChars + numericChars + specialChars;
+        String allChars = CharacterConstant.CHARACTER_UPPER_CASE
+                + CharacterConstant.CHARACTER_LOWER_CASE
+                + CharacterConstant.CHARACTER_NUMBERS
+                + CharacterConstant.CHARACTER_SPECIALS;
 
         Random random = new Random();
 
@@ -135,30 +159,30 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
-    public CommonResponse forgotPassword(AppUserDto appUserDto) {
-        String email = appUserDto.getEmail();
+    public CommonResponse forgotPassword(ForgotPasswordRequest request) {
+        String email = request.getEmail();
         String newPassword = generatePassword();
         String newPassEncode = passwordEncoder.encode(newPassword);
-        return appUserRepo.findAppUserByEmail(email)
+        return appUserRepository.findAppUserByEmail(email)
                 .map(appUser -> {
                     appUser.setPassword(newPassEncode);
-                    appUserRepo.save(appUser);
+                    appUserRepository.save(appUser);
                     sendEmail(email,newPassword);
                     return CommonResponse.builder()
                             .data(null)
-                            .message("Gửi mật khẩu mới của người dùng về mail thành công!")
+                            .message(UserConstant.SEND_PASSWORD_SUCCESSFUL_MESSAGE)
                             .status(HttpStatus.OK)
                             .build();
                 })
                 .orElse(CommonResponse.builder()
                         .data(null)
-                        .message("Email không tồn tại!")
+                        .message(UserConstant.SEND_PASSWORD_FAIL_MESSAGE+ email)
                         .status(HttpStatus.NOT_FOUND)
                         .build());
     }
 
     @Override
-    public CommonResponse Login(LoginRequest loginRequest, HttpServletResponse response) {
+    public CommonResponse login(LoginRequest loginRequest, HttpServletResponse response) {
         AppUser appUser = modelMapper.map(loginRequest, AppUser.class);
         Authentication authentication ;
         try{
@@ -170,13 +194,13 @@ public class AppUserServiceImpl implements AppUserService {
         }catch (AuthenticationException e){
             return CommonResponse.builder()
                     .data(null)
-                    .message(UserConstant.MESSAGE_LOGIN_FAIL + loginRequest.getEmail())
+                    .message(UserConstant.MESSAGE_LOGIN_FAIL_AUTHORIZATION + loginRequest.getEmail())
                     .status(HttpStatus.NOT_FOUND)
                     .build();
         }
 
 
-        if (authentication.isAuthenticated()) {
+        if (authentication.isAuthenticated() && isUserActiveAndNotDelete(authentication.getName())) {
             String accessToken = jwtService.GenerateToken(loginRequest.getEmail());
             LoginResponse loginResponse = modelMapper.map(appUser, LoginResponse.class);
             loginResponse.setAccessToken(accessToken);
@@ -186,6 +210,11 @@ public class AppUserServiceImpl implements AppUserService {
                     .status(HttpStatus.OK)
                     .build();
         }
-        return null;
+        return CommonResponse.builder()
+                .data(null)
+                .message(UserConstant.MESSAGE_LOGIN_FAIL)
+                .status(HttpStatus.NOT_FOUND)
+                .build();
     }
+
 }
