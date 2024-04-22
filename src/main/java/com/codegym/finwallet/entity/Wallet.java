@@ -39,4 +39,8 @@ public class Wallet {
     private List<AppUser> users = new ArrayList<>();
 
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private AppUser appUser;
+
 }
