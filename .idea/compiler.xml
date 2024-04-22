@@ -7,15 +7,16 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="fin-wallet-api" />
+        <module name="fin-wallet" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="fin-wallet" target="20" />
+      <module name="fin-wallet-api" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="fin-wallet" options="-parameters" />
       <module name="fin-wallet-api" options="-parameters" />
     </option>
   </component>
