@@ -1,4 +1,8 @@
 package com.codegym.finwallet.service;
+
+
+
+import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Wallet;
@@ -13,4 +17,5 @@ public interface WalletService {
     void remove(Long id);
     Wallet findById(Long id);
 
+    CommonResponse editWallet(Long id, WalletRequest walletRequest);
 }
