@@ -34,8 +34,10 @@ public class Wallet {
     private String description;
     private boolean isDelete;
 
+
     @ManyToMany(mappedBy = "wallets")
-    private List<AppUser> user = new ArrayList<>();
+    private List<AppUser> users = new ArrayList<>();
+
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")

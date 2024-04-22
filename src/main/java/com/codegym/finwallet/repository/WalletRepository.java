@@ -8,8 +8,10 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 
 public interface WalletRepository extends JpaRepository<Wallet,Long> {
-    @Query("SELECT w FROM Wallet w JOIN w.user u WHERE u.email = :appUserEmail")
+
+    @Query("SELECT w FROM Wallet w JOIN w.users u WHERE u.email = :appUserEmail")
     Page<Wallet> findAllByEmail(Pageable pageable, String appUserEmail);
 
     Optional<Wallet> findById(Long id);
+
 }
