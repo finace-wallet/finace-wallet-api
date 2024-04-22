@@ -51,4 +51,7 @@ public class AppUser {
 
     @OneToOne(mappedBy = "appUser",cascade = CascadeType.ALL)
     private Profile profile;
+
+    @OneToOne(mappedBy = "user")
+    private TokenBlackList tokenBlackList;
 }
