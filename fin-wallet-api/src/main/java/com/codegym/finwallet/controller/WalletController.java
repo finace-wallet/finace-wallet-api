@@ -1,25 +1,29 @@
 package com.codegym.finwallet.controller;
 
 
-import com.codegym.finwallet.dto.CommonResponse;
+
+
+import com.codegym.finwallet.dto.WalletDto;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.Wallet;
-import com.codegym.finwallet.service.impl.WalletServiceImpl;
+import com.codegym.finwallet.service.JwtService;
 import com.codegym.finwallet.service.WalletService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/wallets")
@@ -29,8 +33,8 @@ public class WalletController {
     private final WalletService walletService;
 
 
-    @PutMapping("/edit-wallet/{id}")
-    public ResponseEntity<?> update(@Valid @RequestBody WalletRequest walletRequest, @PathVariable Long id){
+    @PutMapping("/edit-wallet")
+    public ResponseEntity<?> update(@Valid @RequestBody WalletRequest walletRequest, @RequestParam Long id){
         CommonResponse commonResponse = walletService.editWallet(id,walletRequest);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }

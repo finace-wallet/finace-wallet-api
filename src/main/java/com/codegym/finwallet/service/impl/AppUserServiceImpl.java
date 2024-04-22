@@ -40,7 +40,6 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class AppUserServiceImpl implements AppUserService {
-
     private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
@@ -77,13 +76,17 @@ public class AppUserServiceImpl implements AppUserService {
                     .status(HttpStatus.CREATED)
                     .build();
 
-        }
         return CommonResponse.builder()
                 .data(null)
                 .message(UserConstant.CREATE_USER_FAIL_MESSAGE + email)
                 .status(HttpStatus.BAD_REQUEST)
                 .build();
-    }
+        Profile profile = new Profile();
+        Wallet wallet = new Wallet();
+        walletRepository.save(wallet);
+        profile.setAppUser(appUser);
+        appUserRepository.save(appUser);
+        profileRepository.save(profile);
 
     @Override
     public boolean changePassword(ChangePasswordRequest request) {
