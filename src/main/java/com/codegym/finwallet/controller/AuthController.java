@@ -7,7 +7,6 @@ import com.codegym.finwallet.dto.payload.request.ForgotPasswordRequest;
 import com.codegym.finwallet.dto.payload.request.LoginRequest;
 import com.codegym.finwallet.dto.payload.request.RegisterRequest;
 import com.codegym.finwallet.service.AppUserService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

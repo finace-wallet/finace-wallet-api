@@ -64,11 +64,8 @@ public class AppUserServiceImpl implements AppUserService {
             Role role = roleRepository.findByRoleType(AuthConstant.ROLE_TYPE_USER);
             appUser.setActive(true);
             appUser.setDelete(false);
-
+            appUser.setRoles(Collections.singletonList(role));
             Profile profile = new Profile();
-            Wallet wallet = new Wallet();
-            wallet.setUsers(Collections.singletonList(appUser));
-            walletRepository.save(wallet);
             profile.setAppUser(appUser);
             appUserRepository.save(appUser);
             profileRepository.save(profile);

@@ -1,6 +1,5 @@
 package com.codegym.finwallet.repository;
 
-import com.codegym.finwallet.constant.HqlConstant;
 import com.codegym.finwallet.entity.TokenBlackList;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
