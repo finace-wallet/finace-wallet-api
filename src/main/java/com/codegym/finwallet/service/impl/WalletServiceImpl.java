@@ -45,6 +45,7 @@ public class WalletServiceImpl implements WalletService {
         appUsers.add(appUser);
         Wallet wallet = modelMapper.map(request,Wallet.class);
         wallet.setUsers(appUsers);
+        wallet.setAppUser(appUser);
         return walletRepository.save(wallet);
     }
 

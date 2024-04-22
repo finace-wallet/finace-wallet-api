@@ -3,14 +3,20 @@ package com.codegym.finwallet.controller;
 
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
+import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Wallet;
+import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.service.impl.WalletServiceImpl;
 import com.codegym.finwallet.service.WalletService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +34,8 @@ public class WalletController {
 
     private final WalletService walletService;
 
-
+    @Autowired
+    private final AppUserRepository userRepository;
     @PutMapping("/edit-wallet/{id}")
     public ResponseEntity<?> update(@Valid @RequestBody WalletRequest walletRequest, @PathVariable Long id){
         CommonResponse commonResponse = walletService.editWallet(id,walletRequest);
