@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface WalletService {
     Page<Wallet> findAllByEmail(Pageable pageable);
     Wallet save(WalletRequest request);
+    Wallet edit(Long id);
     void remove(Long id);
     Wallet findById(Long id);
 

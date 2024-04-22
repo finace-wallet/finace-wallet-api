@@ -37,4 +37,8 @@ public class Wallet {
     @ManyToMany(mappedBy = "wallets")
     private List<AppUser> user = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private AppUser appUser;
+
 }

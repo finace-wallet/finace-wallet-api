@@ -1,5 +1,4 @@
 package com.codegym.finwallet.repository;
-import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Wallet;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
