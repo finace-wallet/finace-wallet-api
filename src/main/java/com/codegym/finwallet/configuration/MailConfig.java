@@ -1,4 +1,4 @@
-package com.codegym.finwallet.config;
+package com.codegym.finwallet.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
