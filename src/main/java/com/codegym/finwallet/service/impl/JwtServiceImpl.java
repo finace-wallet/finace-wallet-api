@@ -2,7 +2,7 @@ package com.codegym.finwallet.service.impl;
 
 
 import com.codegym.finwallet.entity.AppUser;
-import com.codegym.finwallet.repository.AppUserRepo;
+import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -25,9 +25,9 @@ public class JwtServiceImpl implements JwtService {
 
     public static final String SECRET = "357638792F423F4428472B4B6250655368566D597133743677397A2443264629";
 
-    private final AppUserRepo appUserRepository;
+    private final AppUserRepository appUserRepository;
 
-    public JwtServiceImpl(AppUserRepo appUserRepository) {
+    public JwtServiceImpl(AppUserRepository appUserRepository) {
         this.appUserRepository = appUserRepository;
     }
     @Override

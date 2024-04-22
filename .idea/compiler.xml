@@ -10,6 +10,9 @@
         <module name="fin-wallet-api" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="fin-wallet" target="20" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

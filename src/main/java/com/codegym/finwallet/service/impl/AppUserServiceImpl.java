@@ -10,11 +10,16 @@ import com.codegym.finwallet.dto.payload.response.LoginResponse;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Profile;
 import com.codegym.finwallet.entity.Role;
+
+import com.codegym.finwallet.repository.AppUserRepository;
+import com.codegym.finwallet.repository.RoleRepository;
+
 import com.codegym.finwallet.entity.Wallet;
-import com.codegym.finwallet.repository.AppUserRepo;
+
 import com.codegym.finwallet.repository.ProfileRepository;
-import com.codegym.finwallet.repository.RoleRepo;
+
 import com.codegym.finwallet.repository.WalletRepository;
+
 import com.codegym.finwallet.service.AppUserService;
 import com.codegym.finwallet.service.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,15 +43,17 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class AppUserServiceImpl implements AppUserService {
-    private final AppUserRepo appUserRepo;
+
+    private final AppUserRepository appUserRepo;
     private final PasswordEncoder passwordEncoder;
-    private final RoleRepo roleRepo;
+    private final RoleRepository roleRepo;
     private final ModelMapper modelMapper;
     private final JavaMailSender mailSender;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final ProfileRepository profileRepository;
     private final WalletRepository walletRepository;
+
 
     @Override
     public void saveUser(AppUserDto appUserDto) {
@@ -58,6 +65,9 @@ public class AppUserServiceImpl implements AppUserService {
         Role role = roleRepo.findByRoleType(AuthConstant.ROLE_TYPE_USER);
         appUser.setRoles(Collections.singletonList(role));
         appUser.setActive(true);
+
+
+
         Profile profile = new Profile();
         Wallet wallet = new Wallet();
         walletRepository.save(wallet);
