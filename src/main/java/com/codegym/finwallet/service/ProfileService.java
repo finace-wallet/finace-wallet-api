@@ -10,4 +10,6 @@ public interface ProfileService {
     void saveProfile(Profile profile);
 
     CommonResponse updateProfile(ProfileRequest request);
+
+    CommonResponse getProfile();
 }

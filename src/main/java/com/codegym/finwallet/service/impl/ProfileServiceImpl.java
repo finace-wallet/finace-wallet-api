@@ -4,6 +4,7 @@ import com.codegym.finwallet.constant.AuthConstant;
 import com.codegym.finwallet.constant.UserConstant;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.ProfileRequest;
+import com.codegym.finwallet.dto.payload.response.ProfileResponse;
 import com.codegym.finwallet.entity.Profile;
 import com.codegym.finwallet.repository.ProfileRepository;
 import com.codegym.finwallet.service.ProfileService;
@@ -25,7 +26,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public Profile findProfileByEmail(String email) {
         Optional<Profile> profile = profileRepository.findProfileByEmail(email);
-        return  profile.orElseThrow(() -> new RuntimeException(UserConstant.FIND_PROFILE_FAIL + email));
+        return profile.orElse(null);
     }
 
     @Override
@@ -45,17 +46,38 @@ public class ProfileServiceImpl implements ProfileService {
             profileRepository.save(newProfile);
             commonResponse = commonResponse.builder()
                     .data(null)
-                    .message("Update profile successful")
+                    .message(UserConstant.UPDATE_PROFILE_SUCCESSFUL_MESSAGE)
                     .status(HttpStatus.OK)
                     .build();
         }catch (SecurityException e){
             commonResponse = commonResponse.builder()
                     .data(null)
-                    .message("Can't update profile")
+                    .message(UserConstant.UPDATE_PROFILE_FAIL_MESSAGE)
                     .status(HttpStatus.UNAUTHORIZED)
                     .build();
         }
 
         return commonResponse;
+    }
+
+    @Override
+    public CommonResponse getProfile() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            Profile profile = findProfileByEmail(email);
+            ProfileResponse profileResponse = modelMapper.map(profile, ProfileResponse.class);
+            return CommonResponse.builder()
+                    .data(profileResponse)
+                    .message(UserConstant.FIND_PROFILE_SUCCESSFUL_MESSAGE)
+                    .status(HttpStatus.OK)
+                    .build();
+        }catch (SecurityException e){
+            return CommonResponse.builder()
+                    .data(null)
+                    .message(UserConstant.FIND_PROFILE_FAIL_MESSAGE)
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .build();
+        }
     }
 }

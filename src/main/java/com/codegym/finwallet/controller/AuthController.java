@@ -74,4 +74,10 @@ public class AuthController {
         CommonResponse commonResponse = appUserService.logout(authorizationHeader);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
+
+    @PostMapping("/active")
+    public ResponseEntity<CommonResponse> active(@RequestBody String otp) {
+        CommonResponse commonResponse = appUserService.activeUser(otp);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
 }
