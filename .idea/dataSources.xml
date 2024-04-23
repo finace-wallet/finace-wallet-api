@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-<<<<<<< HEAD
-    <data-source source="LOCAL" name="@localhost" uuid="748c6aa1-17a4-40af-b14f-c2bdbde10f3f">
+    <data-source source="LOCAL" name="@localhost" uuid="25e690c9-499c-4e61-bd75-af004f7b3638">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://localhost:3306</jdbc-url>
-=======
-    <data-source source="LOCAL" name="fin_wallet@localhost" uuid="f4cea626-ae72-44b3-b592-ef1373046e1d">
-      <driver-ref>mysql.8</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3306/fin_wallet</jdbc-url>
->>>>>>> 2ef7da01c7f4735d4a1326e8a9d1671726be6521
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
