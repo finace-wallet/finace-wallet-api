@@ -33,8 +33,8 @@ public class JwtServiceImpl implements JwtService {
     @Override
 
     public Long extractUserId(String token) {
-        String username = extractUsername(token);
-        AppUser user = appUserRepository.findFirstByUsername(username);
+        String email = extractUsername(token);
+        AppUser user = appUserRepository.findFirstByEmail(email);
         return user.getId();
     }
     @Override
