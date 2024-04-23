@@ -6,6 +6,7 @@ import com.codegym.finwallet.service.ImageService;
 import com.codegym.finwallet.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +31,12 @@ public class AppUserController {
     @PatchMapping("/profile/avatar")
     public ResponseEntity<CommonResponse> updateProfileAvatar(@RequestBody MultipartFile file){
         CommonResponse commonResponse = imageService.upload(file);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<CommonResponse> getProfile(){
+        CommonResponse commonResponse = profileService.getProfile();
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 }
