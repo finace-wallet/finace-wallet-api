@@ -1,5 +1,6 @@
 package com.codegym.finwallet.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -45,5 +46,6 @@ public class Wallet {
                 joinColumns  = @JoinColumn(name = "wallet_id"),
                 inverseJoinColumns = @JoinColumn(name = "appUser_id")
     )
+    @JsonIgnore
     private List<AppUser> users;
 }

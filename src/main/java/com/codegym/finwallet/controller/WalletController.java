@@ -5,11 +5,8 @@ import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Wallet;
-<<<<<<< HEAD
 import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.service.impl.WalletServiceImpl;
-=======
->>>>>>> 83f1cf1cec8f3c491f428697041acfa288705039
 import com.codegym.finwallet.service.WalletService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,18 +33,13 @@ public class WalletController {
 
     private final WalletService walletService;
 
-<<<<<<< HEAD
+
     @Autowired
     private final AppUserRepository userRepository;
-    @PutMapping("/edit-wallet/{id}")
-    public ResponseEntity<?> update(@Valid @RequestBody WalletRequest walletRequest, @PathVariable Long id){
-        CommonResponse commonResponse = walletService.editWallet(id,walletRequest);
-=======
-
     @PutMapping("/edit/{id}")
     public ResponseEntity<?> update(@RequestBody WalletRequest walletRequest, @PathVariable Long id){
         CommonResponse commonResponse = walletService.editWallet(walletRequest,id);
->>>>>>> 83f1cf1cec8f3c491f428697041acfa288705039
+
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 
