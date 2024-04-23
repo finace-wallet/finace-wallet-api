@@ -1,7 +1,6 @@
 package com.codegym.finwallet.controller;
 
 import com.codegym.finwallet.constant.UserConstant;
-import com.codegym.finwallet.dto.AppUserDto;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.ChangePasswordRequest;
 import com.codegym.finwallet.dto.payload.request.ForgotPasswordRequest;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -66,6 +66,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<CommonResponse> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         CommonResponse commonResponse = appUserService.login(loginRequest,response);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
+
+    @PutMapping("/logout")
+    public ResponseEntity<CommonResponse> logout(@RequestHeader("Authorization") String authorizationHeader) {
+        CommonResponse commonResponse = appUserService.logout(authorizationHeader);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 }

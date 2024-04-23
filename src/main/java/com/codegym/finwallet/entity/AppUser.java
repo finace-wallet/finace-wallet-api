@@ -1,5 +1,6 @@
 package com.codegym.finwallet.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,14 +15,17 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Builder
 @Entity
 @Table(name = "app_user")
@@ -36,19 +40,21 @@ public class AppUser {
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_roles",
-            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")}
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private List<Role> roles = new ArrayList<>();
+    @JsonIgnore
+    private List<Role> roles;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "user_wallet",
-            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "wallet_id", referencedColumnName = "id")}
-    )
-    private List<Wallet> wallets = new ArrayList<>();
+    @ManyToMany(mappedBy = "users")
+    @JsonIgnore
+    private List<Wallet> wallets;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "appUser",cascade = CascadeType.ALL)
     private Profile profile;
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "user")
+    private TokenBlackList tokenBlackList;
 }

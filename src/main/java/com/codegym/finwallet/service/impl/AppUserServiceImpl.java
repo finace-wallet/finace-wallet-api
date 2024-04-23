@@ -12,10 +12,12 @@ import com.codegym.finwallet.dto.payload.response.LoginResponse;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Profile;
 import com.codegym.finwallet.entity.Role;
+import com.codegym.finwallet.entity.TokenBlackList;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.repository.ProfileRepository;
 import com.codegym.finwallet.repository.RoleRepository;
+import com.codegym.finwallet.repository.TokenBlackListRepository;
 import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.AppUserService;
 import com.codegym.finwallet.service.JwtService;
@@ -49,23 +51,21 @@ public class AppUserServiceImpl implements AppUserService {
     private final JwtService jwtService;
     private final ProfileRepository profileRepository;
     private final WalletRepository walletRepository;
+    private final TokenBlackListRepository tokenBlackListRepository;
 
     @Override
     public CommonResponse createUser(RegisterRequest request) {
         String email = request.getEmail();
         Optional<AppUser> appUserOptional = appUserRepository.findAppUserByEmail(email);
-        if (appUserOptional.isEmpty()  && isRoleExist()){
+        if (appUserOptional.isEmpty()  && isRoleExist()) {
             AppUser appUser = new AppUser();
             appUser.setEmail(request.getEmail());
             appUser.setPassword(passwordEncoder.encode(request.getPassword()));
             Role role = roleRepository.findByRoleType(AuthConstant.ROLE_TYPE_USER);
             appUser.setActive(true);
             appUser.setDelete(false);
-
+            appUser.setRoles(Collections.singletonList(role));
             Profile profile = new Profile();
-            Wallet wallet = new Wallet();
-            wallet.setUsers(Collections.singletonList(appUser));
-            walletRepository.save(wallet);
             profile.setAppUser(appUser);
             appUserRepository.save(appUser);
             profileRepository.save(profile);
@@ -75,18 +75,13 @@ public class AppUserServiceImpl implements AppUserService {
                     .message(UserConstant.CREATE_USER_SUCCESSFUL_MESSAGE)
                     .status(HttpStatus.CREATED)
                     .build();
-
-        return CommonResponse.builder()
-                .data(null)
-                .message(UserConstant.CREATE_USER_FAIL_MESSAGE + email)
-                .status(HttpStatus.BAD_REQUEST)
-                .build();
-        Profile profile = new Profile();
-        Wallet wallet = new Wallet();
-        walletRepository.save(wallet);
-        profile.setAppUser(appUser);
-        appUserRepository.save(appUser);
-        profileRepository.save(profile);
+        }
+            return CommonResponse.builder()
+                    .data(null)
+                    .message(UserConstant.CREATE_USER_FAIL_MESSAGE + email)
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build();
+        }
 
     @Override
     public boolean changePassword(ChangePasswordRequest request) {
@@ -131,6 +126,44 @@ public class AppUserServiceImpl implements AppUserService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public CommonResponse logout(String request) {
+        if (request != null && request.startsWith("Bearer ")) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String accessToken = request.substring(7);
+            String email = authentication.getName();
+
+            if (!isUserTokenInBlackList(email)) {
+                AppUser user = appUserRepository.findByEmail(email);
+                TokenBlackList tokenBlackList = new TokenBlackList();
+                tokenBlackList.setToken(accessToken);
+                tokenBlackList.setUser(user);
+                tokenBlackListRepository.save(tokenBlackList);
+            } else {
+                TokenBlackList tokenBlackList = tokenBlackListRepository.findByEmail(email);
+                tokenBlackList.setToken(accessToken);
+            }
+
+            return CommonResponse.builder()
+                    .data(null)
+                    .message(UserConstant.LOGOUT_SUCCESSFUL_MESSAGE)
+                    .status(HttpStatus.OK)
+                    .build();
+        }
+
+        return CommonResponse.builder()
+                .data(null)
+                .message(UserConstant.LOGOUT_FAIL_MESSAGE)
+                .status(HttpStatus.BAD_REQUEST)
+                .build();
+    }
+
+    @Override
+    public boolean isUserTokenInBlackList(String email) {
+        TokenBlackList token = tokenBlackListRepository.findByEmail(email);
+        return token != null;
     }
 
     @Override

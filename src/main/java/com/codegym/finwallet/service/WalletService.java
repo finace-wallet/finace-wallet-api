@@ -8,8 +8,8 @@ import org.springframework.data.domain.Pageable;
 
 public interface WalletService {
     Page<Wallet> findAllByEmail(Pageable pageable);
-    Wallet save(WalletRequest request);
-    void remove(Long id);
+    CommonResponse createWallet(WalletRequest request);
+    CommonResponse deleteWallet(Long id);
     Wallet findById(Long id);
-    CommonResponse editWallet(Long id, WalletRequest walletRequest);
+    CommonResponse editWallet(WalletRequest walletRequest,Long id);
 }

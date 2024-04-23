@@ -6,6 +6,7 @@ import com.codegym.finwallet.dto.payload.request.ChangePasswordRequest;
 import com.codegym.finwallet.dto.payload.request.ForgotPasswordRequest;
 import com.codegym.finwallet.dto.payload.request.LoginRequest;
 import com.codegym.finwallet.dto.payload.request.RegisterRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface AppUserService {
@@ -18,5 +19,8 @@ public interface AppUserService {
     boolean deleteUser();
     boolean isRoleExist();
     boolean isUserActiveAndNotDelete(String email );
-    CommonResponse logout();
+    CommonResponse logout(String request);
+    boolean isUserTokenInBlackList(String email);
+
+
 }
