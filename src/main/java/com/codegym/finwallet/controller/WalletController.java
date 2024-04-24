@@ -2,16 +2,16 @@ package com.codegym.finwallet.controller;
 
 
 import com.codegym.finwallet.dto.CommonResponse;
+import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.Wallet;
+import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.WalletService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +27,7 @@ public class WalletController {
 
     private final WalletService walletService;
 
-
+    private final WalletRepository walletRepository;
     @PutMapping("/edit/{id}")
     public ResponseEntity<?> update(@RequestBody WalletRequest walletRequest, @PathVariable Long id){
         CommonResponse commonResponse = walletService.editWallet(walletRequest,id);
@@ -59,4 +59,9 @@ public class WalletController {
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 
+    @PostMapping("/transfer")
+    public ResponseEntity<CommonResponse> transferMoney(@RequestBody TransferMoneyRequest transferRequest) {
+        CommonResponse response = walletService.transferMoney(transferRequest);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }

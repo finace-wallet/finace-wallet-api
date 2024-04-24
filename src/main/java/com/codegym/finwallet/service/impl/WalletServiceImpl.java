@@ -2,6 +2,7 @@ package com.codegym.finwallet.service.impl;
 
 import com.codegym.finwallet.constant.WalletConstant;
 import com.codegym.finwallet.dto.CommonResponse;
+import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Wallet;
@@ -157,4 +158,46 @@ public class WalletServiceImpl implements WalletService {
                 .findFirst();
         return walletOptional.isPresent();
         }
+
+    @Override
+    public CommonResponse transferMoney(TransferMoneyRequest transferMoneyRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String sourceEmail = authentication.getName();
+        List<Wallet> sourceUserWallets  = walletRepository.findWalletByEmail(sourceEmail);
+        List<Wallet> destinationUserWallets = walletRepository.findWalletByEmail(transferMoneyRequest.getDestinationEmail());
+
+        Optional<Wallet> sourceWalletOptional = sourceUserWallets .stream().filter(wallet -> wallet.getId().equals(transferMoneyRequest.getSourceWalletId())).findFirst();
+        Optional<Wallet> destinationWalletOptional = destinationUserWallets.stream().filter(wallet -> wallet.getId().equals(transferMoneyRequest.getDestinationWalletId())).findFirst();
+
+        if (sourceWalletOptional.isPresent() && destinationWalletOptional.isPresent()) {
+            Wallet sourceWallet = sourceWalletOptional.get();
+            Wallet destinationWallet = destinationWalletOptional.get();
+
+            if (sourceWallet.getAmount() >= transferMoneyRequest.getAmount()) {
+                sourceWallet.setAmount(sourceWallet.getAmount() - transferMoneyRequest.getAmount());
+                destinationWallet.setAmount(destinationWallet.getAmount() + transferMoneyRequest.getAmount());
+
+                walletRepository.save(sourceWallet);
+                walletRepository.save(destinationWallet);
+
+                return CommonResponse.builder()
+                        .data(null)
+                        .message(WalletConstant.SUCCESSFUL_MONEY_TRANSFER)
+                        .status(HttpStatus.OK)
+                        .build();
+            } else {
+                return CommonResponse.builder()
+                        .data(null)
+                        .message(WalletConstant.INSUFFICIENT_ACCOUNT_BALANCE)
+                        .status(HttpStatus.BAD_REQUEST)
+                        .build();
+            }
+        } else {
+            return CommonResponse.builder()
+                    .data(null)
+                    .message(WalletConstant.WALLET_NOT_FOUND_MESSAGE)
+                    .status(HttpStatus.NOT_FOUND)
+                    .build();
+        }
+    }
 }
