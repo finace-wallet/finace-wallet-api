@@ -1,7 +1,7 @@
 package com.codegym.finwallet.constant;
 
 public class UserConstant {
-    public static final int PASSWORD_MAX_LENGTH = 16;
+    public static final int PASSWORD_MAX_LENGTH = 8;
     public static final String SUBJECT = "Mật khẩu mới của bạn là: ";
     public static final String MESSAGE_LOGIN_SUCCESS = "Login successful";
     public static final String MESSAGE_LOGIN_FAIL_AUTHORIZATION = "Can't login with email: ";
@@ -18,4 +18,12 @@ public class UserConstant {
     public static final String SEND_PASSWORD_FAIL_MESSAGE = "Can't send password with email: ";
     public static final String LOGOUT_SUCCESSFUL_MESSAGE = "Logout successfully";
     public static final String LOGOUT_FAIL_MESSAGE = "Can't logout!";
+    public static final String FIND_PROFILE_SUCCESSFUL_MESSAGE = "Find profile successfully";
+    public static final String FIND_PROFILE_FAIL_MESSAGE = "Can't find profile with email: ";
+    public static final String UPDATE_PROFILE_SUCCESSFUL_MESSAGE = "Update profile successfully";
+    public static final String UPDATE_PROFILE_FAIL_MESSAGE = "Can't update profile with email: ";
+    public static final int OTP_MAX_LENGTH = 6;
+    public static final int OTP_MAX_VALUE = 10;
+    public static final String APP_USER_ACTIVE_SUCCESSFUL = "Your account has been activated!";
+    public static final String APP_USER_ACTIVE_FAIL_MESSAGE = "Can't activate your account!";
 }
