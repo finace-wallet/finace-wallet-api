@@ -219,17 +219,9 @@ public class WalletServiceImpl implements WalletService {
             float currentAmount = wallet.getAmount();
             wallet.setAmount(currentAmount + amount);
             walletRepository.save(wallet);
-            return CommonResponse.builder()
-                    .data(null)
-                    .message("Money added to wallet successfully.")
-                    .status(HttpStatus.OK)
-                    .build();
+            return buildResponse(null, WalletConstant.MONEY_ADDED_SUCCESSFULLY, HttpStatus.OK);
         } else {
-            return CommonResponse.builder()
-                    .data(null)
-                    .message("Wallet not found.")
-                    .status(HttpStatus.NOT_FOUND)
-                    .build();
+            return buildResponse(null, WalletConstant.WALLET_NOT_FOUND_MESSAGE, HttpStatus.BAD_REQUEST);
         }
     }
 }
