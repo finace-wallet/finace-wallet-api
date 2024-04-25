@@ -19,6 +19,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -45,13 +46,14 @@ public class WalletServiceImpl implements WalletService {
             AppUser appUser = appUserRepository.findByEmail(email);
             Wallet wallet = modelMapper.map(request,Wallet.class);
             wallet.setUsers(Collections.singletonList(appUser));
+            appUserRepository.findByEmail(email);
             walletRepository.save(wallet);
             return CommonResponse.builder()
                     .data(wallet)
                     .message(WalletConstant.CREATE_NEW_WALLET_SUCCESS_MESSAGE)
                     .status(HttpStatus.CREATED)
                     .build();
-        }catch (AuthenticationException e){
+        } catch (AuthenticationException e){
             return CommonResponse.builder()
                     .data(null)
                     .message(e.getMessage())
