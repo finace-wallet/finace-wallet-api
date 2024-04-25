@@ -13,14 +13,13 @@ import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Profile;
 import com.codegym.finwallet.entity.Role;
 import com.codegym.finwallet.entity.TokenBlackList;
-import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.repository.ProfileRepository;
 import com.codegym.finwallet.repository.RoleRepository;
 import com.codegym.finwallet.repository.TokenBlackListRepository;
-import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.AppUserService;
 import com.codegym.finwallet.service.JwtService;
+import com.github.benmanes.caffeine.cache.Cache;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -42,6 +41,7 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class AppUserServiceImpl implements AppUserService {
+    private final Cache<String,String> otpCache;
     private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
@@ -50,26 +50,28 @@ public class AppUserServiceImpl implements AppUserService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final ProfileRepository profileRepository;
-    private final WalletRepository walletRepository;
     private final TokenBlackListRepository tokenBlackListRepository;
 
     @Override
     public CommonResponse createUser(RegisterRequest request) {
         String email = request.getEmail();
+        String otp = null;
         Optional<AppUser> appUserOptional = appUserRepository.findAppUserByEmail(email);
         if (appUserOptional.isEmpty()  && isRoleExist()) {
             AppUser appUser = new AppUser();
             appUser.setEmail(request.getEmail());
             appUser.setPassword(passwordEncoder.encode(request.getPassword()));
             Role role = roleRepository.findByRoleType(AuthConstant.ROLE_TYPE_USER);
-            appUser.setActive(true);
+            appUser.setActive(false);
             appUser.setDelete(false);
             appUser.setRoles(Collections.singletonList(role));
             Profile profile = new Profile();
             profile.setAppUser(appUser);
             appUserRepository.save(appUser);
             profileRepository.save(profile);
-
+            otp = generateOtp();
+            saveOtpAndEmail(otp,email);
+            sendNewPasswordToEmail(email,otp);
             return CommonResponse.builder()
                     .data(null)
                     .message(UserConstant.CREATE_USER_SUCCESSFUL_MESSAGE)
@@ -167,6 +169,27 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
+    public CommonResponse activeUser(String otp) {
+        try {
+            String email = getEmailByOtp(otp);
+            AppUser user = appUserRepository.findByEmail(email);
+            user.setActive(true);
+
+            return CommonResponse.builder()
+                    .data(null)
+                    .message(UserConstant.APP_USER_ACTIVE_SUCCESSFUL)
+                    .status(HttpStatus.OK)
+                    .build();
+        }catch (Exception e){
+            return CommonResponse.builder()
+                    .data(null)
+                    .message(UserConstant.APP_USER_ACTIVE_FAIL_MESSAGE)
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build();
+        }
+    }
+
+    @Override
     public String generatePassword() {
         StringBuilder password = new StringBuilder();
 
@@ -186,7 +209,7 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
-    public void sendEmail(String email, String newPassword) {
+    public void sendNewPasswordToEmail(String email, String newPassword) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
         message.setSubject(UserConstant.SUBJECT);
@@ -203,7 +226,7 @@ public class AppUserServiceImpl implements AppUserService {
                 .map(appUser -> {
                     appUser.setPassword(newPassEncode);
                     appUserRepository.save(appUser);
-                    sendEmail(email,newPassword);
+                    sendNewPasswordToEmail(email,newPassword);
                     return CommonResponse.builder()
                             .data(null)
                             .message(UserConstant.SEND_PASSWORD_SUCCESSFUL_MESSAGE)
@@ -252,5 +275,28 @@ public class AppUserServiceImpl implements AppUserService {
                 .status(HttpStatus.NOT_FOUND)
                 .build();
     }
+    private String generateOtp(){
+        StringBuilder otp = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < UserConstant.OTP_MAX_LENGTH; i++) {
+            otp.append(random.nextInt(UserConstant.OTP_MAX_VALUE));
+        }
+        return otp.toString();
+    }
 
+    private void saveOtpAndEmail(String otp, String email) {
+        otpCache.put(otp,email);
+    }
+
+    private String getEmailByOtp(String otp) {
+        return otpCache.getIfPresent(otp);
+    }
+
+    private void sendOtpToEmail(String otp, String email) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject(UserConstant.SUBJECT);
+        message.setText(otp);
+        mailSender.send(message);
+    }
 }
