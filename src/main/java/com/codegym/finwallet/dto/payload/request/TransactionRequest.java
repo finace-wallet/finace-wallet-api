@@ -9,8 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class TransferMoneyHistory {
+public class TransactionRequest {
     private String senderName;
-    private String ecipientName;
-    
+    private String recipientName;
+    private Float transactionAmount;
+    private String description;
 }

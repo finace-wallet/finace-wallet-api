@@ -14,4 +14,5 @@ public class TransferMoneyRequest {
     private Long destinationWalletId;
     private String destinationEmail;
     private float amount;
+    private String description;
 }
