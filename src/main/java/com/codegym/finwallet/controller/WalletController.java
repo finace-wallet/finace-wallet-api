@@ -5,6 +5,7 @@ import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.AppUser;
+import com.codegym.finwallet.entity.TransactionType;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.service.impl.WalletServiceImpl;
@@ -24,17 +25,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.codegym.finwallet.entity.TransactionType;
+import com.codegym.finwallet.service.TransactionTypeService;
 @RestController
 @RequestMapping("/api/v1/wallets")
 @RequiredArgsConstructor
-public class WalletController {
+public class    WalletController {
 
     private final WalletService walletService;
 
+    private final TransactionTypeService transactionTypeService;
 
-
-    @Autowired
     private final AppUserRepository userRepository;
 
     private final WalletRepository walletRepository;
@@ -83,4 +84,12 @@ public class WalletController {
         CommonResponse response = walletService.addMoneyToWallet(walletId, amount);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+
+    @PostMapping("/edit-budget/{id}")
+    public ResponseEntity<CommonResponse> updateBudgetInTransactionType(@PathVariable Long id,
+                                                                      @RequestParam float transactionBudget) {
+        CommonResponse response = transactionTypeService.updateBudgetToTransactionType(id, transactionBudget);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }
+

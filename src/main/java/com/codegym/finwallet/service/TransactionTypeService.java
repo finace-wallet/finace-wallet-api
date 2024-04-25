@@ -1,9 +1,11 @@
 package com.codegym.finwallet.service;
 
+import com.codegym.finwallet.dto.CommonResponse;
+import com.codegym.finwallet.dto.payload.request.TransactionTypeRequest;
 import com.codegym.finwallet.entity.TransactionType;
 
 public interface TransactionTypeService {
-    TransactionType addBudgetToTransactionType(Long id,float transactionBudget);
-    boolean isBudgetExceeded(TransactionType transactionType, float transactionAmount);
+    CommonResponse updateBudgetToTransactionType(Long id, float transactionBudget);
+    boolean isBudgetExceeded(TransactionTypeRequest transactionTypeRequest, float transactionAmount);
     void alertBudgetExceeded();
 }
