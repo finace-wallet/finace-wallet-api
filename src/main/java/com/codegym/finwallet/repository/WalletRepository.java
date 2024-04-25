@@ -15,5 +15,5 @@ public interface WalletRepository extends JpaRepository<Wallet,Long> {
     Page<Wallet> findAllByEmail(Pageable pageable, String appUserEmail);
     Optional<Wallet> findById(Long id);
     @Query("SELECT w FROM Wallet w JOIN w.users u WHERE u.email = :appUserEmail")
-    List<Wallet>findWalletByEmail(@Param("appUserEmail") String appUserEmail);
+    List<Wallet>findWalletByEmail(String appUserEmail);
 }

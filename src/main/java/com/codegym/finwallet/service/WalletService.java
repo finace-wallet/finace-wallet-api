@@ -14,4 +14,5 @@ public interface WalletService {
     Wallet findById(Long id);
     CommonResponse editWallet(WalletRequest walletRequest,Long id);
     CommonResponse transferMoney(TransferMoneyRequest transferMoneyRequest);
+    CommonResponse addMoneyToWallet(Long walletId, float amount);
 }

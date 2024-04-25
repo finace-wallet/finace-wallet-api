@@ -161,41 +161,73 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public CommonResponse transferMoney(TransferMoneyRequest transferMoneyRequest) {
+        String sourceEmail = getAuthenticatedEmail();
+        Wallet sourceWallet = getWalletByEmailAndId(sourceEmail, transferMoneyRequest.getSourceWalletId());
+        Wallet destinationWallet = getWalletByEmailAndId(transferMoneyRequest.getDestinationEmail(), transferMoneyRequest.getDestinationWalletId());
+
+        if (sourceWallet != null && destinationWallet != null) {
+            return processTransfer(sourceWallet, destinationWallet, transferMoneyRequest.getAmount());
+        } else {
+            return buildResponse(null, WalletConstant.WALLET_NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    private String getAuthenticatedEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String sourceEmail = authentication.getName();
-        List<Wallet> sourceUserWallets  = walletRepository.findWalletByEmail(sourceEmail);
-        List<Wallet> destinationUserWallets = walletRepository.findWalletByEmail(transferMoneyRequest.getDestinationEmail());
+        return authentication.getName();
+    }
 
-        Optional<Wallet> sourceWalletOptional = sourceUserWallets .stream().filter(wallet -> wallet.getId().equals(transferMoneyRequest.getSourceWalletId())).findFirst();
-        Optional<Wallet> destinationWalletOptional = destinationUserWallets.stream().filter(wallet -> wallet.getId().equals(transferMoneyRequest.getDestinationWalletId())).findFirst();
+    private Wallet getWalletByEmailAndId(String email, Long walletId) {
+        List<Wallet> wallets = walletRepository.findWalletByEmail(email);
+        Optional<Wallet> walletOptional = wallets.stream().filter(wallet -> wallet.getId().equals(walletId)).findFirst();
+        return walletOptional.orElse(null);
+    }
 
-        if (sourceWalletOptional.isPresent() && destinationWalletOptional.isPresent()) {
-            Wallet sourceWallet = sourceWalletOptional.get();
-            Wallet destinationWallet = destinationWalletOptional.get();
+    private CommonResponse processTransfer(Wallet sourceWallet, Wallet destinationWallet, float amount) {
+        if (sourceWallet.getAmount() >= amount) {
+            updateWalletAmounts(sourceWallet, destinationWallet, amount);
+            return buildResponse(null, WalletConstant.SUCCESSFUL_MONEY_TRANSFER, HttpStatus.OK);
+        } else {
+            return buildResponse(null, WalletConstant.INSUFFICIENT_ACCOUNT_BALANCE, HttpStatus.BAD_REQUEST);
+        }
+    }
 
-            if (sourceWallet.getAmount() >= transferMoneyRequest.getAmount()) {
-                sourceWallet.setAmount(sourceWallet.getAmount() - transferMoneyRequest.getAmount());
-                destinationWallet.setAmount(destinationWallet.getAmount() + transferMoneyRequest.getAmount());
+    private void updateWalletAmounts(Wallet sourceWallet, Wallet destinationWallet, float amount) {
+        sourceWallet.setAmount(sourceWallet.getAmount() - amount);
+        destinationWallet.setAmount(destinationWallet.getAmount() + amount);
+        walletRepository.save(sourceWallet);
+        walletRepository.save(destinationWallet);
+    }
 
-                walletRepository.save(sourceWallet);
-                walletRepository.save(destinationWallet);
+    private CommonResponse buildResponse(Object data, String message, HttpStatus status) {
+        return CommonResponse.builder()
+                .data(data)
+                .message(message)
+                .status(status)
+                .build();
+    }
 
-                return CommonResponse.builder()
-                        .data(null)
-                        .message(WalletConstant.SUCCESSFUL_MONEY_TRANSFER)
-                        .status(HttpStatus.OK)
-                        .build();
-            } else {
-                return CommonResponse.builder()
-                        .data(null)
-                        .message(WalletConstant.INSUFFICIENT_ACCOUNT_BALANCE)
-                        .status(HttpStatus.BAD_REQUEST)
-                        .build();
-            }
+
+    @Override
+    public CommonResponse addMoneyToWallet(Long walletId, float amount) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+        List<Wallet> wallets = walletRepository.findWalletByEmail(userEmail);
+        Optional<Wallet> walletOptional = wallets.stream().filter(wallet -> wallet.getId().equals(walletId)).findFirst();
+        if (walletOptional.isPresent()) {
+            Wallet wallet = walletOptional.get();
+            float currentAmount = wallet.getAmount();
+            wallet.setAmount(currentAmount + amount);
+            walletRepository.save(wallet);
+            return CommonResponse.builder()
+                    .data(null)
+                    .message("Money added to wallet successfully.")
+                    .status(HttpStatus.OK)
+                    .build();
         } else {
             return CommonResponse.builder()
                     .data(null)
-                    .message(WalletConstant.WALLET_NOT_FOUND_MESSAGE)
+                    .message("Wallet not found.")
                     .status(HttpStatus.NOT_FOUND)
                     .build();
         }

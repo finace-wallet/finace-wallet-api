@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -62,6 +63,13 @@ public class WalletController {
     @PostMapping("/transfer")
     public ResponseEntity<CommonResponse> transferMoney(@RequestBody TransferMoneyRequest transferRequest) {
         CommonResponse response = walletService.transferMoney(transferRequest);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @PostMapping("/add-money")
+    public ResponseEntity<CommonResponse> addMoneyToWallet(@RequestParam Long walletId,
+                                                           @RequestParam float amount) {
+        CommonResponse response = walletService.addMoneyToWallet(walletId, amount);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 }
