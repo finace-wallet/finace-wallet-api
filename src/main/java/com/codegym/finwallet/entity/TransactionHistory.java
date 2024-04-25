@@ -31,7 +31,7 @@ public class TransactionHistory {
     private String description;
     private boolean isDelete;
 
-    @ManyToMany (mappedBy = "tracsactionHistories")
+    @ManyToMany (mappedBy = "transactionHistories")
     private List<Wallet> wallets;
 
 }

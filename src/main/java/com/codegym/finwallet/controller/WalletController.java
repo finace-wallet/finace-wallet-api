@@ -2,28 +2,27 @@ package com.codegym.finwallet.controller;
 
 
 import com.codegym.finwallet.dto.CommonResponse;
+import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.service.impl.WalletServiceImpl;
+import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.WalletService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -34,8 +33,12 @@ public class WalletController {
     private final WalletService walletService;
 
 
+
     @Autowired
     private final AppUserRepository userRepository;
+
+    private final WalletRepository walletRepository;
+
     @PutMapping("/edit/{id}")
     public ResponseEntity<?> update(@RequestBody WalletRequest walletRequest, @PathVariable Long id){
         CommonResponse commonResponse = walletService.editWallet(walletRequest,id);
@@ -68,4 +71,16 @@ public class WalletController {
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 
+    @PostMapping("/transfer")
+    public ResponseEntity<CommonResponse> transferMoney(@RequestBody TransferMoneyRequest transferRequest) {
+        CommonResponse response = walletService.transferMoney(transferRequest);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @PostMapping("/add-money")
+    public ResponseEntity<CommonResponse> addMoneyToWallet(@RequestParam Long walletId,
+                                                           @RequestParam float amount) {
+        CommonResponse response = walletService.addMoneyToWallet(walletId, amount);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }

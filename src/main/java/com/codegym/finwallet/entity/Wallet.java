@@ -44,25 +44,26 @@
 
         @ManyToMany(cascade = CascadeType.ALL)
         @JoinTable(name = "user_wallets",
-                    joinColumns  = @JoinColumn(name = "wallet_id"),
-                    inverseJoinColumns = @JoinColumn(name = "appUser_id")
+                joinColumns = @JoinColumn(name = "wallet_id"),
+                inverseJoinColumns = @JoinColumn(name = "appUser_id")
         )
         @JsonIgnore
         private List<AppUser> users;
 
         @ManyToMany(cascade = CascadeType.ALL)
         @JoinTable(name = "wallet_transaction_type",
-        joinColumns = @JoinColumn(name = "wallet_id"),
-        inverseJoinColumns = @JoinColumn(name = "tracsactionType_id")
+                joinColumns = @JoinColumn(name = "wallet_id"),
+                inverseJoinColumns = @JoinColumn(name = "tracsaction_type_id")
         )
         @JsonIgnore
         private List<TransactionType> transactionTypes;
 
         @ManyToMany(cascade = CascadeType.ALL)
         @JoinTable(name = "wallet_transaction_history",
-        joinColumns = @JoinColumn(name = "wallet_id"),
-                inverseJoinColumns = @JoinColumn(name = "transactionHistory_id")
+                joinColumns = @JoinColumn(name = "wallet_id"),
+                inverseJoinColumns = @JoinColumn(name = "transaction_history_id")
         )
         @JsonIgnore
         private List<TransactionHistory> transactionHistories;
+
     }
