@@ -2,12 +2,16 @@ package com.codegym.finwallet.service.impl;
 
 import com.codegym.finwallet.constant.WalletConstant;
 import com.codegym.finwallet.dto.CommonResponse;
+import com.codegym.finwallet.dto.payload.request.TransactionRequest;
 import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.AppUser;
+import com.codegym.finwallet.entity.Profile;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.repository.WalletRepository;
+import com.codegym.finwallet.service.ProfileService;
+import com.codegym.finwallet.service.TransactionService;
 import com.codegym.finwallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -19,7 +23,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +33,8 @@ public class WalletServiceImpl implements WalletService {
     private final WalletRepository walletRepository;
     private final ModelMapper modelMapper;
     private final AppUserRepository appUserRepository;
+    private final ProfileService profileService;
+    private final TransactionService transactionService;
 
     @Override
     public Page<Wallet> findAllByEmail(Pageable pageable) {
@@ -164,15 +169,42 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public CommonResponse transferMoney(TransferMoneyRequest transferMoneyRequest) {
         String sourceEmail = getAuthenticatedEmail();
+        Profile sourceProfile = profileService.findProfileByEmail(sourceEmail);
+        Profile destinationProfile = profileService.findProfileByEmail(transferMoneyRequest.getDestinationEmail());
+
+        if (sourceProfile == null || destinationProfile == null) {
+            return buildResponse(null, WalletConstant.PROFILE_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+
         Wallet sourceWallet = getWalletByEmailAndId(sourceEmail, transferMoneyRequest.getSourceWalletId());
         Wallet destinationWallet = getWalletByEmailAndId(transferMoneyRequest.getDestinationEmail(), transferMoneyRequest.getDestinationWalletId());
 
-        if (sourceWallet != null && destinationWallet != null) {
-            return processTransfer(sourceWallet, destinationWallet, transferMoneyRequest.getAmount());
-        } else {
+        if (sourceWallet == null || destinationWallet == null) {
             return buildResponse(null, WalletConstant.WALLET_NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
         }
+
+        float amount = transferMoneyRequest.getAmount();
+        return processTransferAndUpdateTransaction(sourceProfile, destinationProfile, sourceWallet, destinationWallet, amount, transferMoneyRequest);
     }
+
+    private CommonResponse processTransferAndUpdateTransaction(Profile sourceProfile, Profile destinationProfile, Wallet sourceWallet, Wallet destinationWallet, float amount, TransferMoneyRequest transferMoneyRequest) {
+        CommonResponse transferResponse = processTransfer(sourceWallet, destinationWallet, amount);
+        if (transferResponse.getStatus() == HttpStatus.OK) {
+            createTransaction(sourceProfile, destinationProfile, amount, transferMoneyRequest);
+        }
+        return transferResponse;
+    }
+
+    private void createTransaction(Profile sourceProfile, Profile destinationProfile, float amount, TransferMoneyRequest transferMoneyRequest) {
+        TransactionRequest transactionRequest = TransactionRequest.builder()
+                .senderName(sourceProfile.getFullName())
+                .recipientName(destinationProfile.getFullName())
+                .transactionAmount(amount)
+                .description(transferMoneyRequest.getDescription())
+                .build();
+        transactionService.create(transactionRequest);
+    }
+
 
     private String getAuthenticatedEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -221,17 +253,9 @@ public class WalletServiceImpl implements WalletService {
             float currentAmount = wallet.getAmount();
             wallet.setAmount(currentAmount + amount);
             walletRepository.save(wallet);
-            return CommonResponse.builder()
-                    .data(null)
-                    .message("Money added to wallet successfully.")
-                    .status(HttpStatus.OK)
-                    .build();
+            return buildResponse(null, WalletConstant.MONEY_ADDED_SUCCESSFULLY, HttpStatus.OK);
         } else {
-            return CommonResponse.builder()
-                    .data(null)
-                    .message("Wallet not found.")
-                    .status(HttpStatus.NOT_FOUND)
-                    .build();
+            return buildResponse(null, WalletConstant.WALLET_NOT_FOUND_MESSAGE, HttpStatus.BAD_REQUEST);
         }
     }
 }
