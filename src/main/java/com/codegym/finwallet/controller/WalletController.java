@@ -14,6 +14,7 @@ import com.codegym.finwallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,11 +55,11 @@ public class    WalletController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<Page<Wallet>> getAllWallet(Pageable pageable){
+    public ResponseEntity<Page<Wallet>> getAllWallet(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size){
+        Pageable pageable = PageRequest.of(page,size);
         Page<Wallet> walletsPage = walletService.findAllByEmail(pageable);
         return new ResponseEntity<>(walletsPage, HttpStatus.OK);
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<Wallet> findById(@PathVariable Long id) {
@@ -85,10 +86,17 @@ public class    WalletController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @PostMapping("/edit-budget/{id}")
+    @PutMapping("/edit-budget/{id}")
     public ResponseEntity<CommonResponse> updateBudgetInTransactionType(@PathVariable Long id,
                                                                       @RequestParam float transactionBudget) {
-        CommonResponse response = transactionTypeService.updateBudgetToTransactionType(id, transactionBudget);
+        CommonResponse response = transactionTypeService.updateBudgetInTransactionType(id, transactionBudget);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @PostMapping("/add-budget/{id}")
+    public ResponseEntity<CommonResponse> addBudgetToTransactionType(@PathVariable Long id,
+                                                                     @RequestParam float additionalBudget){
+        CommonResponse response = transactionTypeService.addBudgetToTransactionType(id,additionalBudget);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 }

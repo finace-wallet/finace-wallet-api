@@ -9,4 +9,6 @@ public class WalletConstant {
     public static final String WALLET_NOT_FOUND_MESSAGE = "Wallet is not found";
     public static final String SUCCESSFUL_MONEY_TRANSFER = "Successful money transfer!";
     public static final String INSUFFICIENT_ACCOUNT_BALANCE = "The balance is not enough to make the transaction!";
+    public static final String UPDATE_BUDGET_TRANSACTION = "Transaction budget updated successfully.";
+    public static final String ADD_BUDGET_TRANSACTION = "Budget added successfully.";
 }

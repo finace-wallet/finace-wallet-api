@@ -38,7 +38,7 @@
         private float amount;
         private String currentType;
         private String description;
-        private float transactionBudget;
+//        private float transactionBudget;
         private boolean isDelete;
 
 
