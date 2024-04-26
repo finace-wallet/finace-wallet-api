@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,7 +30,6 @@ public class AuthController {
     public AuthController(AppUserService appUserService) {
         this.appUserService = appUserService;
     }
-
     @PostMapping("/register")
     public ResponseEntity<CommonResponse> registerUser(@RequestBody RegisterRequest request) {
         CommonResponse commonResponse = appUserService.createUser(request);
@@ -46,7 +46,7 @@ public class AuthController {
         }
     }
 
-    @DeleteMapping("/delete")
+    @PatchMapping("/delete")
     private ResponseEntity<?> deleteUserById() {
         boolean delete = appUserService.deleteUser();
         if (delete) {

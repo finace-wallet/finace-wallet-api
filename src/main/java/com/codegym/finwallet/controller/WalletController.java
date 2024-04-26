@@ -6,6 +6,9 @@ import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
+
+import com.codegym.finwallet.service.TransactionService;
+
 import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class WalletController {
 
     private final WalletService walletService;
+    private final TransactionService transactionService;
 
 
 
@@ -71,7 +75,7 @@ public class WalletController {
 
     @PostMapping("/transfer")
     public ResponseEntity<CommonResponse> transferMoney(@RequestBody TransferMoneyRequest transferRequest) {
-        CommonResponse response = walletService.transferMoney(transferRequest);
+        CommonResponse response = transactionService.transferMoney(transferRequest);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
