@@ -123,8 +123,8 @@ public class WalletServiceImpl implements WalletService {
             }
             if (isUserWallet(id, email)) {
                 Wallet wallet = walletOptional.get();
-                float currentAmount = wallet.getAmount();
-                float inputAmount = walletRequest.getAmount();
+                double currentAmount = wallet.getAmount();
+                double inputAmount = walletRequest.getAmount();
                 if (inputAmount < 0) {
                     return CommonResponse.builder()
                             .data(null)
@@ -132,7 +132,7 @@ public class WalletServiceImpl implements WalletService {
                             .status(HttpStatus.BAD_REQUEST)
                             .build();
                 }
-                float newAmount = currentAmount + inputAmount;
+                double newAmount = currentAmount + inputAmount;
                 wallet.setAmount(newAmount);
                 wallet.setIcon(walletRequest.getIcon());
                 wallet.setName(walletRequest.getName());
@@ -183,11 +183,11 @@ public class WalletServiceImpl implements WalletService {
             return buildResponse(null, WalletConstant.WALLET_NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
         }
 
-        float amount = transferMoneyRequest.getAmount();
+        double amount = transferMoneyRequest.getAmount();
         return processTransferAndUpdateTransaction(sourceProfile, destinationProfile, sourceWallet, destinationWallet, amount, transferMoneyRequest);
     }
 
-    private CommonResponse processTransferAndUpdateTransaction(Profile sourceProfile, Profile destinationProfile, Wallet sourceWallet, Wallet destinationWallet, float amount, TransferMoneyRequest transferMoneyRequest) {
+    private CommonResponse processTransferAndUpdateTransaction(Profile sourceProfile, Profile destinationProfile, Wallet sourceWallet, Wallet destinationWallet, double amount, TransferMoneyRequest transferMoneyRequest) {
         CommonResponse transferResponse = processTransfer(sourceWallet, destinationWallet, amount);
         if (transferResponse.getStatus() == HttpStatus.OK) {
             createTransaction(sourceProfile, destinationProfile, amount, transferMoneyRequest);
@@ -195,7 +195,7 @@ public class WalletServiceImpl implements WalletService {
         return transferResponse;
     }
 
-    private void createTransaction(Profile sourceProfile, Profile destinationProfile, float amount, TransferMoneyRequest transferMoneyRequest) {
+    private void createTransaction(Profile sourceProfile, Profile destinationProfile, double amount, TransferMoneyRequest transferMoneyRequest) {
         TransactionRequest transactionRequest = TransactionRequest.builder()
                 .senderName(sourceProfile.getFullName())
                 .recipientName(destinationProfile.getFullName())
@@ -217,7 +217,7 @@ public class WalletServiceImpl implements WalletService {
         return walletOptional.orElse(null);
     }
 
-    private CommonResponse processTransfer(Wallet sourceWallet, Wallet destinationWallet, float amount) {
+    private CommonResponse processTransfer(Wallet sourceWallet, Wallet destinationWallet, double amount) {
         if (sourceWallet.getAmount() >= amount) {
             updateWalletAmounts(sourceWallet, destinationWallet, amount);
             return buildResponse(null, WalletConstant.SUCCESSFUL_MONEY_TRANSFER, HttpStatus.OK);
@@ -226,7 +226,7 @@ public class WalletServiceImpl implements WalletService {
         }
     }
 
-    private void updateWalletAmounts(Wallet sourceWallet, Wallet destinationWallet, float amount) {
+    private void updateWalletAmounts(Wallet sourceWallet, Wallet destinationWallet, double amount) {
         sourceWallet.setAmount(sourceWallet.getAmount() - amount);
         destinationWallet.setAmount(destinationWallet.getAmount() + amount);
         walletRepository.save(sourceWallet);
@@ -243,14 +243,14 @@ public class WalletServiceImpl implements WalletService {
 
 
     @Override
-    public CommonResponse addMoneyToWallet(Long walletId, float amount) {
+    public CommonResponse addMoneyToWallet(Long walletId, double amount) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
         List<Wallet> wallets = walletRepository.findWalletByEmail(userEmail);
         Optional<Wallet> walletOptional = wallets.stream().filter(wallet -> wallet.getId().equals(walletId)).findFirst();
         if (walletOptional.isPresent()) {
             Wallet wallet = walletOptional.get();
-            float currentAmount = wallet.getAmount();
+            double currentAmount = wallet.getAmount();
             wallet.setAmount(currentAmount + amount);
             walletRepository.save(wallet);
             return buildResponse(null, WalletConstant.MONEY_ADDED_SUCCESSFULLY, HttpStatus.OK);

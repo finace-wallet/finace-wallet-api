@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class TransactionRequest {
     private String senderName;
     private String recipientName;
-    private Float transactionAmount;
+    private double transactionAmount;
     private String description;
 }
