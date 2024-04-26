@@ -9,6 +9,8 @@
     import jakarta.persistence.JoinColumn;
     import jakarta.persistence.JoinTable;
     import jakarta.persistence.ManyToMany;
+    import jakarta.persistence.OneToMany;
+
     import jakarta.persistence.Table;
     import lombok.AllArgsConstructor;
     import lombok.Builder;
@@ -17,6 +19,7 @@
     import lombok.Setter;
 
     import java.util.List;
+    import java.util.Set;
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -31,10 +34,10 @@
         private Long id;
         private String name;
         private String icon;
-        private float amount;
+        private double amount;
         private String currentType;
         private String description;
-        private float transactionBudget;
+        private double transactionBudget;
         private boolean isDelete;
 
 
@@ -54,12 +57,7 @@
         @JsonIgnore
         private List<TransactionType> transactionTypes;
 
-        @ManyToMany(cascade = CascadeType.ALL)
-        @JoinTable(name = "wallet_transaction_history",
-                joinColumns = @JoinColumn(name = "wallet_id"),
-                inverseJoinColumns = @JoinColumn(name = "transaction_history_id")
-        )
-        @JsonIgnore
-        private List<Transaction> transactionHistories;
+        @OneToMany(mappedBy = "wallet")
+        private Set<UserDefType> userDefTypes;
 
     }

@@ -13,6 +13,6 @@ public class TransferMoneyRequest {
     private Long sourceWalletId;
     private Long destinationWalletId;
     private String destinationEmail;
-    private float amount;
+    private double amount;
     private String description;
 }

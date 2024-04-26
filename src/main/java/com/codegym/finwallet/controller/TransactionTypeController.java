@@ -19,7 +19,7 @@ public class TransactionTypeController {
 
     @PostMapping("/add-budget/{id}")
     public ResponseEntity<TransactionType> addBudgetToTransactionType(@PathVariable Long id,
-                                                                      @RequestParam float transactionBudget) {
+                                                                      @RequestParam double transactionBudget) {
         TransactionType updatedTransactionType = transactionTypeService.addBudgetToTransactionType(id, transactionBudget);
         return new ResponseEntity<>(updatedTransactionType, HttpStatus.OK);
     }

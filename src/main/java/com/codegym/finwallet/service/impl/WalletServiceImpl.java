@@ -123,8 +123,8 @@ public class WalletServiceImpl implements WalletService {
             }
             if (isUserWallet(id, email)) {
                 Wallet wallet = walletOptional.get();
-                float currentAmount = wallet.getAmount();
-                float inputAmount = walletRequest.getAmount();
+                double currentAmount = wallet.getAmount();
+                double inputAmount = walletRequest.getAmount();
                 if (inputAmount < 0) {
                     return CommonResponse.builder()
                             .data(null)
@@ -132,7 +132,7 @@ public class WalletServiceImpl implements WalletService {
                             .status(HttpStatus.BAD_REQUEST)
                             .build();
                 }
-                float newAmount = currentAmount + inputAmount;
+                double newAmount = currentAmount + inputAmount;
                 wallet.setAmount(newAmount);
                 wallet.setIcon(walletRequest.getIcon());
                 wallet.setName(walletRequest.getName());
@@ -232,7 +232,6 @@ public class WalletServiceImpl implements WalletService {
 //        walletRepository.save(sourceWallet);
 //        walletRepository.save(destinationWallet);
 //    }
-
     private CommonResponse buildResponse(Object data, String message, HttpStatus status) {
         return CommonResponse.builder()
                 .data(data)
@@ -243,14 +242,14 @@ public class WalletServiceImpl implements WalletService {
 
 
     @Override
-    public CommonResponse addMoneyToWallet(Long walletId, float amount) {
+    public CommonResponse addMoneyToWallet(Long walletId, double amount) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
         List<Wallet> wallets = walletRepository.findWalletByEmail(userEmail);
         Optional<Wallet> walletOptional = wallets.stream().filter(wallet -> wallet.getId().equals(walletId)).findFirst();
         if (walletOptional.isPresent()) {
             Wallet wallet = walletOptional.get();
-            float currentAmount = wallet.getAmount();
+            double currentAmount = wallet.getAmount();
             wallet.setAmount(currentAmount + amount);
             walletRepository.save(wallet);
             return buildResponse(null, WalletConstant.MONEY_ADDED_SUCCESSFULLY, HttpStatus.OK);

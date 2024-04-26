@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,12 +27,9 @@ public class Transaction {
     private Long id;
     private String sender;
     private String recipient;
+    @CreationTimestamp
     private LocalDateTime transactionDate;
-    private float transactionAmount;
+    private double transactionAmount;
     private String description;
     private boolean isDelete;
-
-    @ManyToMany (mappedBy = "transactionHistories")
-    private List<Wallet> wallets;
-
 }

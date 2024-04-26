@@ -10,6 +10,7 @@ import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.TransactionRepository;
 import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.ProfileService;
+import com.codegym.finwallet.repository.WalletTransactionRepository;
 import com.codegym.finwallet.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -29,12 +30,11 @@ public class TransactionServiceImpl implements TransactionService {
     private final ProfileService profileService;
     private final WalletRepository walletRepository;
 
+
+    private final WalletTransactionRepository walletTransactionRepository;
+    @Override
     public CommonResponse create(TransactionRequest request) {
         Transaction transaction = modelMapper.map(request, Transaction.class);
-        transaction.setSender(request.getSenderName());
-        transaction.setRecipient(request.getRecipientName());
-        transaction.setTransactionAmount(request.getTransactionAmount());
-        transaction.setDescription(request.getDescription());
         transactionRepository.save(transaction);
         return CommonResponse.builder()
                 .data(transaction)
@@ -60,11 +60,11 @@ public class TransactionServiceImpl implements TransactionService {
             return buildResponse(null, WalletConstant.WALLET_NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
         }
 
-        float amount = transferMoneyRequest.getAmount();
+        double amount = transferMoneyRequest.getAmount();
         return processTransferAndUpdateTransaction(sourceProfile, destinationProfile, sourceWallet, destinationWallet, amount, transferMoneyRequest);
     }
 
-    private CommonResponse processTransferAndUpdateTransaction(Profile sourceProfile, Profile destinationProfile, Wallet sourceWallet, Wallet destinationWallet, float amount, TransferMoneyRequest transferMoneyRequest) {
+    private CommonResponse processTransferAndUpdateTransaction(Profile sourceProfile, Profile destinationProfile, Wallet sourceWallet, Wallet destinationWallet, double amount, TransferMoneyRequest transferMoneyRequest) {
         CommonResponse transferResponse = processTransfer(sourceWallet, destinationWallet, amount);
         if (transferResponse.getStatus() == HttpStatus.OK) {
             createTransaction(sourceProfile, destinationProfile, amount, transferMoneyRequest);
@@ -72,7 +72,7 @@ public class TransactionServiceImpl implements TransactionService {
         return transferResponse;
     }
 
-    private void createTransaction(Profile sourceProfile, Profile destinationProfile, float amount, TransferMoneyRequest transferMoneyRequest) {
+    private void createTransaction(Profile sourceProfile, Profile destinationProfile, double amount, TransferMoneyRequest transferMoneyRequest) {
         TransactionRequest transactionRequest = TransactionRequest.builder()
                 .senderName(sourceProfile.getFullName())
                 .recipientName(destinationProfile.getFullName())
@@ -94,7 +94,7 @@ public class TransactionServiceImpl implements TransactionService {
         return walletOptional.orElse(null);
     }
 
-    private CommonResponse processTransfer(Wallet sourceWallet, Wallet destinationWallet, float amount) {
+    private CommonResponse processTransfer(Wallet sourceWallet, Wallet destinationWallet, double amount) {
         if (sourceWallet.getAmount() >= amount) {
             updateWalletAmounts(sourceWallet, destinationWallet, amount);
             return buildResponse(null, WalletConstant.SUCCESSFUL_MONEY_TRANSFER, HttpStatus.OK);
@@ -103,7 +103,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
-    private void updateWalletAmounts(Wallet sourceWallet, Wallet destinationWallet, float amount) {
+    private void updateWalletAmounts(Wallet sourceWallet, Wallet destinationWallet, double amount) {
         sourceWallet.setAmount(sourceWallet.getAmount() - amount);
         destinationWallet.setAmount(destinationWallet.getAmount() + amount);
         walletRepository.save(sourceWallet);

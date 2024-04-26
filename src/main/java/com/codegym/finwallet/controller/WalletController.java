@@ -4,11 +4,11 @@ package com.codegym.finwallet.controller;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
-import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
+
 import com.codegym.finwallet.service.TransactionService;
-import com.codegym.finwallet.service.impl.WalletServiceImpl;
+
 import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +81,7 @@ public class WalletController {
 
     @PostMapping("/add-money")
     public ResponseEntity<CommonResponse> addMoneyToWallet(@RequestParam Long walletId,
-                                                           @RequestParam float amount) {
+                                                           @RequestParam double amount) {
         CommonResponse response = walletService.addMoneyToWallet(walletId, amount);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
