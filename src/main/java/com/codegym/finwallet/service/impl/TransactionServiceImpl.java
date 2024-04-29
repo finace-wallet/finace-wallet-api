@@ -1,15 +1,18 @@
 package com.codegym.finwallet.service.impl;
 
+import com.codegym.finwallet.constant.TransactionConstant;
 import com.codegym.finwallet.constant.WalletConstant;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.TransactionRequest;
 import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
+import com.codegym.finwallet.dto.payload.response.TransactionResponse;
 import com.codegym.finwallet.entity.Profile;
 import com.codegym.finwallet.entity.Transaction;
 import com.codegym.finwallet.entity.Wallet;
+import com.codegym.finwallet.entity.WalletTransaction;
+import com.codegym.finwallet.repository.ProfileRepository;
 import com.codegym.finwallet.repository.TransactionRepository;
 import com.codegym.finwallet.repository.WalletRepository;
-import com.codegym.finwallet.service.ProfileService;
 import com.codegym.finwallet.repository.WalletTransactionRepository;
 import com.codegym.finwallet.service.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -27,47 +30,47 @@ import java.util.Optional;
 public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
     private final ModelMapper modelMapper;
-    private final ProfileService profileService;
     private final WalletRepository walletRepository;
-
-
     private final WalletTransactionRepository walletTransactionRepository;
+    private final ProfileRepository profileRepository;
+
     @Override
-    public CommonResponse create(TransactionRequest request) {
+    public CommonResponse saveTransaction(TransactionRequest request,TransferMoneyRequest transferMoneyRequest) {
         Transaction transaction = modelMapper.map(request, Transaction.class);
         transactionRepository.save(transaction);
-        return CommonResponse.builder()
-                .data(transaction)
-                .message("Saved transaction history")
-                .status(HttpStatus.OK)
-                .build();
+
+        WalletTransaction senderWalletTransaction = new WalletTransaction();
+        senderWalletTransaction.setTransaction(transaction);
+        senderWalletTransaction.setWallet(getDestinationWallet(transferMoneyRequest));
+        walletTransactionRepository.save(senderWalletTransaction);
+
+        WalletTransaction receiverWalletTransaction = new WalletTransaction();
+        receiverWalletTransaction.setTransaction(transaction);
+        receiverWalletTransaction.setWallet(getDestinationWallet(transferMoneyRequest));
+        walletTransactionRepository.save(receiverWalletTransaction);
+
+        TransactionResponse transactionResponse = modelMapper.map(transaction,TransactionResponse.class);
+        return buildResponse(transactionResponse,TransactionConstant.SAVE_TRANSACTION_SUCCESSFUL,HttpStatus.OK);
     }
-
-    @Override
-    public CommonResponse getAllTransactions(Long walletId) {
-
-        return null;
-    }
-
     @Override
     public CommonResponse transferMoney(TransferMoneyRequest transferMoneyRequest) {
         String sourceEmail = getAuthenticatedEmail();
-        Profile sourceProfile = profileService.findProfileByEmail(sourceEmail);
-        Profile destinationProfile = profileService.findProfileByEmail(transferMoneyRequest.getDestinationEmail());
+        Optional<Profile> sourceProfile = profileRepository.findProfileByEmail(sourceEmail);
+        Optional<Profile> destinationProfile = profileRepository.findProfileByEmail(transferMoneyRequest.getDestinationEmail());
 
-        if (sourceProfile == null || destinationProfile == null) {
+        if (sourceProfile.isEmpty() || destinationProfile.isEmpty()) {
             return buildResponse(null, WalletConstant.PROFILE_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
 
-        Wallet sourceWallet = getWalletByEmailAndId(sourceEmail, transferMoneyRequest.getSourceWalletId());
-        Wallet destinationWallet = getWalletByEmailAndId(transferMoneyRequest.getDestinationEmail(), transferMoneyRequest.getDestinationWalletId());
+        Wallet sourceWallet = getSourceWallet(transferMoneyRequest);
+        Wallet destinationWallet = getDestinationWallet(transferMoneyRequest);
 
         if (sourceWallet == null || destinationWallet == null) {
             return buildResponse(null, WalletConstant.WALLET_NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
         }
 
         double amount = transferMoneyRequest.getAmount();
-        return processTransferAndUpdateTransaction(sourceProfile, destinationProfile, sourceWallet, destinationWallet, amount, transferMoneyRequest);
+        return processTransferAndUpdateTransaction(sourceProfile.get(), destinationProfile.get(), sourceWallet, destinationWallet, amount, transferMoneyRequest);
     }
 
     private CommonResponse processTransferAndUpdateTransaction(Profile sourceProfile, Profile destinationProfile, Wallet sourceWallet, Wallet destinationWallet, double amount, TransferMoneyRequest transferMoneyRequest) {
@@ -85,7 +88,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .transactionAmount(amount)
                 .description(transferMoneyRequest.getDescription())
                 .build();
-        create(transactionRequest);
+        saveTransaction(transactionRequest,transferMoneyRequest);
     }
 
 
@@ -122,5 +125,12 @@ public class TransactionServiceImpl implements TransactionService {
                 .message(message)
                 .status(status)
                 .build();
+    }
+    private Wallet getSourceWallet(TransferMoneyRequest request) {
+        String sourceEmail = getAuthenticatedEmail();
+        return getWalletByEmailAndId(sourceEmail, request.getSourceWalletId());
+    }
+    private Wallet getDestinationWallet(TransferMoneyRequest request) {
+        return getWalletByEmailAndId(request.getDestinationEmail(), request.getDestinationWalletId());
     }
 }
