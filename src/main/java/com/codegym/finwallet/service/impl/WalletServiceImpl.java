@@ -7,8 +7,10 @@ import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Profile;
+import com.codegym.finwallet.entity.Transaction;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
+import com.codegym.finwallet.repository.TransactionRepository;
 import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.ProfileService;
 import com.codegym.finwallet.service.TransactionService;
@@ -35,6 +37,7 @@ public class WalletServiceImpl implements WalletService {
     private final AppUserRepository appUserRepository;
     private final ProfileService profileService;
     private final TransactionService transactionService;
+    private final TransactionRepository repository;
 
     @Override
     public Page<Wallet> findAllByEmail(Pageable pageable) {
@@ -202,7 +205,8 @@ public class WalletServiceImpl implements WalletService {
                 .transactionAmount(amount)
                 .description(transferMoneyRequest.getDescription())
                 .build();
-        transactionService.create(transactionRequest);
+        Transaction transaction = modelMapper.map(transactionRequest,Transaction.class);
+        repository.save(transaction);
     }
 
 

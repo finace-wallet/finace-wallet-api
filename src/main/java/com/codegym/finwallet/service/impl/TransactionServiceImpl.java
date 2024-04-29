@@ -3,6 +3,7 @@ package com.codegym.finwallet.service.impl;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.TransactionRequest;
 import com.codegym.finwallet.entity.Transaction;
+import com.codegym.finwallet.entity.WalletTransaction;
 import com.codegym.finwallet.repository.TransactionRepository;
 import com.codegym.finwallet.repository.WalletTransactionRepository;
 import com.codegym.finwallet.service.TransactionService;
@@ -18,13 +19,22 @@ public class TransactionServiceImpl implements TransactionService {
     private final ModelMapper modelMapper;
     private final WalletTransactionRepository walletTransactionRepository;
     @Override
-    public CommonResponse create(TransactionRequest request) {
+    public CommonResponse create(TransactionRequest request,Long id) {
         Transaction transaction = modelMapper.map(request, Transaction.class);
         transactionRepository.save(transaction);
+        WalletTransaction walletTransaction = new WalletTransaction();
+        walletTransaction.setTransaction(transaction);
+        walletTransaction.setWallet();
         return CommonResponse.builder()
                 .data(transaction)
                 .message("Saved transaction history")
                 .status(HttpStatus.OK)
                 .build();
+    }
+
+    @Override
+    public CommonResponse getAllTransactions(Long walletId) {
+
+        return null;
     }
 }
