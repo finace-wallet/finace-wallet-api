@@ -14,6 +14,7 @@ import com.codegym.finwallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -84,5 +85,13 @@ public class WalletController {
                                                            @RequestParam double amount) {
         CommonResponse response = walletService.addMoneyToWallet(walletId, amount);
         return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @GetMapping("/transaction-history/{id}")
+    public ResponseEntity<CommonResponse> getTransactionHistory(@RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "5") int size,@PathVariable Long id) {
+        PageRequest pageable = PageRequest.of(page, size);
+        CommonResponse commonResponse = transactionService.findAllTransactionsByWalletId(pageable,id);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 }
