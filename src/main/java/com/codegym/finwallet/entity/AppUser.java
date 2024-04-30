@@ -47,7 +47,7 @@ public class AppUser {
     @JsonManagedReference
     private List<Role> roles;
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Wallet> wallets;
 
