@@ -30,8 +30,6 @@ public class TransactionServiceImpl implements TransactionService {
     private final ProfileService profileService;
     private final WalletRepository walletRepository;
 
-
-    private final WalletTransactionRepository walletTransactionRepository;
     @Override
     public CommonResponse create(TransactionRequest request) {
         Transaction transaction = modelMapper.map(request, Transaction.class);
