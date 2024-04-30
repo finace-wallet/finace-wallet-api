@@ -1,5 +1,6 @@
 package com.codegym.finwallet.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,12 +25,14 @@ public class WalletTransaction {
     private Long id;
     @ManyToOne
     @JoinColumn(name = "wallet_id")
+    @JsonBackReference
     private Wallet wallet;
     @ManyToOne
     @JoinColumn(name = "transaction_id")
     private Transaction transaction;
     @ManyToOne
     @JoinColumn(name = "transaction_type_id")
+    @JsonBackReference
     private TransactionType transactionType;
     private boolean isDelete;
 }
