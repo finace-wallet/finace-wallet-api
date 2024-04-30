@@ -17,6 +17,7 @@ import com.codegym.finwallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -39,7 +40,14 @@ public class WalletServiceImpl implements WalletService {
     public Page<Wallet> findAllByEmail(Pageable pageable) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        return walletRepository.findAllByEmail(pageable, email);
+        return walletRepository.findAllByEmail( pageable, email);
+    }
+
+    @Override
+    public Page<Wallet> getWalletByPage(int page, int pageSize) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return walletRepository.findAllByEmail(PageRequest.of(page - 1, pageSize), email);
     }
 
     @Override

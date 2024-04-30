@@ -39,8 +39,6 @@
         private String description;
         private double transactionBudget;
         private boolean isDelete;
-
-
         @ManyToMany(cascade = CascadeType.ALL)
         @JoinTable(name = "user_wallets",
                 joinColumns = @JoinColumn(name = "wallet_id"),

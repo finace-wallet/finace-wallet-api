@@ -24,23 +24,11 @@ import java.util.Optional;
 public class ProfileServiceImpl implements ProfileService {
     private final ProfileRepository profileRepository;
     private final ModelMapper modelMapper;
-    private final AppUserRepository appUserRepository;
 
     @Override
     public Profile findProfileByEmail(String email) {
         Optional<Profile> profile = profileRepository.findProfileByEmail(email);
         return profile.orElse(null);
-    }
-
-    private Profile findProfileByAppUser_Id(Long userId) {
-        Optional<Profile> profileOptional = profileRepository.findProfileByAppUser_Id(userId);
-        if (profileOptional.isPresent()) {
-            return profileOptional.get();
-        } else {
-            // Handle case where no profile is found for the given user id
-            System.out.println("Something is wrong");
-            return null;
-        }
     }
 
     @Override
@@ -54,14 +42,10 @@ public class ProfileServiceImpl implements ProfileService {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String email = authentication.getName();
-//            Profile curentProfile = findProfileByEmail(email);
-            AppUser appUser = appUserRepository.findByEmail(email);
-            Profile currentProfile = findProfileByAppUser_Id(appUser.getId());
-
-            Profile newProfile = modelMapper.map(request, currentProfile.getClass());
-            newProfile.setId(currentProfile.getId());
-            newProfile.setAppUser(appUser);
-
+            Profile curentProfile = findProfileByEmail(email);
+            Profile newProfile = modelMapper.map(request, curentProfile.getClass());
+            newProfile.setId(curentProfile.getId());
+            newProfile.setAppUser(curentProfile.getAppUser());
             profileRepository.save(newProfile);
             commonResponse = commonResponse.builder()
                     .data(null)
@@ -100,3 +84,4 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 }
+

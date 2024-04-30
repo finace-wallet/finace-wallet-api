@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface WalletService {
     Page<Wallet> findAllByEmail(Pageable pageable);
+    Page<Wallet> getWalletByPage(int page, int pageSize);
     CommonResponse createWallet(WalletRequest request);
     CommonResponse deleteWallet(Long id);
     Wallet findById(Long id);

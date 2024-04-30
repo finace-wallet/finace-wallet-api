@@ -26,4 +26,8 @@ public class UserConstant {
     public static final int OTP_MAX_VALUE = 10;
     public static final String APP_USER_ACTIVE_SUCCESSFUL = "Your account has been activated!";
     public static final String APP_USER_ACTIVE_FAIL_MESSAGE = "Can't activate your account!";
+
+    public static final String CREATE_USER_DEF_TYPE_SUCCESSFUL = "You have created your own user def type";
+
+    public static final String CREATE_USER_DEF_TYPE_FAIL = "You have NOT created your own user def type";
 }
