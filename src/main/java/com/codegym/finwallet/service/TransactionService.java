@@ -5,7 +5,7 @@ import com.codegym.finwallet.dto.payload.request.TransactionRequest;
 import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 
 public interface TransactionService {
-    CommonResponse create(TransactionRequest request);
+    CommonResponse saveTransaction(TransactionRequest request,TransferMoneyRequest transferMoneyRequest);
 
     CommonResponse transferMoney(TransferMoneyRequest transferMoneyRequest);
 }

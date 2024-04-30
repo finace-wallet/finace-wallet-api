@@ -71,7 +71,7 @@ public class AppUserServiceImpl implements AppUserService {
             profileRepository.save(profile);
             otp = generateOtp();
             saveOtpAndEmail(otp,email);
-            sendNewPasswordToEmail(email,otp);
+            sendOtpToEmail(email,otp);
             return CommonResponse.builder()
                     .data(null)
                     .message(UserConstant.CREATE_USER_SUCCESSFUL_MESSAGE)
@@ -174,6 +174,8 @@ public class AppUserServiceImpl implements AppUserService {
             String email = getEmailByOtp(otp);
             AppUser user = appUserRepository.findByEmail(email);
             user.setActive(true);
+            appUserRepository.save(user);
+            otpCache.invalidate(otp);
 
             return CommonResponse.builder()
                     .data(null)
