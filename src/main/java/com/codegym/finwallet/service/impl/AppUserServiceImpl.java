@@ -71,7 +71,7 @@ public class AppUserServiceImpl implements AppUserService {
             profileRepository.save(profile);
             otp = generateOtp();
             saveOtpAndEmail(otp,email);
-            sendOtpToEmail(email,otp);
+            sendOtpToEmail(otp,email);
             return CommonResponse.builder()
                     .data(null)
                     .message(UserConstant.CREATE_USER_SUCCESSFUL_MESSAGE)
@@ -265,6 +265,7 @@ public class AppUserServiceImpl implements AppUserService {
             String accessToken = jwtService.GenerateToken(loginRequest.getEmail());
             LoginResponse loginResponse = modelMapper.map(appUser, LoginResponse.class);
             loginResponse.setAccessToken(accessToken);
+            loginResponse.setRoles(appUser.getRoles());
             return CommonResponse.builder()
                     .data(loginResponse)
                     .message(UserConstant.MESSAGE_LOGIN_SUCCESS)

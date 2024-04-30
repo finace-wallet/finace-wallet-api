@@ -17,6 +17,8 @@ import com.codegym.finwallet.repository.WalletTransactionRepository;
 import com.codegym.finwallet.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,7 +43,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         WalletTransaction senderWalletTransaction = new WalletTransaction();
         senderWalletTransaction.setTransaction(transaction);
-        senderWalletTransaction.setWallet(getDestinationWallet(transferMoneyRequest));
+        senderWalletTransaction.setWallet(getSourceWallet(transferMoneyRequest));
         walletTransactionRepository.save(senderWalletTransaction);
 
         WalletTransaction receiverWalletTransaction = new WalletTransaction();
@@ -71,6 +73,12 @@ public class TransactionServiceImpl implements TransactionService {
 
         double amount = transferMoneyRequest.getAmount();
         return processTransferAndUpdateTransaction(sourceProfile.get(), destinationProfile.get(), sourceWallet, destinationWallet, amount, transferMoneyRequest);
+    }
+
+    @Override
+    public CommonResponse findAllTransactionsByWalletId(Pageable pageable,Long walletID) {
+        Page<Transaction> transactions = transactionRepository.findAllByWalletId(pageable,walletID);
+        return buildResponse(transactions,"",HttpStatus.OK);
     }
 
     private CommonResponse processTransferAndUpdateTransaction(Profile sourceProfile, Profile destinationProfile, Wallet sourceWallet, Wallet destinationWallet, double amount, TransferMoneyRequest transferMoneyRequest) {
