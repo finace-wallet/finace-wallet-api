@@ -10,5 +10,7 @@ import java.util.Optional;
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
     @Query("SELECT u.profile FROM AppUser u WHERE u.email = :email")
     Optional<Profile> findProfileByEmail(String email);
+
+    Optional<Profile> findProfileByAppUser_Id(Long userId);
 }
 
