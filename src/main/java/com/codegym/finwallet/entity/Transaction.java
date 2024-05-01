@@ -4,28 +4,32 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Builder
-public class TransactionType {
+@Entity
+public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String typeName;
-    private double transactionBudget;
+    private String sender;
+    private String recipient;
+    @CreationTimestamp
+    private LocalDateTime transactionDate;
+    private double transactionAmount;
+    private String description;
     private boolean isDelete;
-    @OneToMany(mappedBy = "transactionType")
-    private List<WalletTransaction> walletTransaction;
 }

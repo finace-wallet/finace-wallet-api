@@ -17,7 +17,7 @@ public class WalletRequest {
     @NotBlank
     @NotNull
     @Min(0)
-    private float amount;
+    private double amount;
     private String currentType;
     @NotBlank
     @NotNull

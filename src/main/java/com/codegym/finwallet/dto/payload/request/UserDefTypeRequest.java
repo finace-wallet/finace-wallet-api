@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TransactionTypeRequest {
-    private String typeName;
-    private float transactionBudget;
+public class UserDefTypeRequest {
+    private String name;
+    private float walletLimit;
 }
