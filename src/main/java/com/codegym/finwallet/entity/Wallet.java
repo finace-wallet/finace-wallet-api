@@ -11,6 +11,7 @@
     import jakarta.persistence.JoinTable;
     import jakarta.persistence.ManyToMany;
     import jakarta.persistence.OneToMany;
+
     import jakarta.persistence.Table;
     import lombok.AllArgsConstructor;
     import lombok.Builder;
@@ -48,7 +49,16 @@
         @JsonIgnore
         private List<AppUser> users;
 
+        @ManyToMany(cascade = CascadeType.ALL)
+        @JoinTable(name = "wallet_transaction_type",
+                joinColumns = @JoinColumn(name = "wallet_id"),
+                inverseJoinColumns = @JoinColumn(name = "tracsaction_type_id")
+        )
+        @JsonIgnore
+        private List<TransactionType> transactionTypes;
+
         @OneToMany(mappedBy = "wallet")
         @JsonBackReference
         private Set<UserDefType> userDefTypes;
+
     }

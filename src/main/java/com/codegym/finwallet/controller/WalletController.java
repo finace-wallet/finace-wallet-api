@@ -6,6 +6,9 @@ import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
+
+import com.codegym.finwallet.service.TransactionService;
+
 import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.UserDefTypeService;
 import com.codegym.finwallet.service.WalletService;
@@ -32,6 +35,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class WalletController {
 
     private final WalletService walletService;
+    private final TransactionService transactionService;
+
+
+
+    @Autowired
     private final AppUserRepository userRepository;
     private final WalletRepository walletRepository;
     private final UserDefTypeService userDefTypeService;
@@ -69,7 +77,7 @@ public class WalletController {
 
     @PostMapping("/transfer")
     public ResponseEntity<CommonResponse> transferMoney(@RequestBody TransferMoneyRequest transferRequest) {
-        CommonResponse response = walletService.transferMoney(transferRequest);
+        CommonResponse response = transactionService.transferMoney(transferRequest);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
@@ -89,9 +97,16 @@ public class WalletController {
 
     @PutMapping("/edit-limit/{id}")
     public ResponseEntity<CommonResponse> updateWalletLimit(@PathVariable Long id,
-                                                            @RequestParam double newLimit){
-        CommonResponse response = userDefTypeService.updateWalletLimit(id,newLimit);
+                                                            @RequestParam double newLimit) {
+        CommonResponse response = userDefTypeService.updateWalletLimit(id, newLimit);
         return ResponseEntity.status(response.getStatus()).body(response);
+    }
+    @GetMapping("/transaction-history/{id}")
+    public ResponseEntity<CommonResponse> getTransactionHistory(@RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "5") int size,@PathVariable Long id) {
+        PageRequest pageable = PageRequest.of(page, size);
+        CommonResponse commonResponse = transactionService.findAllTransactionsByWalletId(pageable,id);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 }
 
