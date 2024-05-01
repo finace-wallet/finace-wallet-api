@@ -85,7 +85,7 @@ public class WalletController {
     }
 
     @GetMapping("/transaction-history/{walletId}")
-    public ResponseEntity<?> getTotalMonney(@PathVariable Long walletId){
+    public ResponseEntity<?> getTransactionHistory(@PathVariable Long walletId){
         CommonResponse response = walletService.getTransactionHistory(walletId);
         return new ResponseEntity<>(response ,response.getStatus());
     }
