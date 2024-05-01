@@ -43,6 +43,7 @@ public class ProfileServiceImpl implements ProfileService {
             Profile curentProfile = findProfileByEmail(email);
             Profile newProfile = modelMapper.map(request, curentProfile.getClass());
             newProfile.setId(curentProfile.getId());
+            newProfile.setAppUser(curentProfile.getAppUser());
             profileRepository.save(newProfile);
             commonResponse = commonResponse.builder()
                     .data(null)

@@ -12,7 +12,7 @@ public class TransactionTypeServiceImpl implements TransactionTypeService {
     private final TransactionTypeRepository transactionTypeRepository;
 
     @Override
-    public TransactionType addBudgetToTransactionType(Long id, float transactionBudget) {
+    public TransactionType addBudgetToTransactionType(Long id, double transactionBudget) {
         TransactionType transactionType = transactionTypeRepository.findById(id).orElseThrow(()
         -> new IllegalArgumentException("Invalid transaction type Id: " + id) );
         transactionType.setTransactionBudget(transactionBudget);
@@ -20,8 +20,8 @@ public class TransactionTypeServiceImpl implements TransactionTypeService {
     }
 
     @Override
-    public boolean isBudgetExceeded(TransactionType transactionType, float transactionAmount) {
-       float transactionBudget = transactionType.getTransactionBudget();
+    public boolean isBudgetExceeded(TransactionType transactionType, double transactionAmount) {
+        double transactionBudget = transactionType.getTransactionBudget();
        return transactionAmount > transactionBudget;
     }
 

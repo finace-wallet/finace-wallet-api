@@ -5,14 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 @Builder
-public class TransferMoneyRequest {
-    private Long sourceWalletId;
-    private Long destinationWalletId;
-    private String destinationEmail;
-    private double amount;
+public class TransactionRequest {
+    private String senderName;
+    private String recipientName;
+    private double transactionAmount;
     private String description;
 }

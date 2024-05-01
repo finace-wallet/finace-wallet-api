@@ -1,4 +1,4 @@
-package com.codegym.finwallet.dto.payload.request;
+package com.codegym.finwallet.dto.payload.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,10 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TransferMoneyRequest {
-    private Long sourceWalletId;
-    private Long destinationWalletId;
-    private String destinationEmail;
+public class WalletResponse {
+    private String name;
+    private String icon;
     private double amount;
+    private String currentType;
     private String description;
+    private double transactionBudget;
 }

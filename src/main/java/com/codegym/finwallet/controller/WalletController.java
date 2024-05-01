@@ -4,15 +4,17 @@ package com.codegym.finwallet.controller;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
-import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
-import com.codegym.finwallet.service.impl.WalletServiceImpl;
+
+import com.codegym.finwallet.service.TransactionService;
+
 import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class WalletController {
 
     private final WalletService walletService;
+    private final TransactionService transactionService;
 
 
 
@@ -73,20 +76,24 @@ public class WalletController {
 
     @PostMapping("/transfer")
     public ResponseEntity<CommonResponse> transferMoney(@RequestBody TransferMoneyRequest transferRequest) {
-        CommonResponse response = walletService.transferMoney(transferRequest);
+        CommonResponse response = transactionService.transferMoney(transferRequest);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @PostMapping("/add-money")
     public ResponseEntity<CommonResponse> addMoneyToWallet(@RequestParam Long walletId,
-                                                           @RequestParam float amount) {
+                                                           @RequestParam double amount) {
         CommonResponse response = walletService.addMoneyToWallet(walletId, amount);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @GetMapping("/transaction-history/{walletId}")
-    public ResponseEntity<?> getTransactionHistory(@PathVariable Long walletId){
-        CommonResponse response = walletService.getTransactionHistory(walletId);
-        return new ResponseEntity<>(response ,response.getStatus());
+
+    @GetMapping("/transaction-history/{id}")
+    public ResponseEntity<CommonResponse> getTransactionHistory(@RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "5") int size,@PathVariable Long id) {
+        PageRequest pageable = PageRequest.of(page, size);
+        CommonResponse commonResponse = transactionService.findAllTransactionsByWalletId(pageable,id);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+
     }
 }
