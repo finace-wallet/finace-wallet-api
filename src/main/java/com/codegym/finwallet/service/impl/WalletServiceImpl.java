@@ -47,6 +47,7 @@ public class WalletServiceImpl implements WalletService {
     public Page<Wallet> getWalletByPage(int page, int pageSize) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
+
         return walletRepository.findAllByEmail(PageRequest.of(page - 1, pageSize), email);
     }
 

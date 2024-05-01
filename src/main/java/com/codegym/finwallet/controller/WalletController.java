@@ -3,6 +3,7 @@ package com.codegym.finwallet.controller;
 
 import com.codegym.finwallet.constant.WalletConstant;
 import com.codegym.finwallet.dto.CommonResponse;
+import com.codegym.finwallet.dto.payload.request.AddMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.DisplayWalletRequest;
 import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
@@ -63,9 +64,8 @@ public class WalletController {
 //        return new ResponseEntity<>(walletsPage, HttpStatus.OK);
 //    }
 
-    @GetMapping("/list")
+    @PostMapping("/list")
     public ResponseEntity<Page<Wallet>> getAllWallet(@RequestBody DisplayWalletRequest displayWalletRequest){
-
         int pageSize = WalletConstant.WALLET_PER_PAGE;
         int page = displayWalletRequest.getPage();
         Page<Wallet> walletsPage = walletService.getWalletByPage(page, pageSize);
@@ -90,9 +90,17 @@ public class WalletController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+//    @PostMapping("/add-money")
+//    public ResponseEntity<CommonResponse> addMoneyToWallet(@RequestParam Long walletId,
+//                                                           @RequestParam double amount) {
+//        CommonResponse response = walletService.addMoneyToWallet(walletId, amount);
+//        return ResponseEntity.status(response.getStatus()).body(response);
+//    }
+
     @PostMapping("/add-money")
-    public ResponseEntity<CommonResponse> addMoneyToWallet(@RequestParam Long walletId,
-                                                           @RequestParam double amount) {
+    public ResponseEntity<CommonResponse> addMoneyToWallet(@RequestBody AddMoneyRequest addMoneyRequest) {
+        Long walletId = addMoneyRequest.getWalletId();
+        Double amount = addMoneyRequest.getAmount();
         CommonResponse response = walletService.addMoneyToWallet(walletId, amount);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
