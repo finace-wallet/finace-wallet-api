@@ -31,16 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/wallets")
 @RequiredArgsConstructor
 public class WalletController {
-
     private final WalletService walletService;
     private final TransactionService transactionService;
-
-
-
-    @Autowired
-    private final AppUserRepository userRepository;
-
-    private final WalletRepository walletRepository;
 
     @PutMapping("/edit/{id}")
     public ResponseEntity<?> update(@RequestBody WalletRequest walletRequest, @PathVariable Long id){
@@ -87,9 +79,11 @@ public class WalletController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @GetMapping("/transaction-history/{id}")
-    public ResponseEntity<CommonResponse> getTransactionHistory(@RequestParam(defaultValue = "0") int page,
-                                                                @RequestParam(defaultValue = "5") int size,@PathVariable Long id) {
+    @GetMapping("{id}/transactions")
+    public ResponseEntity<CommonResponse> getTransactionHistory(@PathVariable Long id,
+                                                                @RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "5") int size
+    ) {
         PageRequest pageable = PageRequest.of(page, size);
         CommonResponse commonResponse = transactionService.findAllTransactionsByWalletId(pageable,id);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);

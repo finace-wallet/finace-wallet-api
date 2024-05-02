@@ -2,6 +2,7 @@ package com.codegym.finwallet.controller;
 
 import com.codegym.finwallet.constant.UserConstant;
 import com.codegym.finwallet.dto.CommonResponse;
+import com.codegym.finwallet.dto.payload.request.ActiveUserRequest;
 import com.codegym.finwallet.dto.payload.request.ChangePasswordRequest;
 import com.codegym.finwallet.dto.payload.request.ForgotPasswordRequest;
 import com.codegym.finwallet.dto.payload.request.LoginRequest;
@@ -76,8 +77,8 @@ public class AuthController {
     }
 
     @PostMapping("/active")
-    public ResponseEntity<CommonResponse> active(@RequestBody String otp) {
-        CommonResponse commonResponse = appUserService.activeUser(otp);
+    public ResponseEntity<CommonResponse> active(@RequestBody ActiveUserRequest activeUserRequest) {
+        CommonResponse commonResponse = appUserService.activeUser(activeUserRequest);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 }
