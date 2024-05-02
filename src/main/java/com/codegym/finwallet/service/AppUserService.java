@@ -1,6 +1,7 @@
 package com.codegym.finwallet.service;
 
 import com.codegym.finwallet.dto.CommonResponse;
+import com.codegym.finwallet.dto.payload.request.ActiveUserRequest;
 import com.codegym.finwallet.dto.payload.request.ChangePasswordRequest;
 import com.codegym.finwallet.dto.payload.request.ForgotPasswordRequest;
 import com.codegym.finwallet.dto.payload.request.LoginRequest;
@@ -20,6 +21,6 @@ public interface AppUserService {
     boolean isUserActiveAndNotDelete(String email );
     CommonResponse logout(String request);
     boolean isUserTokenInBlackList(String email);
-    CommonResponse activeUser(String otp);
+    CommonResponse activeUser(ActiveUserRequest activeUserRequest);
 
 }

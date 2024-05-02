@@ -4,6 +4,7 @@ import com.codegym.finwallet.constant.AuthConstant;
 import com.codegym.finwallet.constant.CharacterConstant;
 import com.codegym.finwallet.constant.UserConstant;
 import com.codegym.finwallet.dto.CommonResponse;
+import com.codegym.finwallet.dto.payload.request.ActiveUserRequest;
 import com.codegym.finwallet.dto.payload.request.ChangePasswordRequest;
 import com.codegym.finwallet.dto.payload.request.ForgotPasswordRequest;
 import com.codegym.finwallet.dto.payload.request.LoginRequest;
@@ -27,9 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -188,7 +187,8 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
-    public CommonResponse activeUser(String otp) {
+    public CommonResponse activeUser(ActiveUserRequest activeUserRequest) {
+        String otp = activeUserRequest.getOtp();
         try {
             String email = getEmailByOtp(otp);
             AppUser user = appUserRepository.findByEmail(email);
@@ -300,10 +300,12 @@ public class AppUserServiceImpl implements AppUserService {
         if (authentication.isAuthenticated() && isUserActiveAndNotDelete(authentication.getName())) {
             List<Role> roles = getUserRole(authentication.getName());
             List<RoleResponse> rolesResponse = mapRoles(roles);
+            String fullName = getFullName(authentication.getName());
             String accessToken = jwtService.GenerateToken(loginRequest.getEmail());
             LoginResponse loginResponse = modelMapper.map(appUser, LoginResponse.class);
             loginResponse.setAccessToken(accessToken);
             loginResponse.setRoles(rolesResponse);
+            loginResponse.setFullName(fullName);
             return CommonResponse.builder()
                     .data(loginResponse)
                     .message(UserConstant.MESSAGE_LOGIN_SUCCESS)
@@ -361,5 +363,10 @@ public class AppUserServiceImpl implements AppUserService {
 
     private RoleResponse mapRoleToRoleResponse(Role role) {
         return modelMapper.map(role, RoleResponse.class);
+    }
+
+    private String getFullName(String email) {
+        Optional<Profile> profileOptional = profileRepository.findProfileByEmail(email);
+        return profileOptional.map(Profile::getFullName).orElse(null);
     }
 }
