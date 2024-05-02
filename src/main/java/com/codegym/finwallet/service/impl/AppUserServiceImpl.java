@@ -4,11 +4,13 @@ import com.codegym.finwallet.constant.AuthConstant;
 import com.codegym.finwallet.constant.CharacterConstant;
 import com.codegym.finwallet.constant.UserConstant;
 import com.codegym.finwallet.dto.CommonResponse;
+import com.codegym.finwallet.dto.payload.request.ActiveUserRequest;
 import com.codegym.finwallet.dto.payload.request.ChangePasswordRequest;
 import com.codegym.finwallet.dto.payload.request.ForgotPasswordRequest;
 import com.codegym.finwallet.dto.payload.request.LoginRequest;
 import com.codegym.finwallet.dto.payload.request.RegisterRequest;
 import com.codegym.finwallet.dto.payload.response.LoginResponse;
+import com.codegym.finwallet.dto.payload.response.RoleResponse;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Profile;
 import com.codegym.finwallet.entity.Role;
@@ -20,12 +22,14 @@ import com.codegym.finwallet.repository.TokenBlackListRepository;
 import com.codegym.finwallet.service.AppUserService;
 import com.codegym.finwallet.service.JwtService;
 import com.github.benmanes.caffeine.cache.Cache;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,15 +37,19 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AppUserServiceImpl implements AppUserService {
-    private final Cache<String,String> otpCache;
+    private final Cache<String, String> otpCache;
     private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
@@ -51,13 +59,14 @@ public class AppUserServiceImpl implements AppUserService {
     private final JwtService jwtService;
     private final ProfileRepository profileRepository;
     private final TokenBlackListRepository tokenBlackListRepository;
+    private final SpringTemplateEngine templateEngine;
 
     @Override
     public CommonResponse createUser(RegisterRequest request) {
         String email = request.getEmail();
         String otp = null;
         Optional<AppUser> appUserOptional = appUserRepository.findAppUserByEmail(email);
-        if (appUserOptional.isEmpty()  && isRoleExist()) {
+        if (appUserOptional.isEmpty() && isRoleExist()) {
             AppUser appUser = new AppUser();
             appUser.setEmail(request.getEmail());
             appUser.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -70,20 +79,28 @@ public class AppUserServiceImpl implements AppUserService {
             appUserRepository.save(appUser);
             profileRepository.save(profile);
             otp = generateOtp();
-            saveOtpAndEmail(otp,email);
-            sendOtpToEmail(otp,email);
-            return CommonResponse.builder()
-                    .data(null)
-                    .message(UserConstant.CREATE_USER_SUCCESSFUL_MESSAGE)
-                    .status(HttpStatus.CREATED)
-                    .build();
+            saveOtpAndEmail(otp, email);
+            try {
+                sendOtpToEmail(otp, email);
+                return CommonResponse.builder()
+                        .data(null)
+                        .message(UserConstant.CREATE_USER_SUCCESSFUL_MESSAGE)
+                        .status(HttpStatus.CREATED)
+                        .build();
+            } catch (MessagingException e) {
+                return CommonResponse.builder()
+                        .data(null)
+                        .message(UserConstant.CREATE_USER_FAIL_MESSAGE + email)
+                        .status(HttpStatus.BAD_REQUEST)
+                        .build();
+            }
         }
-            return CommonResponse.builder()
-                    .data(null)
-                    .message(UserConstant.CREATE_USER_FAIL_MESSAGE + email)
-                    .status(HttpStatus.BAD_REQUEST)
-                    .build();
-        }
+        return CommonResponse.builder()
+                .data(null)
+                .message(UserConstant.CREATE_USER_FAIL_MESSAGE + email)
+                .status(HttpStatus.BAD_REQUEST)
+                .build();
+    }
 
     @Override
     public boolean changePassword(ChangePasswordRequest request) {
@@ -97,12 +114,13 @@ public class AppUserServiceImpl implements AppUserService {
                 return true;
             }
         }
-        return  false;
+        return false;
     }
 
     @Override
     public boolean deleteUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        ;
         String email = authentication.getName();
         if (email != null) {
             AppUser appUser = appUserRepository.findByEmail(email);
@@ -169,7 +187,8 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
-    public CommonResponse activeUser(String otp) {
+    public CommonResponse activeUser(ActiveUserRequest activeUserRequest) {
+        String otp = activeUserRequest.getOtp();
         try {
             String email = getEmailByOtp(otp);
             AppUser user = appUserRepository.findByEmail(email);
@@ -182,7 +201,7 @@ public class AppUserServiceImpl implements AppUserService {
                     .message(UserConstant.APP_USER_ACTIVE_SUCCESSFUL)
                     .status(HttpStatus.OK)
                     .build();
-        }catch (Exception e){
+        } catch (Exception e) {
             return CommonResponse.builder()
                     .data(null)
                     .message(UserConstant.APP_USER_ACTIVE_FAIL_MESSAGE)
@@ -211,12 +230,20 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
-    public void sendNewPasswordToEmail(String email, String newPassword) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
-        message.setSubject(UserConstant.SUBJECT);
-        message.setText(newPassword);
-        mailSender.send(message);
+    public void sendNewPasswordToEmail(String email, String newPassword) throws MessagingException {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+        helper.setTo(email);
+        helper.setSubject(UserConstant.FORGET_PASSWORD_SUBJECT);
+
+        Context context = new Context();
+        context.setVariable("newPassword", newPassword);
+        String emailContent = templateEngine.process("new-password-email-template", context);
+
+        helper.setText(emailContent, true);
+
+        mailSender.send(mimeMessage);
+
     }
 
     @Override
@@ -228,16 +255,25 @@ public class AppUserServiceImpl implements AppUserService {
                 .map(appUser -> {
                     appUser.setPassword(newPassEncode);
                     appUserRepository.save(appUser);
-                    sendNewPasswordToEmail(email,newPassword);
-                    return CommonResponse.builder()
-                            .data(null)
-                            .message(UserConstant.SEND_PASSWORD_SUCCESSFUL_MESSAGE)
-                            .status(HttpStatus.OK)
-                            .build();
+                    try {
+                        sendNewPasswordToEmail(email, newPassword);
+                        return CommonResponse.builder()
+                                .data(null)
+                                .message(UserConstant.SEND_PASSWORD_SUCCESSFUL_MESSAGE)
+                                .status(HttpStatus.OK)
+                                .build();
+                    } catch (MessagingException e) {
+                        System.out.println(e.getMessage());
+                        return CommonResponse.builder()
+                                .data(null)
+                                .message(UserConstant.SEND_PASSWORD_FAIL_MESSAGE + email)
+                                .status(HttpStatus.OK)
+                                .build();
+                    }
                 })
                 .orElse(CommonResponse.builder()
                         .data(null)
-                        .message(UserConstant.SEND_PASSWORD_FAIL_MESSAGE+ email)
+                        .message(UserConstant.SEND_PASSWORD_FAIL_MESSAGE + email)
                         .status(HttpStatus.NOT_FOUND)
                         .build());
     }
@@ -245,14 +281,14 @@ public class AppUserServiceImpl implements AppUserService {
     @Override
     public CommonResponse login(LoginRequest loginRequest, HttpServletResponse response) {
         AppUser appUser = modelMapper.map(loginRequest, AppUser.class);
-        Authentication authentication ;
-        try{
-           authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                             appUser.getEmail(),
                             appUser.getPassword()
                     )
             );
-        }catch (AuthenticationException e){
+        } catch (AuthenticationException e) {
             return CommonResponse.builder()
                     .data(null)
                     .message(UserConstant.MESSAGE_LOGIN_FAIL_AUTHORIZATION + loginRequest.getEmail())
@@ -262,10 +298,14 @@ public class AppUserServiceImpl implements AppUserService {
 
 
         if (authentication.isAuthenticated() && isUserActiveAndNotDelete(authentication.getName())) {
+            List<Role> roles = getUserRole(authentication.getName());
+            List<RoleResponse> rolesResponse = mapRoles(roles);
+            String fullName = getFullName(authentication.getName());
             String accessToken = jwtService.GenerateToken(loginRequest.getEmail());
             LoginResponse loginResponse = modelMapper.map(appUser, LoginResponse.class);
             loginResponse.setAccessToken(accessToken);
-            loginResponse.setRoles(appUser.getRoles());
+            loginResponse.setRoles(rolesResponse);
+            loginResponse.setFullName(fullName);
             return CommonResponse.builder()
                     .data(loginResponse)
                     .message(UserConstant.MESSAGE_LOGIN_SUCCESS)
@@ -278,7 +318,8 @@ public class AppUserServiceImpl implements AppUserService {
                 .status(HttpStatus.NOT_FOUND)
                 .build();
     }
-    private String generateOtp(){
+
+    private String generateOtp() {
         StringBuilder otp = new StringBuilder();
         Random random = new Random();
         for (int i = 0; i < UserConstant.OTP_MAX_LENGTH; i++) {
@@ -288,18 +329,44 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     private void saveOtpAndEmail(String otp, String email) {
-        otpCache.put(otp,email);
+        otpCache.put(otp, email);
     }
 
     private String getEmailByOtp(String otp) {
         return otpCache.getIfPresent(otp);
     }
 
-    private void sendOtpToEmail(String otp, String email) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
-        message.setSubject(UserConstant.SUBJECT);
-        message.setText(otp);
-        mailSender.send(message);
+    private void sendOtpToEmail(String otp, String email) throws MessagingException {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+        helper.setTo(email);
+        helper.setSubject(UserConstant.ACTIVE_USER_SUBJECT);
+
+        Context context = new Context();
+        context.setVariable("otp", otp);
+        String emailContent = templateEngine.process("otp-active-user-email-template", context);
+
+        helper.setText(emailContent, true);
+
+        mailSender.send(mimeMessage);
+    }
+
+    private List<Role> getUserRole(String email) {
+        return roleRepository.findRolesByEmail(email);
+    }
+
+    private List<RoleResponse> mapRoles(List<Role> roles) {
+        return roles.stream()
+                .map(this::mapRoleToRoleResponse)
+                .collect(Collectors.toList());
+    }
+
+    private RoleResponse mapRoleToRoleResponse(Role role) {
+        return modelMapper.map(role, RoleResponse.class);
+    }
+
+    private String getFullName(String email) {
+        Optional<Profile> profileOptional = profileRepository.findProfileByEmail(email);
+        return profileOptional.map(Profile::getFullName).orElse(null);
     }
 }
