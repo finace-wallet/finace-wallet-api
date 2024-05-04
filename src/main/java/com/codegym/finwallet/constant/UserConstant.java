@@ -2,7 +2,8 @@ package com.codegym.finwallet.constant;
 
 public class UserConstant {
     public static final int PASSWORD_MAX_LENGTH = 8;
-    public static final String SUBJECT = "Mật khẩu mới của bạn là: ";
+    public static final String FORGET_PASSWORD_SUBJECT = "Reset Your Password";
+    public static final String ACTIVE_USER_SUBJECT = "Activate Your Account with OTP";
     public static final String MESSAGE_LOGIN_SUCCESS = "Login successful";
     public static final String MESSAGE_LOGIN_FAIL_AUTHORIZATION = "Can't login with email: ";
     public static final String MESSAGE_LOGIN_FAIL = "Your account have been disable!";

@@ -2,17 +2,12 @@ package com.codegym.finwallet.service.impl;
 
 import com.codegym.finwallet.constant.WalletConstant;
 import com.codegym.finwallet.dto.CommonResponse;
-import com.codegym.finwallet.dto.payload.request.TransactionRequest;
-import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.dto.payload.response.WalletResponse;
 import com.codegym.finwallet.entity.AppUser;
-import com.codegym.finwallet.entity.Profile;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.repository.WalletRepository;
-import com.codegym.finwallet.service.ProfileService;
-import com.codegym.finwallet.service.TransactionService;
 import com.codegym.finwallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -23,7 +18,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -58,6 +61,8 @@ public class WalletServiceImpl implements WalletService {
             return buildResponse(null,e.getMessage(), HttpStatus.UNAUTHORIZED);
         }
     }
+
+
 
 
     @Override
@@ -107,7 +112,7 @@ public class WalletServiceImpl implements WalletService {
                 }
                 double newAmount = currentAmount + inputAmount;
                 wallet.setAmount(newAmount);
-                wallet.setIcon(walletRequest.getIcon());
+//                wallet.setIcon(walletRequest.getIcon());
                 wallet.setName(walletRequest.getName());
                 wallet.setDescription(walletRequest.getDescription());
                 walletRepository.save(wallet);

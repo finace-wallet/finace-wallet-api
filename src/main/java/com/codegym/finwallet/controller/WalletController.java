@@ -29,11 +29,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/v1/wallets")
 @RequiredArgsConstructor
 public class WalletController {
-
     private final WalletService walletService;
     private final TransactionService transactionService;
 
@@ -101,12 +102,24 @@ public class WalletController {
         CommonResponse response = userDefTypeService.updateWalletLimit(id, newLimit);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
-    @GetMapping("/transaction-history/{id}")
-    public ResponseEntity<CommonResponse> getTransactionHistory(@RequestParam(defaultValue = "0") int page,
-                                                                @RequestParam(defaultValue = "5") int size,@PathVariable Long id) {
+    @GetMapping("{id}/transactions")
+    public ResponseEntity<CommonResponse> getTransactionHistory(@PathVariable Long id,
+                                                                @RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "5") int size
+    ) {
         PageRequest pageable = PageRequest.of(page, size);
         CommonResponse commonResponse = transactionService.findAllTransactionsByWalletId(pageable,id);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
+    @GetMapping("/{id}/details")
+    public ResponseEntity<?> getWalletDetailsById(@PathVariable Long id) {
+        Optional<Wallet> walletOptional = walletRepository.findById(id);
+        if (walletOptional.isPresent()) {
+            Wallet wallet = walletOptional.get();
+            return ResponseEntity.ok(wallet);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
 

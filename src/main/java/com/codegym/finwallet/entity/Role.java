@@ -1,5 +1,6 @@
 package com.codegym.finwallet.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,5 +32,6 @@ public class Role {
     @Column(unique = true, nullable = false)
     private String roleType;
     @ManyToMany(mappedBy = "roles")
+    @JsonBackReference
     private List<AppUser> users = new ArrayList<>();
 }

@@ -1,7 +1,6 @@
 package com.codegym.finwallet.dto.payload.response;
 
 import com.codegym.finwallet.entity.Role;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class LoginResponse {
     private String accessToken;
+    private String fullName;
     private String email;
-    private List<Role> roles;
+    private List<RoleResponse> roles;
 }
