@@ -6,10 +6,12 @@ import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.TransactionRequest;
 import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.response.TransactionResponse;
+import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Profile;
 import com.codegym.finwallet.entity.Transaction;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.entity.WalletTransaction;
+import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.repository.ProfileRepository;
 import com.codegym.finwallet.repository.TransactionRepository;
 import com.codegym.finwallet.repository.WalletRepository;
@@ -35,6 +37,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final WalletRepository walletRepository;
     private final WalletTransactionRepository walletTransactionRepository;
     private final ProfileRepository profileRepository;
+    private final AppUserRepository appUserRepository;
 
     @Override
     public CommonResponse saveTransaction(TransactionRequest request,TransferMoneyRequest transferMoneyRequest) {
@@ -107,6 +110,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private Wallet getWalletByEmailAndId(String email, Long walletId) {
         List<Wallet> wallets = walletRepository.findWalletByEmail(email);
+
         Optional<Wallet> walletOptional = wallets.stream().filter(wallet -> wallet.getId().equals(walletId)).findFirst();
         return walletOptional.orElse(null);
     }

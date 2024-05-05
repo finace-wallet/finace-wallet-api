@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -47,9 +48,12 @@ public class AppUser {
     @JsonManagedReference
     private List<Role> roles;
 
-    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Wallet> wallets;
+//    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
+////    @JsonIgnore
+////    private List<Wallet> wallets;
+
+    @OneToMany(mappedBy = "appUser", cascade = CascadeType.ALL)
+    private List<WalletOwnership> walletOwnerships;
 
     @JsonIgnore
     @OneToOne(mappedBy = "appUser",cascade = CascadeType.ALL)
