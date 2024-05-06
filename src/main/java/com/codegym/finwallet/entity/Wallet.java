@@ -1,5 +1,6 @@
     package com.codegym.finwallet.entity;
 
+    import com.fasterxml.jackson.annotation.JsonBackReference;
     import com.fasterxml.jackson.annotation.JsonIgnore;
     import jakarta.persistence.CascadeType;
     import jakarta.persistence.Entity;
@@ -33,11 +34,9 @@
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
         private String name;
-        private String icon;
         private double amount;
         private String currentType;
         private String description;
-        private double transactionBudget;
         private boolean isDelete;
 
 
@@ -58,7 +57,7 @@
         private List<TransactionType> transactionTypes;
 
         @OneToMany(mappedBy = "wallet")
-        @JsonIgnore
+        @JsonBackReference
         private Set<UserDefType> userDefTypes;
 
     }

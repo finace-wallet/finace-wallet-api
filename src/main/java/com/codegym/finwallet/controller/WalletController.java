@@ -10,8 +10,10 @@ import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.service.TransactionService;
 
 import com.codegym.finwallet.repository.WalletRepository;
+import com.codegym.finwallet.service.UserDefTypeService;
 import com.codegym.finwallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/v1/wallets")
 @RequiredArgsConstructor
@@ -34,10 +38,16 @@ public class WalletController {
     private final WalletService walletService;
     private final TransactionService transactionService;
 
+
+
+    @Autowired
+    private final AppUserRepository userRepository;
+    private final WalletRepository walletRepository;
+    private final UserDefTypeService userDefTypeService;
+
     @PutMapping("/edit/{id}")
     public ResponseEntity<?> update(@RequestBody WalletRequest walletRequest, @PathVariable Long id){
         CommonResponse commonResponse = walletService.editWallet(walletRequest,id);
-
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 
@@ -48,11 +58,11 @@ public class WalletController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<Page<Wallet>> getAllWallet(Pageable pageable){
+    public ResponseEntity<Page<Wallet>> getAllWallet(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size){
+        Pageable pageable = PageRequest.of(page,size);
         Page<Wallet> walletsPage = walletService.findAllByEmail(pageable);
         return new ResponseEntity<>(walletsPage, HttpStatus.OK);
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<Wallet> findById(@PathVariable Long id) {
@@ -80,6 +90,20 @@ public class WalletController {
     }
 
 
+    @PostMapping("/add-limit/{id}")
+    public ResponseEntity<CommonResponse> addWalletLimit(@PathVariable Long id,
+                                                         @RequestParam double additionalLimit){
+        CommonResponse response = userDefTypeService.addWalletLimit(id,additionalLimit);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @PutMapping("/edit-limit/{id}")
+    public ResponseEntity<CommonResponse> updateWalletLimit(@PathVariable Long id,
+                                                            @RequestParam double newLimit) {
+        CommonResponse response = userDefTypeService.updateWalletLimit(id, newLimit);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
     @GetMapping("{id}/transactions")
     public ResponseEntity<CommonResponse> getTransactionHistory(@PathVariable Long id,
                                                                 @RequestParam(defaultValue = "0") int page,
@@ -90,4 +114,15 @@ public class WalletController {
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
 
     }
+    @GetMapping("/{id}/details")
+    public ResponseEntity<?> getWalletDetailsById(@PathVariable Long id) {
+        Optional<Wallet> walletOptional = walletRepository.findById(id);
+        if (walletOptional.isPresent()) {
+            Wallet wallet = walletOptional.get();
+            return ResponseEntity.ok(wallet);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
+

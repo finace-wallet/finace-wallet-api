@@ -8,12 +8,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class WalletRequest {
-    private String icon;
+
     @NotBlank
     @NotNull
     @Min(0)

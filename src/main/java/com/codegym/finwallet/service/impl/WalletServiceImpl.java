@@ -18,7 +18,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -53,6 +61,8 @@ public class WalletServiceImpl implements WalletService {
             return buildResponse(null,e.getMessage(), HttpStatus.UNAUTHORIZED);
         }
     }
+
+
 
 
     @Override
@@ -102,7 +112,7 @@ public class WalletServiceImpl implements WalletService {
                 }
                 double newAmount = currentAmount + inputAmount;
                 wallet.setAmount(newAmount);
-                wallet.setIcon(walletRequest.getIcon());
+//                wallet.setIcon(walletRequest.getIcon());
                 wallet.setName(walletRequest.getName());
                 wallet.setDescription(walletRequest.getDescription());
                 wallet.setCurrentType(walletRequest.getCurrentType());
