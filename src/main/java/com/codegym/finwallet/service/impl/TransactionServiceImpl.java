@@ -94,8 +94,10 @@ public class TransactionServiceImpl implements TransactionService {
 
     private void createTransaction(Profile sourceProfile, Profile destinationProfile, double amount, TransferMoneyRequest transferMoneyRequest) {
         TransactionRequest transactionRequest = TransactionRequest.builder()
-                .senderName(sourceProfile.getFullName())
-                .recipientName(destinationProfile.getFullName())
+//                .senderName(sourceProfile.getFullName())
+//                .recipientName(destinationProfile.getFullName())
+                .senderName(sourceProfile.getAppUser().getEmail())
+                .recipientName(destinationProfile.getAppUser().getEmail())
                 .transactionAmount(amount)
                 .description(transferMoneyRequest.getDescription())
                 .build();

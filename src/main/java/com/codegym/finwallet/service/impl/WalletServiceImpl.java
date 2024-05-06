@@ -41,6 +41,11 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    public Page<Wallet> findAllRecipientByEmail(Pageable pageable, String email) {
+        return walletRepository.findAllByEmail(pageable, email);
+    }
+
+    @Override
     public CommonResponse createWallet(WalletRequest request) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

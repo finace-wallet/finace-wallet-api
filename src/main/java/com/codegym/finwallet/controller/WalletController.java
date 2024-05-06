@@ -3,6 +3,7 @@ package com.codegym.finwallet.controller;
 
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.AddMoneyRequest;
+import com.codegym.finwallet.dto.payload.request.DisplayRecipientRequest;
 import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.Wallet;
@@ -62,6 +63,13 @@ public class WalletController {
     public ResponseEntity<Page<Wallet>> getAllWallet(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size){
         Pageable pageable = PageRequest.of(page,size);
         Page<Wallet> walletsPage = walletService.findAllByEmail(pageable);
+        return new ResponseEntity<>(walletsPage, HttpStatus.OK);
+    }
+
+    @PostMapping("/display-recipient")
+    public ResponseEntity<Page<Wallet>> getAllRecipientWallet(@RequestBody DisplayRecipientRequest request){
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+        Page<Wallet> walletsPage = walletService.findAllRecipientByEmail(pageable, request.getTransferEmail());
         return new ResponseEntity<>(walletsPage, HttpStatus.OK);
     }
 
