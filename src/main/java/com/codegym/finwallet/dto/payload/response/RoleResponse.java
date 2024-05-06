@@ -9,10 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class WalletResponse {
-    private String name;
-    private double amount;
-    private String currentType;
-    private String description;
-    private double transactionBudget;
+public class RoleResponse {
+    private String roleType;
 }

@@ -58,6 +58,7 @@
         private List<TransactionType> transactionTypes;
 
         @OneToMany(mappedBy = "wallet")
+        @JsonIgnore
         private Set<UserDefType> userDefTypes;
 
     }

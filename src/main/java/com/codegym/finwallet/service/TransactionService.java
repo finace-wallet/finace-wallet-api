@@ -12,5 +12,5 @@ public interface TransactionService {
 
     CommonResponse findAllTransactionsByWalletId(Pageable pageable,Long walletID);
 
-    CommonResponse addTransaction(TransactionRequest transactionRequest);
+
 }

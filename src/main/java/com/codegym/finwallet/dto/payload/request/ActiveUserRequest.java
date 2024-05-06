@@ -4,14 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @Builder
-public class ChangePasswordRequest {
-    private String currentPassword;
-    private String newPassword;
-    private String confirmPassword;
+public class ActiveUserRequest {
+    private String otp;
 }

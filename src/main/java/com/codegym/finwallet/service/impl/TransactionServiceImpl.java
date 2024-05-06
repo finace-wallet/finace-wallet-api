@@ -83,32 +83,6 @@ public class TransactionServiceImpl implements TransactionService {
         return buildResponse(transactions,"",HttpStatus.OK);
     }
 
-    @Override
-    public CommonResponse addTransaction(TransactionRequest transactionRequest) {
-        Transaction transaction = Transaction.builder()
-                .sender(transactionRequest.getSenderName())
-                .description(transactionRequest.getRecipientName())
-                .transactionAmount(transactionRequest.getTransactionAmount())
-                .transactionDate(LocalDateTime.now())
-                .isDelete(false)
-                .description(transactionRequest.getSenderName() + " đã gửi đến " + transactionRequest.getRecipientName() + " " + transactionRequest.getTransactionAmount())
-                .build();
-
-        try{
-            transactionRepository.save(transaction);
-            return CommonResponse.builder()
-                    .status(HttpStatus.OK)
-                    .message("Đã lưu giao dịch")
-                    .data(transaction)
-                    .build();
-        } catch (Exception e){
-            return CommonResponse.builder()
-                    .status(HttpStatus.BAD_REQUEST)
-                    .message("Giao dịch thất bại")
-                    .data(null)
-                    .build();
-        }
-    }
 
     private CommonResponse processTransferAndUpdateTransaction(Profile sourceProfile, Profile destinationProfile, Wallet sourceWallet, Wallet destinationWallet, double amount, TransferMoneyRequest transferMoneyRequest) {
         CommonResponse transferResponse = processTransfer(sourceWallet, destinationWallet, amount);

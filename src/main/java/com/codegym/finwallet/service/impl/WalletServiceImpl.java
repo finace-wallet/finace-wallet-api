@@ -2,17 +2,12 @@ package com.codegym.finwallet.service.impl;
 
 import com.codegym.finwallet.constant.WalletConstant;
 import com.codegym.finwallet.dto.CommonResponse;
-import com.codegym.finwallet.dto.payload.request.TransactionRequest;
-import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.dto.payload.response.WalletResponse;
 import com.codegym.finwallet.entity.AppUser;
-import com.codegym.finwallet.entity.Profile;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.repository.WalletRepository;
-import com.codegym.finwallet.service.ProfileService;
-import com.codegym.finwallet.service.TransactionService;
 import com.codegym.finwallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

@@ -1,22 +1,21 @@
 package com.codegym.finwallet.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,14 +23,23 @@ import java.util.List;
 @Setter
 @Builder
 @Entity
-@Table(name = "role")
-public class Role {
+@Table(name = "spending")
+public class Spending {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true, nullable = false)
-    private String roleType;
-    @ManyToMany(mappedBy = "roles")
-    @JsonBackReference
-    private List<AppUser> users = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "userDefType_id")
+    private UserDefType userDefType;
+
+    @ManyToOne
+    @JoinColumn(name = "wallet_id")
+    private Wallet wallet;
+
+    private String note;
+
+    @CreationTimestamp
+    private LocalDateTime localDateTime;
+    private double amount;
 }
