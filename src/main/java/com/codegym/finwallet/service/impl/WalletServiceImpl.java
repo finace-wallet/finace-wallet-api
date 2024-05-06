@@ -158,24 +158,4 @@ public class WalletServiceImpl implements WalletService {
             return buildResponse(null, WalletConstant.WALLET_NOT_FOUND_MESSAGE, HttpStatus.BAD_REQUEST);
         }
     }
-
-//    @Override
-//    public CommonResponse getTransactionHistory(Long walletId) {
-//        Optional<Wallet> wallet = walletRepository.findById(walletId);
-//        if (wallet.isPresent()){
-//            return CommonResponse.builder()
-//                    .data(wallet.get().getTransactionHistories())
-//                    .message("Sucessfully.")
-//                    .status(HttpStatus.OK)
-//                    .build();
-//        } else {
-//            return CommonResponse.builder()
-//                    .data(null)
-//                    .message("Wallet not found")
-//                    .status(HttpStatus.NOT_FOUND)
-//                    .build();
-//        }
-//    }
-//
-//
 }
