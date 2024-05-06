@@ -11,5 +11,5 @@ import java.util.Optional;
 
 public interface TransactionCategoryService {
     CommonResponse createTransactionCategory(TransactionCategoryRequest request);
-    Page<TransactionCategory> findAllTransactionCategoryByEmail(Pageable pageable);
+    List<TransactionCategory> findAllTransactionCategoryByEmail();
 }

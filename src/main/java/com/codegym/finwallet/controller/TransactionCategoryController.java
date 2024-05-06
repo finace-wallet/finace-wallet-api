@@ -30,8 +30,8 @@ public class TransactionCategoryController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<Page<TransactionCategory>> getAllTransactionCategory(Pageable pageable) {
-        Page<TransactionCategory> categoryPage = transactionCategoryService.findAllTransactionCategoryByEmail(pageable);
-        return new ResponseEntity<>(categoryPage, HttpStatus.OK);
+    public ResponseEntity<List<TransactionCategory>> getAllTransactionCategory() {
+        List<TransactionCategory> categories = transactionCategoryService.findAllTransactionCategoryByEmail();
+        return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 }

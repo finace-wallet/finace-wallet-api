@@ -18,6 +18,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TransactionCategoryServiceImpl implements TransactionCategoryService {
@@ -40,11 +42,12 @@ public class TransactionCategoryServiceImpl implements TransactionCategoryServic
     }
 
     @Override
-    public Page<TransactionCategory> findAllTransactionCategoryByEmail(Pageable pageable) {
+    public List<TransactionCategory> findAllTransactionCategoryByEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        return categoryRepository.findAllByEmail(pageable, email);
+        return categoryRepository.findAllByEmail(email);
     }
+
 
     private CommonResponse buildResponse(Object data, String message, HttpStatus status) {
         return CommonResponse.builder()
