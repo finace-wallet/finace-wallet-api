@@ -66,6 +66,14 @@ public class WalletController {
         return new ResponseEntity<>(walletsPage, HttpStatus.OK);
     }
 
+    @GetMapping("/list/owner")
+    public ResponseEntity<Page<Wallet>> getAllWalletOwner(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size){
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Wallet> walletsPage = walletService.findWalletsByEmailAndOwner(pageable);
+        return new ResponseEntity<>(walletsPage, HttpStatus.OK);
+    }
+
+
     @PostMapping("/display-recipient")
     public ResponseEntity<Page<Wallet>> getAllRecipientWallet(@RequestBody DisplayRecipientRequest request){
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize());

@@ -15,6 +15,7 @@ import com.codegym.finwallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +40,23 @@ public class WalletServiceImpl implements WalletService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         return walletRepository.findAllByEmail(pageable, email);
+    }
+
+    @Override
+    public Page<Wallet> findWalletsByEmailAndOwner(Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        AppUser appUser = appUserRepository.findFirstByEmail(email);
+        Page<Wallet> filteredWallets = walletRepository.findAllByEmailAndOwner(pageable, email, WalletOwnershipConstant.OWNERSHIP_OWNER, appUser.getId());
+
+//        return walletRepository.findAllByEmailAndOwner(pageable, email, WalletOwnershipConstant.OWNERSHIP_OWNER, appUser.getId());
+        return new PageImpl<>(
+                filteredWallets.getContent().stream()
+                        .filter(wallet -> wallet.getWalletOwnerships().stream().anyMatch(wo -> wo.getOwnership().equals(WalletOwnershipConstant.OWNERSHIP_OWNER)))
+                        .collect(Collectors.toList()),
+                filteredWallets.getPageable(),
+                filteredWallets.getTotalElements());
+
     }
 
     @Override
@@ -66,7 +85,6 @@ public class WalletServiceImpl implements WalletService {
             ownership.setWallet(wallet);
             ownership.setAppUser(appUser);
             walletOwnershipRepository.save(ownership);
-
 
             WalletResponse response = modelMapper.map(wallet, WalletResponse.class);
             return buildResponse(response,WalletConstant.CREATE_NEW_WALLET_SUCCESS_MESSAGE, HttpStatus.CREATED);
