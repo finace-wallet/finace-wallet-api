@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class WalletResponse {
     private String name;
-    private String icon;
     private double amount;
     private String currentType;
     private String description;

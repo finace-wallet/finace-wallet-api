@@ -89,6 +89,7 @@ public class WalletController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+
     @PostMapping("/add-limit/{id}")
     public ResponseEntity<CommonResponse> addWalletLimit(@PathVariable Long id,
                                                          @RequestParam double additionalLimit){
@@ -102,6 +103,7 @@ public class WalletController {
         CommonResponse response = userDefTypeService.updateWalletLimit(id, newLimit);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+
     @GetMapping("{id}/transactions")
     public ResponseEntity<CommonResponse> getTransactionHistory(@PathVariable Long id,
                                                                 @RequestParam(defaultValue = "0") int page,
@@ -110,6 +112,7 @@ public class WalletController {
         PageRequest pageable = PageRequest.of(page, size);
         CommonResponse commonResponse = transactionService.findAllTransactionsByWalletId(pageable,id);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+
     }
     @GetMapping("/{id}/details")
     public ResponseEntity<?> getWalletDetailsById(@PathVariable Long id) {

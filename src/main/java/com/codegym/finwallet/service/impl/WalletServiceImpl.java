@@ -115,6 +115,7 @@ public class WalletServiceImpl implements WalletService {
 //                wallet.setIcon(walletRequest.getIcon());
                 wallet.setName(walletRequest.getName());
                 wallet.setDescription(walletRequest.getDescription());
+                wallet.setCurrentType(walletRequest.getCurrentType());
                 walletRepository.save(wallet);
                 WalletResponse walletResponse = modelMapper.map(wallet,WalletResponse.class);
                 return buildResponse(walletResponse,WalletConstant.UPDATE_WALLET_INFORMATION_SUCCESS_MESSAGE,HttpStatus.OK);

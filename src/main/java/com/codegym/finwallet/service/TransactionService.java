@@ -11,4 +11,6 @@ public interface TransactionService {
     CommonResponse transferMoney(TransferMoneyRequest transferMoneyRequest);
 
     CommonResponse findAllTransactionsByWalletId(Pageable pageable,Long walletID);
+
+
 }
