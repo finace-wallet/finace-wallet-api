@@ -18,13 +18,6 @@ public class ShareWalletController {
     @PostMapping("/share")
     public ResponseEntity<CommonResponse> shareWallet(@RequestBody ShareWalletRequest request) {
         CommonResponse commonResponse = walletShareService.walletShare(request.getShareEmail(), request.getAccessLevel(), request.getShareWalletId());
-//        CommonResponse commonResponse = new CommonResponse();
-//        String email = request.getShareEmail();
-//        String access = request.getAccessLevel();
-//        Long id = request.getShareWalletId();
-//        System.out.println("Email " + email);
-//        System.out.println("Access " + access);
-//        System.out.println("Id " + id);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 }
