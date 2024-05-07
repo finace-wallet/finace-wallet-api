@@ -105,7 +105,7 @@ public class WalletController {
     @GetMapping("{id}/transactions")
     public ResponseEntity<CommonResponse> getTransactionHistory(@PathVariable Long id,
                                                                 @RequestParam(defaultValue = "0") int page,
-                                                                @RequestParam(defaultValue = "5") int size
+                                                                @RequestParam(defaultValue = "8") int size
     ) {
         PageRequest pageable = PageRequest.of(page, size);
         CommonResponse commonResponse = transactionService.findAllTransactionsByWalletId(pageable,id);
