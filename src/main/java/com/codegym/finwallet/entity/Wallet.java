@@ -19,6 +19,7 @@
     import lombok.NoArgsConstructor;
     import lombok.Setter;
 
+    import java.util.ArrayList;
     import java.util.List;
     import java.util.Set;
 
@@ -40,13 +41,16 @@
         private boolean isDelete;
 
 
-        @ManyToMany(cascade = CascadeType.ALL)
-        @JoinTable(name = "user_wallets",
-                joinColumns = @JoinColumn(name = "wallet_id"),
-                inverseJoinColumns = @JoinColumn(name = "appUser_id")
-        )
-        @JsonIgnore
-        private List<AppUser> users;
+//        @ManyToMany(cascade = CascadeType.ALL)
+//        @JoinTable(name = "user_wallets",
+//                joinColumns = @JoinColumn(name = "wallet_id"),
+//                inverseJoinColumns = @JoinColumn(name = "appUser_id")
+//        )
+//        @JsonIgnore
+//        private List<AppUser> users;
+
+        @OneToMany(mappedBy = "wallet")
+        private List<WalletOwnership> walletOwnerships = new ArrayList<>();
 
         @ManyToMany(cascade = CascadeType.ALL)
         @JoinTable(name = "wallet_transaction_type",

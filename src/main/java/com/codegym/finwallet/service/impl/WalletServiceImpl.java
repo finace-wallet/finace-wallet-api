@@ -1,12 +1,15 @@
 package com.codegym.finwallet.service.impl;
 
 import com.codegym.finwallet.constant.WalletConstant;
+import com.codegym.finwallet.constant.WalletOwnershipConstant;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.dto.payload.response.WalletResponse;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Wallet;
+import com.codegym.finwallet.entity.WalletOwnership;
 import com.codegym.finwallet.repository.AppUserRepository;
+import com.codegym.finwallet.repository.WalletOwnershipRepository;
 import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -18,16 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +31,7 @@ public class WalletServiceImpl implements WalletService {
     private final WalletRepository walletRepository;
     private final ModelMapper modelMapper;
     private final AppUserRepository appUserRepository;
+    private final WalletOwnershipRepository walletOwnershipRepository;
 
     @Override
     public Page<Wallet> findAllByEmail(Pageable pageable) {
@@ -46,15 +41,33 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    public Page<Wallet> findAllRecipientByEmail(Pageable pageable, String email) {
+        return walletRepository.findAllByEmail(pageable, email);
+    }
+
+    @Override
     public CommonResponse createWallet(WalletRequest request) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String email = authentication.getName();
             AppUser appUser = appUserRepository.findByEmail(email);
-            Wallet wallet = modelMapper.map(request, Wallet.class);
-            wallet.setUsers(Collections.singletonList(appUser));
-            appUserRepository.findByEmail(email);
+//            Wallet wallet = modelMapper.map(request, Wallet.class);
+//            wallet.setUsers(Collections.singletonList(appUser));
+
+            Wallet wallet = new Wallet();
+            wallet.setName(request.getName());
+            wallet.setCurrentType(request.getCurrentType());
+            wallet.setDescription(request.getDescription());
+            wallet.setAmount(request.getAmount());
             walletRepository.save(wallet);
+
+            WalletOwnership ownership = new WalletOwnership();
+            ownership.setOwnership(WalletOwnershipConstant.OWNERSHIP_OWNER);
+            ownership.setWallet(wallet);
+            ownership.setAppUser(appUser);
+            walletOwnershipRepository.save(ownership);
+
+
             WalletResponse response = modelMapper.map(wallet, WalletResponse.class);
             return buildResponse(response,WalletConstant.CREATE_NEW_WALLET_SUCCESS_MESSAGE, HttpStatus.CREATED);
         } catch (AuthenticationException e) {
@@ -62,9 +75,7 @@ public class WalletServiceImpl implements WalletService {
         }
     }
 
-
-
-
+    //chua fix
     @Override
     public CommonResponse deleteWallet(Long id) {
         try {
@@ -141,11 +152,13 @@ public class WalletServiceImpl implements WalletService {
                 .build();
     }
 
+
     @Override
     public CommonResponse addMoneyToWallet(Long walletId, double amount) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
         List<Wallet> wallets = walletRepository.findWalletByEmail(userEmail);
+
         Optional<Wallet> walletOptional = wallets.stream().filter(wallet -> wallet.getId().equals(walletId)).findFirst();
         if (walletOptional.isPresent()) {
             Wallet wallet = walletOptional.get();

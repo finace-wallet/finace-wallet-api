@@ -2,6 +2,8 @@ package com.codegym.finwallet.controller;
 
 
 import com.codegym.finwallet.dto.CommonResponse;
+import com.codegym.finwallet.dto.payload.request.AddMoneyRequest;
+import com.codegym.finwallet.dto.payload.request.DisplayRecipientRequest;
 import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.Wallet;
@@ -64,6 +66,13 @@ public class WalletController {
         return new ResponseEntity<>(walletsPage, HttpStatus.OK);
     }
 
+    @PostMapping("/display-recipient")
+    public ResponseEntity<Page<Wallet>> getAllRecipientWallet(@RequestBody DisplayRecipientRequest request){
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+        Page<Wallet> walletsPage = walletService.findAllRecipientByEmail(pageable, request.getTransferEmail());
+        return new ResponseEntity<>(walletsPage, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Wallet> findById(@PathVariable Long id) {
         Wallet wallet = walletService.findById(id);
@@ -82,11 +91,19 @@ public class WalletController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+//    @PostMapping("/add-money")
+//    public ResponseEntity<CommonResponse> addMoneyToWallet(@RequestParam Long walletId,
+//                                                           @RequestParam double amount) {
+//        CommonResponse response = walletService.addMoneyToWallet(walletId, amount);
+//        return ResponseEntity.status(response.getStatus()).body(response);
+//    }
+
     @PostMapping("/add-money")
-    public ResponseEntity<CommonResponse> addMoneyToWallet(@RequestParam Long walletId,
-                                                           @RequestParam double amount) {
-        CommonResponse response = walletService.addMoneyToWallet(walletId, amount);
-        return ResponseEntity.status(response.getStatus()).body(response);
+    public ResponseEntity<CommonResponse> addMoneyToWallet(@RequestBody AddMoneyRequest request) {
+        CommonResponse response = walletService.addMoneyToWallet(request.getWalletId(), request.getAmount());
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
     }
 
     @PostMapping("/add-limit/{id}")
