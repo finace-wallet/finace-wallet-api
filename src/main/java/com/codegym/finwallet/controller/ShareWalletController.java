@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/wallets-share")
+@RequestMapping("/api/v1/wallets")
 @RequiredArgsConstructor
 public class ShareWalletController {
     private final WalletShareService walletShareService;

@@ -1,5 +1,6 @@
 package com.codegym.finwallet.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
@@ -47,19 +48,15 @@ public class AppUser {
     )
     @JsonManagedReference
     private List<Role> roles;
-
-//    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
-////    @JsonIgnore
-////    private List<Wallet> wallets;
-
+    @JsonBackReference
     @OneToMany(mappedBy = "appUser", cascade = CascadeType.ALL)
     private List<WalletOwnership> walletOwnerships;
 
-    @JsonIgnore
+    @JsonBackReference
     @OneToOne(mappedBy = "appUser",cascade = CascadeType.ALL)
     private Profile profile;
 
-    @JsonIgnore
+    @JsonBackReference
     @OneToOne(mappedBy = "user")
     private TokenBlackList tokenBlackList;
 }
