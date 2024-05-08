@@ -55,10 +55,10 @@ public class WalletController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<Page<Wallet>> getAllWallet(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size){
+    public ResponseEntity<CommonResponse> getAllWallet(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size){
         Pageable pageable = PageRequest.of(page,size);
-        Page<Wallet> walletsPage = walletService.findAllByEmail(pageable);
-        return new ResponseEntity<>(walletsPage, HttpStatus.OK);
+        CommonResponse commonResponse = walletService.findAllByEmail(pageable);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 
     @GetMapping("/list/owner")

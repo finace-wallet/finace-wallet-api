@@ -17,4 +17,5 @@ public class WalletConstant {
     public static final String SHARE_WALLET_FAIL =  "Can't share wallet to your email ";
     public static final String INVALID_RECIPIENT_EMAIL = "Invalid recipient email.";
     public static final String SHARE_WALLET_SUCCESSFUL = "You've shared the wallet";
+    public static final String GET_WALLET_SUCCESSFULLY = "You've get all the wallet";
 }
