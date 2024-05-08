@@ -28,6 +28,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,9 +44,12 @@ public class WalletServiceImpl implements WalletService {
     private final OwnerShipRepository ownerShipRepository;
 
     @Override
-    public Page<Wallet> findAllByEmail(Pageable pageable) {
+    public CommonResponse findAllByEmail(Pageable pageable) {
         String email = authUserExtractor.getUsernameFromAuth();
-        return walletRepository.findAllByEmail(pageable, email);
+        Page<Wallet> wallets = walletRepository.findAllByEmail(pageable,email);
+        List<WalletResponse> walletResponses = mapToWalletResponse(wallets.getContent());
+        PageImpl<WalletResponse> walletResponsePage = new PageImpl<>(walletResponses, pageable, walletResponses.size());
+        return commonResponse.builResponse(walletResponsePage,WalletConstant.GET_WALLET_SUCCESSFULLY,HttpStatus.OK);
     }
 
     @Override

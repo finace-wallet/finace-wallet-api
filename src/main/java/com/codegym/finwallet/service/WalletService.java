@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface WalletService {
-    Page<Wallet> findAllByEmail(Pageable pageable);
+    CommonResponse findAllByEmail(Pageable pageable);
     CommonResponse findWalletByViewer(Pageable pageable);
     CommonResponse findWalletsByEmailAndOwner(Pageable pageable);
     CommonResponse findWalletsByCoOwner(Pageable pageable);

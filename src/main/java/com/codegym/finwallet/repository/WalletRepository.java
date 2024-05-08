@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface WalletRepository extends JpaRepository<Wallet,Long> {
 
-    @Query("SELECT w FROM Wallet w JOIN w.walletOwnerships wo JOIN wo.appUser u WHERE u.email = :appUserEmail")
+    @Query("SELECT w FROM Wallet w JOIN w.walletOwnerships wo JOIN wo.appUser u WHERE u.email = :appUserEmail AND w.isDelete = false")
     Page<Wallet> findAllByEmail(Pageable pageable, String appUserEmail);
 
     @Query("SELECT wo.wallet \n" +
