@@ -68,6 +68,19 @@ public class WalletController {
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 
+    @GetMapping("/list/viewer")
+    public ResponseEntity<CommonResponse> getAllWalletViewer(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size){
+        Pageable pageable = PageRequest.of(page,size);
+        CommonResponse commonResponse = walletService.findWalletByViewer(pageable);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
+
+    @GetMapping("/list/co-owner")
+    public ResponseEntity<CommonResponse> getAllWalletCoOwner(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size){
+        Pageable pageable = PageRequest.of(page,size);
+        CommonResponse commonResponse = walletService.findWalletsByCoOwner(pageable);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
 
     @PostMapping("/display-recipient")
     public ResponseEntity<Page<Wallet>> getAllRecipientWallet(@RequestBody DisplayRecipientRequest request){
@@ -101,7 +114,6 @@ public class WalletController {
                 .status(response.getStatus())
                 .body(response);
     }
-
 
     @PutMapping("/edit-limit/{id}")
     public ResponseEntity<CommonResponse> updateWalletLimit(@PathVariable Long id,
