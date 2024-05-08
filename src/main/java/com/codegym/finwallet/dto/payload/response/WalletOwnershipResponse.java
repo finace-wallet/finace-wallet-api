@@ -9,13 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class WalletResponse {
-    private Long id;
-    private String name;
-    private double amount;
-    private String currentType;
-    private String description;
-    private double transactionBudget;
-    private boolean isDelete;
+public class WalletOwnershipResponse {
     private String ownership;
+    private boolean isDelete;
 }

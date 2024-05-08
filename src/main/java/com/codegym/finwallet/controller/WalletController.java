@@ -8,14 +8,11 @@ import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
-
-import com.codegym.finwallet.service.TransactionService;
-
 import com.codegym.finwallet.repository.WalletRepository;
+import com.codegym.finwallet.service.TransactionService;
 import com.codegym.finwallet.service.UserDefTypeService;
 import com.codegym.finwallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,8 +36,6 @@ import java.util.Optional;
 public class WalletController {
     private final WalletService walletService;
     private final TransactionService transactionService;
-
-
 
     @Autowired
     private final AppUserRepository userRepository;
@@ -67,10 +62,10 @@ public class WalletController {
     }
 
     @GetMapping("/list/owner")
-    public ResponseEntity<Page<Wallet>> getAllWalletOwner(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size){
+    public ResponseEntity<CommonResponse> getAllWalletOwner(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size){
         Pageable pageable = PageRequest.of(page,size);
-        Page<Wallet> walletsPage = walletService.findWalletsByEmailAndOwner(pageable);
-        return new ResponseEntity<>(walletsPage, HttpStatus.OK);
+        CommonResponse commonResponse = walletService.findWalletsByEmailAndOwner(pageable);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 
 
@@ -99,13 +94,6 @@ public class WalletController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-//    @PostMapping("/add-money")
-//    public ResponseEntity<CommonResponse> addMoneyToWallet(@RequestParam Long walletId,
-//                                                           @RequestParam double amount) {
-//        CommonResponse response = walletService.addMoneyToWallet(walletId, amount);
-//        return ResponseEntity.status(response.getStatus()).body(response);
-//    }
-
     @PostMapping("/add-money")
     public ResponseEntity<CommonResponse> addMoneyToWallet(@RequestBody AddMoneyRequest request) {
         CommonResponse response = walletService.addMoneyToWallet(request.getWalletId(), request.getAmount());
@@ -114,12 +102,6 @@ public class WalletController {
                 .body(response);
     }
 
-    @PostMapping("/add-limit/{id}")
-    public ResponseEntity<CommonResponse> addWalletLimit(@PathVariable Long id,
-                                                         @RequestParam double additionalLimit){
-        CommonResponse response = userDefTypeService.addWalletLimit(id,additionalLimit);
-        return ResponseEntity.status(response.getStatus()).body(response);
-    }
 
     @PutMapping("/edit-limit/{id}")
     public ResponseEntity<CommonResponse> updateWalletLimit(@PathVariable Long id,

@@ -40,15 +40,6 @@
         private String description;
         private boolean isDelete;
 
-
-//        @ManyToMany(cascade = CascadeType.ALL)
-//        @JoinTable(name = "user_wallets",
-//                joinColumns = @JoinColumn(name = "wallet_id"),
-//                inverseJoinColumns = @JoinColumn(name = "appUser_id")
-//        )
-//        @JsonIgnore
-//        private List<AppUser> users;
-
         @OneToMany(mappedBy = "wallet")
         private List<WalletOwnership> walletOwnerships = new ArrayList<>();
 
@@ -57,7 +48,7 @@
                 joinColumns = @JoinColumn(name = "wallet_id"),
                 inverseJoinColumns = @JoinColumn(name = "tracsaction_type_id")
         )
-        @JsonIgnore
+        @JsonBackReference
         private List<TransactionType> transactionTypes;
 
         @OneToMany(mappedBy = "wallet")

@@ -13,4 +13,8 @@ public class WalletConstant {
     public static final String ADD_BUDGET_TRANSACTION = "Budget added successfully.";
     public static final String MONEY_ADDED_SUCCESSFULLY = "Money added to wallet successfully.";
     public static final String PROFILE_NOT_FOUND = "Source or destination profile not found";
+    public static final String CREATE_NEW_WALLET_FAIL_MESSAGE = "Can't create new wallet";
+    public static final String SHARE_WALLET_FAIL =  "Can't share wallet to your email ";
+    public static final String INVALID_RECIPIENT_EMAIL = "Invalid recipient email.";
+    public static final String SHARE_WALLET_SUCCESSFUL = "You've shared the wallet";
 }
