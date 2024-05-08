@@ -20,6 +20,18 @@ public interface WalletRepository extends JpaRepository<Wallet,Long> {
             "WHERE au.email = :userEmail AND wo.ownerShip.name = 'OWNER'")
     Page<Wallet> findAllByEmailAndOwner(Pageable pageable, String userEmail);
 
+    @Query("SELECT wo.wallet \n" +
+            "FROM WalletOwnership wo \n" +
+            "JOIN wo.appUser au\n" +
+            "WHERE au.email = :userEmail AND wo.ownerShip.name = 'VIEWER'")
+    Page<Wallet> findAllByEmailAndViewer(Pageable pageable, String userEmail);
+
+    @Query("SELECT wo.wallet \n" +
+            "FROM WalletOwnership wo \n" +
+            "JOIN wo.appUser au\n" +
+            "WHERE au.email = :userEmail AND wo.ownerShip.name = 'CO-OWNER'")
+    Page<Wallet> findAllByCoOwner(Pageable pageable, String userEmail);
+
     Optional<Wallet> findById(Long id);
 
     @Query("SELECT w FROM Wallet w JOIN w.walletOwnerships wo JOIN wo.appUser u WHERE u.email = :appUserEmail")

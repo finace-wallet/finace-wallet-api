@@ -3,6 +3,7 @@ package com.codegym.finwallet.service.impl;
 import com.codegym.finwallet.constant.WalletConstant;
 import com.codegym.finwallet.constant.WalletOwnershipConstant;
 import com.codegym.finwallet.dto.CommonResponse;
+import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.dto.payload.response.WalletResponse;
 import com.codegym.finwallet.entity.AppUser;
@@ -48,9 +49,27 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    public CommonResponse findWalletByViewer(Pageable pageable) {
+        AppUser appUser = findAppUserByEmail();
+        Page<Wallet> filteredWallets = walletRepository.findAllByEmailAndViewer(pageable, appUser.getEmail());
+        List<WalletResponse> walletResponses = mapToWalletResponse(filteredWallets.getContent());
+        PageImpl<WalletResponse> walletResponsePage = new PageImpl<>(walletResponses, pageable, walletResponses.size());
+        return commonResponse.builResponse(walletResponsePage,"",HttpStatus.OK);
+    }
+
+    @Override
     public CommonResponse findWalletsByEmailAndOwner(Pageable pageable) {
         AppUser appUser = findAppUserByEmail();
         Page<Wallet> filteredWallets = walletRepository.findAllByEmailAndOwner(pageable, appUser.getEmail());
+        List<WalletResponse> walletResponses = mapToWalletResponse(filteredWallets.getContent());
+        PageImpl<WalletResponse> walletResponsePage = new PageImpl<>(walletResponses, pageable, walletResponses.size());
+        return commonResponse.builResponse(walletResponsePage,"",HttpStatus.OK);
+    }
+
+    @Override
+    public CommonResponse findWalletsByCoOwner(Pageable pageable) {
+        AppUser appUser = findAppUserByEmail();
+        Page<Wallet> filteredWallets = walletRepository.findAllByCoOwner(pageable, appUser.getEmail());
         List<WalletResponse> walletResponses = mapToWalletResponse(filteredWallets.getContent());
         PageImpl<WalletResponse> walletResponsePage = new PageImpl<>(walletResponses, pageable, walletResponses.size());
         return commonResponse.builResponse(walletResponsePage,"",HttpStatus.OK);
