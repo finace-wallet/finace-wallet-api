@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface OwnerShipRepository extends JpaRepository<OwnerShip, Long> {
     Optional<OwnerShip> findByName(String name);
+    boolean existsByName(String name);
 }
