@@ -15,7 +15,7 @@ public interface WalletService {
     Page<Wallet> findAllRecipientByEmail(Pageable pageable, String email);
     CommonResponse createWallet(WalletRequest request);
     CommonResponse deleteWallet(Long id);
-    Wallet findById(Long id);
+    CommonResponse findById(Long id);
     CommonResponse editWallet(WalletRequest walletRequest,Long id);
     CommonResponse addMoneyToWallet(Long walletId, double amount);
 }
