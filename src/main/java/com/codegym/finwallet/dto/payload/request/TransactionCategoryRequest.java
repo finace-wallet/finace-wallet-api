@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TransactionCategoryRequest {
     private String name;
-    private String note;
+    private String type;
 }

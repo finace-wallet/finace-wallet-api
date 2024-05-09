@@ -25,4 +25,5 @@ public class TransactionCategory {
     @ManyToOne
     @JoinColumn(name = "wallet_id")
     private Wallet wallet;
+    private String type;
 }

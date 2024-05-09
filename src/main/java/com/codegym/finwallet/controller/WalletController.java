@@ -4,10 +4,12 @@ package com.codegym.finwallet.controller;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.AddMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.DisplayRecipientRequest;
+import com.codegym.finwallet.dto.payload.request.TransactionCategoryRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.repository.WalletRepository;
+import com.codegym.finwallet.service.TransactionCategoryService;
 import com.codegym.finwallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class WalletController {
     private final WalletService walletService;
+    private final TransactionCategoryService transactionCategoryService;
 
     @Autowired
     private final AppUserRepository userRepository;
@@ -114,6 +117,12 @@ public class WalletController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping("/{id}/create-transaction-category")
+    public ResponseEntity<CommonResponse> createTransactionCategory(@PathVariable Long id, @RequestBody TransactionCategoryRequest request) {
+        CommonResponse commonResponse = transactionCategoryService.createTransactionCategory(request,id);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 }
 
