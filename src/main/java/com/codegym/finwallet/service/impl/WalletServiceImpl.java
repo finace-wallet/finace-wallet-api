@@ -8,10 +8,14 @@ import com.codegym.finwallet.dto.payload.response.TransactionCategoryResponse;
 import com.codegym.finwallet.dto.payload.response.WalletResponse;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.OwnerShip;
+import com.codegym.finwallet.entity.TransactionCategory;
+import com.codegym.finwallet.entity.TransactionCategoryDefault;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.entity.WalletOwnership;
 import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.repository.OwnerShipRepository;
+import com.codegym.finwallet.repository.TransactionCategoryDefaultRepository;
+import com.codegym.finwallet.repository.TransactionCategoryRepository;
 import com.codegym.finwallet.repository.WalletOwnershipRepository;
 import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.WalletService;
@@ -42,6 +46,8 @@ public class WalletServiceImpl implements WalletService {
     private final BuildCommonResponse commonResponse;
     private final AuthUserExtractor authUserExtractor;
     private final OwnerShipRepository ownerShipRepository;
+    private final TransactionCategoryRepository transactionCategoryRepository;
+    private final TransactionCategoryDefaultRepository transactionCategoryDefaultRepository;
 
     @Override
     public CommonResponse findAllByEmail(Pageable pageable) {
@@ -106,6 +112,7 @@ public class WalletServiceImpl implements WalletService {
         try {
             AppUser appUser = appUserRepository.findByEmail(authUserExtractor.getUsernameFromAuth());
             Wallet wallet = saveWallet(request);
+            saveTransactionCategory(wallet);
             WalletResponse response = saveWalletOwnerShip(wallet,appUser);
             if (response != null){
                 return commonResponse.builResponse(response, WalletConstant.CREATE_NEW_WALLET_SUCCESS_MESSAGE, HttpStatus.CREATED);
@@ -235,5 +242,22 @@ public class WalletServiceImpl implements WalletService {
     private WalletOwnership getWalletOwnership(String email, Long walletId) {
        Optional <WalletOwnership> walletOwnership = walletOwnershipRepository.findByAppUserEmailAndWalletIdAndIsDeleteFalse(email,walletId);
         return walletOwnership.orElse(null);
+    }
+
+    private void saveTransactionCategory(Wallet wallet) {
+        List<TransactionCategoryDefault> transactionCategoryDefaults = transactionCategoryDefaultRepository.findAll();
+        List<TransactionCategory> transactionCategories = transactionCategoryDefaults.stream()
+                .map(this::mapTransactionCategory)
+                .peek(transactionCategory -> transactionCategory.setWallet(wallet))
+                .collect(Collectors.toList());
+
+        transactionCategories.forEach(transactionCategoryRepository::save);
+    }
+    private TransactionCategory mapTransactionCategory(TransactionCategoryDefault transactionCategoryDefault) {
+        TransactionCategory transactionCategory = new TransactionCategory();
+        transactionCategory.setName(transactionCategoryDefault.getName());
+        transactionCategory.setDelete(transactionCategoryDefault.isDelete());
+
+        return transactionCategory;
     }
 }

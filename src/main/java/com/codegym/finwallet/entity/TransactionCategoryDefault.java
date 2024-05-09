@@ -19,5 +19,5 @@ public class TransactionCategoryDefault {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private boolean isDelete;
+    private boolean isDelete = false;
 }
