@@ -3,15 +3,19 @@ package com.codegym.finwallet.service.impl;
 import com.codegym.finwallet.constant.WalletConstant;
 import com.codegym.finwallet.constant.WalletOwnershipConstant;
 import com.codegym.finwallet.dto.CommonResponse;
-import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
+import com.codegym.finwallet.dto.payload.response.TransactionCategoryResponse;
 import com.codegym.finwallet.dto.payload.response.WalletResponse;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.OwnerShip;
+import com.codegym.finwallet.entity.TransactionCategory;
+import com.codegym.finwallet.entity.TransactionCategoryDefault;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.entity.WalletOwnership;
 import com.codegym.finwallet.repository.AppUserRepository;
 import com.codegym.finwallet.repository.OwnerShipRepository;
+import com.codegym.finwallet.repository.TransactionCategoryDefaultRepository;
+import com.codegym.finwallet.repository.TransactionCategoryRepository;
 import com.codegym.finwallet.repository.WalletOwnershipRepository;
 import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.WalletService;
@@ -28,9 +32,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +46,8 @@ public class WalletServiceImpl implements WalletService {
     private final BuildCommonResponse commonResponse;
     private final AuthUserExtractor authUserExtractor;
     private final OwnerShipRepository ownerShipRepository;
+    private final TransactionCategoryRepository transactionCategoryRepository;
+    private final TransactionCategoryDefaultRepository transactionCategoryDefaultRepository;
 
     @Override
     public CommonResponse findAllByEmail(Pageable pageable) {
@@ -106,6 +112,7 @@ public class WalletServiceImpl implements WalletService {
         try {
             AppUser appUser = appUserRepository.findByEmail(authUserExtractor.getUsernameFromAuth());
             Wallet wallet = saveWallet(request);
+            saveTransactionCategory(wallet);
             WalletResponse response = saveWalletOwnerShip(wallet,appUser);
             if (response != null){
                 return commonResponse.builResponse(response, WalletConstant.CREATE_NEW_WALLET_SUCCESS_MESSAGE, HttpStatus.CREATED);
@@ -136,13 +143,21 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public Wallet findById(Long id) {
-        Optional<Wallet> wallet = walletRepository.findById(id);
-        Wallet newWallet = new Wallet();
-        if (wallet.isPresent()) {
-            newWallet = wallet.get();
+    public CommonResponse findById(Long id) {
+        Optional<Wallet> walletOptional = walletRepository.findById(id);
+        if (walletOptional.isPresent()) {
+            Wallet wallet = walletOptional.get();
+            WalletResponse walletResponse = modelMapper.map(wallet,WalletResponse.class);
+            walletResponse.setTransactionCategory(
+                    wallet.getTransactionCategories().stream()
+                            .map(transactionCategory -> modelMapper.map(transactionCategory, TransactionCategoryResponse.class))
+                            .collect(Collectors.toSet())
+            );
+            WalletOwnership walletOwnership = getWalletOwnership(authUserExtractor.getUsernameFromAuth(), id);
+            walletResponse.setOwnership(walletOwnership.getOwnerShip().getName());
+            return commonResponse.builResponse(walletResponse,WalletConstant.GET_WALLET_SUCCESSFULLY,HttpStatus.OK);
         }
-        return newWallet;
+        return commonResponse.builResponse(null,WalletConstant.WALLET_NOT_FOUND_MESSAGE, HttpStatus.OK);
     }
 
     @Override
@@ -222,5 +237,27 @@ public class WalletServiceImpl implements WalletService {
             return response;
         }
         return null;
+    }
+
+    private WalletOwnership getWalletOwnership(String email, Long walletId) {
+       Optional <WalletOwnership> walletOwnership = walletOwnershipRepository.findByAppUserEmailAndWalletIdAndIsDeleteFalse(email,walletId);
+        return walletOwnership.orElse(null);
+    }
+
+    private void saveTransactionCategory(Wallet wallet) {
+        List<TransactionCategoryDefault> transactionCategoryDefaults = transactionCategoryDefaultRepository.findAll();
+        List<TransactionCategory> transactionCategories = transactionCategoryDefaults.stream()
+                .map(this::mapTransactionCategory)
+                .peek(transactionCategory -> transactionCategory.setWallet(wallet))
+                .collect(Collectors.toList());
+
+        transactionCategories.forEach(transactionCategoryRepository::save);
+    }
+    private TransactionCategory mapTransactionCategory(TransactionCategoryDefault transactionCategoryDefault) {
+        TransactionCategory transactionCategory = new TransactionCategory();
+        transactionCategory.setName(transactionCategoryDefault.getName());
+        transactionCategory.setDelete(transactionCategoryDefault.isDelete());
+
+        return transactionCategory;
     }
 }
