@@ -24,6 +24,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -59,4 +60,7 @@ public class AppUser {
     @JsonBackReference
     @OneToOne(mappedBy = "user")
     private TokenBlackList tokenBlackList;
+
+    @OneToMany(mappedBy = "appUser")
+    private Set<Transaction> transactions;
 }

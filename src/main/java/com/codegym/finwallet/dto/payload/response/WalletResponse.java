@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,7 +17,7 @@ public class WalletResponse {
     private double amount;
     private String currentType;
     private String description;
-    private double transactionBudget;
     private boolean isDelete;
     private String ownership;
+    private Set<TransactionCategoryResponse> transactionCategory;
 }

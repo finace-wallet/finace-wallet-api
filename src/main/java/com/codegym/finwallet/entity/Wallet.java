@@ -43,16 +43,8 @@
         @OneToMany(mappedBy = "wallet")
         private List<WalletOwnership> walletOwnerships = new ArrayList<>();
 
-        @ManyToMany(cascade = CascadeType.ALL)
-        @JoinTable(name = "wallet_transaction_type",
-                joinColumns = @JoinColumn(name = "wallet_id"),
-                inverseJoinColumns = @JoinColumn(name = "tracsaction_type_id")
-        )
-        @JsonBackReference
-        private List<TransactionType> transactionTypes;
-
         @OneToMany(mappedBy = "wallet")
         @JsonBackReference
-        private Set<UserDefType> userDefTypes;
+        private Set<TransactionCategory> transactionCategories;
 
     }
