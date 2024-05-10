@@ -178,6 +178,13 @@ public class WalletController {
         CommonResponse commonResponse = transactionService.editTransaction(request,id,transactionId);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
+
+    @GetMapping("/{id}/total-transactions")
+    public ResponseEntity<CommonResponse> getTotalTransaction(@RequestParam(required = false) Long categoryId,
+                                                              @PathVariable Long id){
+        CommonResponse commonResponse = transactionService.getAllTransactionsAndAmount(categoryId, id);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
 }
 
 
