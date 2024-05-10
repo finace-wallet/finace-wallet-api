@@ -12,9 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class TransactionRequest {
-    private String walletSenderId;
-    private String walletReceiverId;
-    private double transactionAmount;
+    private double amount;
     private LocalDateTime transactionDate;
     private Long transactionCategoryId;
     private String description;
