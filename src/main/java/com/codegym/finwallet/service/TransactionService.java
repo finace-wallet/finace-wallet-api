@@ -9,5 +9,5 @@ import org.springframework.data.domain.Pageable;
 public interface TransactionService {
     CommonResponse saveTransaction(TransactionRequest request, Long walletId);
     CommonResponse findAllTransactionsByWalletId(Long walletId, Pageable pageable);
-    CommonResponse findAllTransactionsByCategory(Long transactionCategoryId, Pageable pageable);
+    CommonResponse findAllTransactionsByCategory(Long walletId, Long transactionCategoryId, Pageable pageable);
 }
