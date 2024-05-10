@@ -49,7 +49,7 @@ public class TransactionServiceImpl implements TransactionService {
         boolean isExpense = isTransactionCateGoryExpense(transactionCategory);
         AppUser appUser = getUser(email);
         Wallet wallet = getWallet(walletId);
-        if (transactionCategory != null && appUser != null && wallet != null) {
+        if (appUser != null && wallet != null && buildTransaction(request,appUser,wallet,transactionCategory,isExpense) != null) {
             Transaction transaction = buildTransaction(request,appUser,wallet,transactionCategory,isExpense);
             TransactionResponse transactionResponse = buildResponse(transaction,email);
 
@@ -139,7 +139,7 @@ public class TransactionServiceImpl implements TransactionService {
         return walletOptional.orElse(null);
     }
 
-    private Transaction buildTransaction(TransactionRequest request,AppUser appUser,Wallet wallet,
+    private Transaction buildTransaction(TransactionRequest request,AppUser appUser, Wallet wallet,
                                          TransactionCategory transactionCategory, boolean isExpense){
         Transaction transaction = new Transaction();
         if (isTransactionCateGoryExpense(transactionCategory)){
@@ -147,15 +147,21 @@ public class TransactionServiceImpl implements TransactionService {
         }else {
             transaction.setAmount(request.getAmount());
         }
-        transaction.setDescription(request.getDescription());
-        transaction.setTransactionDate(request.getTransactionDate());
-        transaction.setTransactionCategory(transactionCategory);
-        transaction.setAppUser(appUser);
-        transaction.setWallet(wallet);
-        transaction.setExpense(isExpense);
-        transaction.setCurrency(request.getCurrency());
-        transactionRepository.save(transaction);
-        return transaction;
+        if (checkSufficientFunds(request,wallet)){
+            wallet.setAmount(minusMoney(request,wallet));
+            transaction.setDescription(request.getDescription());
+            transaction.setTransactionDate(request.getTransactionDate());
+            transaction.setTransactionCategory(transactionCategory);
+            transaction.setAppUser(appUser);
+            transaction.setWallet(wallet);
+            transaction.setExpense(isExpense);
+            transaction.setCurrency(request.getCurrency());
+            transactionRepository.save(transaction);
+            return transaction;
+        }else {
+            return null;
+        }
+
     }
 
     private TransactionResponse convertToResponse(Transaction transaction){
@@ -245,4 +251,17 @@ public class TransactionServiceImpl implements TransactionService {
         return false;
     }
 
+    private double minusMoney(TransactionRequest request, Wallet wallet){
+        double currentMoney = wallet.getAmount();
+        double newAmount = currentMoney - request.getAmount();
+        wallet.setAmount(newAmount);
+        walletRepository.save(wallet);
+        return newAmount;
+    }
+
+    private boolean checkSufficientFunds(TransactionRequest request, Wallet wallet){
+        double currentAmount = wallet.getAmount();
+        double inputAmount = request.getAmount();
+        return currentAmount >= inputAmount;
+    }
 }
