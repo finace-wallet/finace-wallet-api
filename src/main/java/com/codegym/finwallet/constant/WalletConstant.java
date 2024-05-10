@@ -7,7 +7,7 @@ public class WalletConstant {
     public static final String UPDATE_WALLET_INFORMATION_SUCCESS_MESSAGE = "Wallet updated successfully";
     public static final String UPDATE_WALLET_INFORMATION_DENIED = "You do not have permission to edit this wallet";
     public static final String WALLET_NOT_FOUND_MESSAGE = "Wallet is not found";
-    public static final String SUCCESSFUL_MONEY_TRANSFER = "Successful money transfer!";
+    public static final String TRANSFER_MONEY_SUCCESS = "Transfer money successful";
     public static final String INSUFFICIENT_ACCOUNT_BALANCE = "The balance is not enough to make the transaction!";
     public static final String UPDATE_BUDGET_TRANSACTION = "Transaction budget updated successfully.";
     public static final String ADD_BUDGET_TRANSACTION = "Budget added successfully.";
@@ -18,4 +18,6 @@ public class WalletConstant {
     public static final String INVALID_RECIPIENT_EMAIL = "Invalid recipient email.";
     public static final String SHARE_WALLET_SUCCESSFUL = "You've shared the wallet";
     public static final String GET_WALLET_SUCCESSFULLY = "You've get all the wallet";
+    public static final String DISABLE_WALLET_SUCCESSFULLY = "You've disabled the wallet";
+    public static final String TRANSFER_MONEY_FAILED = "Can't transfer money";
 }

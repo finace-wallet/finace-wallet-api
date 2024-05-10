@@ -172,15 +172,14 @@ public class WalletServiceImpl implements WalletService {
             }
             if (isUserWallet(id, email)) {
                 Wallet wallet = walletOptional.get();
-                double currentAmount = wallet.getAmount();
                 double inputAmount = walletRequest.getAmount();
                 if (inputAmount < 0) {
                     return commonResponse.builResponse(null, WalletConstant.AMOUNT_NOT_AVAILABLE, HttpStatus.BAD_REQUEST);
                 }
-                double newAmount = currentAmount + inputAmount;
-                wallet.setAmount(newAmount);
+                wallet.setAmount(inputAmount);
                 wallet.setName(walletRequest.getName());
                 wallet.setDescription(walletRequest.getDescription());
+                wallet.setCurrentType(walletRequest.getCurrentType());
                 walletRepository.save(wallet);
                 WalletResponse walletResponse = modelMapper.map(wallet, WalletResponse.class);
                 return commonResponse.builResponse(walletResponse, WalletConstant.UPDATE_WALLET_INFORMATION_SUCCESS_MESSAGE, HttpStatus.OK);
@@ -216,6 +215,17 @@ public class WalletServiceImpl implements WalletService {
         } else {
             return commonResponse.builResponse(null, WalletConstant.WALLET_NOT_FOUND_MESSAGE, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @Override
+    public CommonResponse disableWallet(Long id) {
+        Wallet wallet = getWallet(id);
+        if (wallet != null) {
+            wallet.setActive(false);
+            walletRepository.save(wallet);
+            return commonResponse.builResponse(null,WalletConstant.DISABLE_WALLET_SUCCESSFULLY, HttpStatus.OK);
+        }
+        return commonResponse.builResponse(null,WalletConstant.WALLET_NOT_FOUND_MESSAGE, HttpStatus.OK);
     }
 
     private Wallet saveWallet(WalletRequest walletRequest) {
@@ -260,5 +270,8 @@ public class WalletServiceImpl implements WalletService {
         transactionCategory.setType(transactionCategoryDefault.getType());
 
         return transactionCategory;
+    }
+    private Wallet getWallet(Long walletId) {
+        return walletRepository.findById(walletId).orElse(null);
     }
 }

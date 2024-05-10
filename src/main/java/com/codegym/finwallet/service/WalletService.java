@@ -18,4 +18,5 @@ public interface WalletService {
     CommonResponse findById(Long id);
     CommonResponse editWallet(WalletRequest walletRequest,Long id);
     CommonResponse addMoneyToWallet(Long walletId, double amount);
+    CommonResponse disableWallet(Long id);
 }

@@ -47,5 +47,4 @@
         @OneToMany(mappedBy = "wallet")
         @JsonBackReference
         private Set<TransactionCategory> transactionCategories;
-
     }
