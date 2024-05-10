@@ -142,7 +142,11 @@ public class TransactionServiceImpl implements TransactionService {
     private Transaction buildTransaction(TransactionRequest request,AppUser appUser,Wallet wallet,
                                          TransactionCategory transactionCategory, boolean isExpense){
         Transaction transaction = new Transaction();
-        transaction.setAmount(request.getAmount());
+        if (isTransactionCateGoryExpense(transactionCategory)){
+            transaction.setAmount(-request.getAmount());
+        }else {
+            transaction.setAmount(request.getAmount());
+        }
         transaction.setDescription(request.getDescription());
         transaction.setTransactionDate(request.getTransactionDate());
         transaction.setTransactionCategory(transactionCategory);
@@ -164,7 +168,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     private TransactionResponse buildResponse(Transaction transaction, String email){
         Profile profile = getProfile(email);
-
         TransactionResponse transactionResponse = convertToResponse(transaction);
         transactionResponse.setFullName(profile.getFullName());
         transactionResponse.setWalletName(transaction.getWallet().getName());

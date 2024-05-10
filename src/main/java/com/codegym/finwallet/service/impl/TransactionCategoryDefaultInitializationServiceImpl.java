@@ -50,11 +50,42 @@ public class TransactionCategoryDefaultInitializationServiceImpl implements Tran
             transactionCategoryDefault.setType(TransactionCategoryConstant.CATEGORY_TYPE_EXPENSE);
             transactionCategoryDefaultRepository.save(transactionCategoryDefault);
         }
+        if (!transactionCategoryDefaultRepository.existsByName(TransactionCategoryConstant.SALARY)){
+            TransactionCategoryDefault transactionCategoryDefault = new TransactionCategoryDefault();
+            transactionCategoryDefault.setName(TransactionCategoryConstant.SALARY);
+            transactionCategoryDefault.setType(TransactionCategoryConstant.CATEGORY_TYPE_INCOME);
+            transactionCategoryDefaultRepository.save(transactionCategoryDefault);
+        }
+        if (!transactionCategoryDefaultRepository.existsByName(TransactionCategoryConstant.LOAN)){
+            TransactionCategoryDefault transactionCategoryDefault = new TransactionCategoryDefault();
+            transactionCategoryDefault.setName(TransactionCategoryConstant.LOAN);
+            transactionCategoryDefault.setType(TransactionCategoryConstant.CATEGORY_TYPE_INCOME);
+            transactionCategoryDefaultRepository.save(transactionCategoryDefault);
+        }
+        if (!transactionCategoryDefaultRepository.existsByName(TransactionCategoryConstant.BUSINESS)){
+            TransactionCategoryDefault transactionCategoryDefault = new TransactionCategoryDefault();
+            transactionCategoryDefault.setName(TransactionCategoryConstant.BUSINESS);
+            transactionCategoryDefault.setType(TransactionCategoryConstant.CATEGORY_TYPE_INCOME);
+            transactionCategoryDefaultRepository.save(transactionCategoryDefault);
+        }
+        if (!transactionCategoryDefaultRepository.existsByName(TransactionCategoryConstant.INSURANCE)){
+            TransactionCategoryDefault transactionCategoryDefault = new TransactionCategoryDefault();
+            transactionCategoryDefault.setName(TransactionCategoryConstant.INSURANCE);
+            transactionCategoryDefault.setType(TransactionCategoryConstant.CATEGORY_TYPE_INCOME);
+            transactionCategoryDefaultRepository.save(transactionCategoryDefault);
+        }
+        if (!transactionCategoryDefaultRepository.existsByName(TransactionCategoryConstant.OTHER)){
+            TransactionCategoryDefault transactionCategoryDefault = new TransactionCategoryDefault();
+            transactionCategoryDefault.setName(TransactionCategoryConstant.OTHER);
+            transactionCategoryDefault.setType(TransactionCategoryConstant.CATEGORY_TYPE_INCOME);
+            transactionCategoryDefaultRepository.save(transactionCategoryDefault);
+        }
         if (!transactionCategoryDefaultRepository.existsByName(TransactionCategoryConstant.ENTERTAINMENT)){
             TransactionCategoryDefault transactionCategoryDefault = new TransactionCategoryDefault();
             transactionCategoryDefault.setName(TransactionCategoryConstant.ENTERTAINMENT);
-            transactionCategoryDefault.setType(TransactionCategoryConstant.CATEGORY_TYPE_EXPENSE);
+            transactionCategoryDefault.setType(TransactionCategoryConstant.CATEGORY_TYPE_INCOME);
             transactionCategoryDefaultRepository.save(transactionCategoryDefault);
         }
+
     }
 }
