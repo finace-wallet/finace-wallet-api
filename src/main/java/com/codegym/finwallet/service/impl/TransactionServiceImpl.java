@@ -110,6 +110,20 @@ public class TransactionServiceImpl implements TransactionService {
 
     }
 
+    @Override
+    public CommonResponse editTransaction(TransactionRequest request, Long walletId, Long transactionId) {
+        if (isTransactionInWallet(walletId, transactionId)) {
+            Transaction transaction = getTransaction(transactionId);
+            if (transaction != null) {
+                transaction = modelMapper.map(request,Transaction.class);
+                transactionRepository.save(transaction);
+                TransactionResponse transactionResponse = modelMapper.map(transaction,TransactionResponse.class);
+                return commonResponse.builResponse(transactionResponse,TransactionConstant.EDIT_TRANSACTION_SUCCESS,HttpStatus.OK);
+            }
+        }
+        return commonResponse.builResponse(null,TransactionConstant.FIND_TRANSACTION_FAILED,HttpStatus.BAD_REQUEST);
+    }
+
     private TransactionCategory getTransactionCategory(Long id) {
         Optional<TransactionCategory> transactionCategory = transactionCategoryRepository.findById(id);
         return transactionCategory.orElse(null);
@@ -135,6 +149,7 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setAppUser(appUser);
         transaction.setWallet(wallet);
         transaction.setExpense(isExpense);
+        transaction.setCurrency(request.getCurrency());
         transactionRepository.save(transaction);
         return transaction;
     }
@@ -212,6 +227,16 @@ public class TransactionServiceImpl implements TransactionService {
 
     private boolean isTransactionCateGoryExpense(TransactionCategory transactionCategory){
         if (transactionCategory.getType().equals("EXPENSE")){
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isTransactionInWallet(Long transactionId, Long walletId){
+        Wallet wallet = getWallet(walletId);
+        Transaction transaction = getTransaction(transactionId);
+
+        if (transaction!= null && wallet != null ){
             return true;
         }
         return false;
