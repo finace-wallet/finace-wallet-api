@@ -10,4 +10,5 @@ public interface TransactionService {
     CommonResponse saveTransaction(TransactionRequest request, Long walletId);
     CommonResponse findAllTransactionsByWalletId(Long walletId, Pageable pageable);
     CommonResponse findAllTransactionsByCategory(Long walletId, Long transactionCategoryId, Pageable pageable);
+    CommonResponse deleteTransaction(Long transactionId);
 }
