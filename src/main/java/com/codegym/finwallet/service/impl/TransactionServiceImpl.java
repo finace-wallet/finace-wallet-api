@@ -76,6 +76,17 @@ public class TransactionServiceImpl implements TransactionService {
         return commonResponse.builResponse(page,TransactionConstant.FIND_TRANSACTION_SUCCESSFUL,HttpStatus.OK);
     }
 
+    @Override
+    public CommonResponse deleteTransaction(Long transactionId) {
+        Transaction transaction = getTransaction(transactionId);
+        if (transaction != null) {
+            transaction.setDelete(true);
+            transactionRepository.save(transaction);
+            return commonResponse.builResponse(null,TransactionConstant.DELETE_TRANSACTION_SUCCESSFUL,HttpStatus.OK);
+        }
+        return commonResponse.builResponse(null,TransactionConstant.DELETE_TRANSACTION_FAILED,HttpStatus.BAD_REQUEST);
+    }
+
     private TransactionCategory getTransactionCategory(Long id) {
         Optional<TransactionCategory> transactionCategory = transactionCategoryRepository.findById(id);
         return transactionCategory.orElse(null);
@@ -121,5 +132,9 @@ public class TransactionServiceImpl implements TransactionService {
         transactionResponse.setType(transaction.getTransactionCategory().getType());
 
         return transactionResponse;
+    }
+
+    private Transaction getTransaction(Long transactionId){
+        return transactionRepository.findById(transactionId).orElse(null);
     }
 }

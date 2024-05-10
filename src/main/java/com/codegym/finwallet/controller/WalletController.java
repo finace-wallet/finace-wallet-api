@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -148,6 +149,12 @@ public class WalletController {
                                                                        ){
         Pageable pageable = PageRequest.of(page,size);
         CommonResponse commonResponse = transactionService.findAllTransactionsByCategory(id,categoryId,pageable);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
+
+    @PatchMapping("/{id}/transaction-detail/delete")
+    public ResponseEntity<CommonResponse> deleteTransaction(@RequestParam Long transactionId){
+        CommonResponse commonResponse = transactionService.deleteTransaction(transactionId);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 }
