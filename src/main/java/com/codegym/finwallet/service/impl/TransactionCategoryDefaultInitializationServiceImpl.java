@@ -23,31 +23,37 @@ public class TransactionCategoryDefaultInitializationServiceImpl implements Tran
         if (!transactionCategoryDefaultRepository.existsByName(TransactionCategoryConstant.FOOD_AND_DRINK)){
             TransactionCategoryDefault transactionCategoryDefault = new TransactionCategoryDefault();
             transactionCategoryDefault.setName(TransactionCategoryConstant.FOOD_AND_DRINK);
+            transactionCategoryDefault.setType(TransactionCategoryConstant.CATEGORY_TYPE_EXPENSE);
             transactionCategoryDefaultRepository.save(transactionCategoryDefault);
         }
         if (!transactionCategoryDefaultRepository.existsByName(TransactionCategoryConstant.SHOPPING)){
             TransactionCategoryDefault transactionCategoryDefault = new TransactionCategoryDefault();
             transactionCategoryDefault.setName(TransactionCategoryConstant.SHOPPING);
+            transactionCategoryDefault.setType(TransactionCategoryConstant.CATEGORY_TYPE_EXPENSE);
             transactionCategoryDefaultRepository.save(transactionCategoryDefault);
         }
         if (!transactionCategoryDefaultRepository.existsByName(TransactionCategoryConstant.TRANSPORT)){
             TransactionCategoryDefault transactionCategoryDefault = new TransactionCategoryDefault();
             transactionCategoryDefault.setName(TransactionCategoryConstant.TRANSPORT);
+            transactionCategoryDefault.setType(TransactionCategoryConstant.CATEGORY_TYPE_EXPENSE);
             transactionCategoryDefaultRepository.save(transactionCategoryDefault);
         }
         if (!transactionCategoryDefaultRepository.existsByName(TransactionCategoryConstant.HOME)){
             TransactionCategoryDefault transactionCategoryDefault = new TransactionCategoryDefault();
             transactionCategoryDefault.setName(TransactionCategoryConstant.HOME);
+            transactionCategoryDefault.setType(TransactionCategoryConstant.CATEGORY_TYPE_EXPENSE);
             transactionCategoryDefaultRepository.save(transactionCategoryDefault);
         }
         if (!transactionCategoryDefaultRepository.existsByName(TransactionCategoryConstant.BILL_AND_FEES)){
             TransactionCategoryDefault transactionCategoryDefault = new TransactionCategoryDefault();
             transactionCategoryDefault.setName(TransactionCategoryConstant.BILL_AND_FEES);
+            transactionCategoryDefault.setType(TransactionCategoryConstant.CATEGORY_TYPE_EXPENSE);
             transactionCategoryDefaultRepository.save(transactionCategoryDefault);
         }
         if (!transactionCategoryDefaultRepository.existsByName(TransactionCategoryConstant.ENTERTAINMENT)){
             TransactionCategoryDefault transactionCategoryDefault = new TransactionCategoryDefault();
             transactionCategoryDefault.setName(TransactionCategoryConstant.ENTERTAINMENT);
+            transactionCategoryDefault.setType(TransactionCategoryConstant.CATEGORY_TYPE_EXPENSE);
             transactionCategoryDefaultRepository.save(transactionCategoryDefault);
         }
     }
