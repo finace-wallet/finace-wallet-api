@@ -66,8 +66,14 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public CommonResponse findAllTransactionsByCategory( Long transactionCategoryId, Pageable pageable) {
-        return null;
+    public CommonResponse findAllTransactionsByCategory(Long walletId, Long transactionCategoryId, Pageable pageable) {
+        String email = userExtractor.getUsernameFromAuth();
+        Page<Transaction> transactions = transactionRepository.findAllByWalletIdAndTransactionCategoryId(walletId,transactionCategoryId,pageable);
+        List<TransactionResponse> responses = transactions.stream()
+                .map(transaction -> buildResponse(transaction,email))
+                .toList();
+        PageImpl<TransactionResponse> page = new PageImpl<>(responses,pageable,transactions.getTotalElements());
+        return commonResponse.builResponse(page,TransactionConstant.FIND_TRANSACTION_SUCCESSFUL,HttpStatus.OK);
     }
 
     private TransactionCategory getTransactionCategory(Long id) {

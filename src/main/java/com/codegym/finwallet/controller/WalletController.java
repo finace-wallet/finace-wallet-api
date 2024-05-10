@@ -140,6 +140,16 @@ public class WalletController {
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 
-
+    @GetMapping("/{id}/list-transaction/category")
+    public ResponseEntity<CommonResponse> getTransactionListByCategory(@PathVariable Long id,
+                                                                       @RequestParam Long categoryId,
+                                                                       @RequestParam(defaultValue = "0") int page,
+                                                                       @RequestParam(defaultValue = "5") int size
+                                                                       ){
+        Pageable pageable = PageRequest.of(page,size);
+        CommonResponse commonResponse = transactionService.findAllTransactionsByCategory(id,categoryId,pageable);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
 }
+
 
