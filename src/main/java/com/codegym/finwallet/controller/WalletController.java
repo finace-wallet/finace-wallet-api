@@ -130,5 +130,16 @@ public class WalletController {
         CommonResponse commonResponse = transactionService.saveTransaction(request,id);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
+
+    @GetMapping("/{id}/list-transaction")
+    public ResponseEntity<CommonResponse> getTransactionList(@PathVariable Long id ,
+                                                             @RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page,size);
+        CommonResponse commonResponse = transactionService.findAllTransactionsByWalletId(id,pageable);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
+
+
 }
 

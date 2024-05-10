@@ -19,9 +19,13 @@ import com.codegym.finwallet.util.AuthUserExtractor;
 import com.codegym.finwallet.util.BuildCommonResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -41,14 +45,29 @@ public class TransactionServiceImpl implements TransactionService {
         TransactionCategory transactionCategory = getTransactionCategory(request.getTransactionCategoryId());
         AppUser appUser = getUser(email);
         Wallet wallet = getWallet(walletId);
-        if (transactionCategory  != null && appUser != null && wallet != null) {
+        if (transactionCategory != null && appUser != null && wallet != null) {
             Transaction transaction = buildTransaction(request,appUser,wallet,transactionCategory);
             TransactionResponse transactionResponse = buildResponse(transaction,email);
 
-            transactionRepository.save(transaction);
             return commonResponse.builResponse(transactionResponse, TransactionConstant.CREATE_TRANSACTION_SUCCESSFUL, HttpStatus.CREATED);
         }
         return commonResponse.builResponse(null, TransactionConstant.CREATE_TRANSACTION_FAILED, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public CommonResponse findAllTransactionsByWalletId(Long walletId, Pageable pageable) {
+        String email = userExtractor.getUsernameFromAuth();
+        Page<Transaction> transactions = transactionRepository.findAllByWalletId(walletId,pageable);
+        List<TransactionResponse> responses = transactions.stream()
+                .map(transaction -> buildResponse(transaction,email))
+                .toList();
+        PageImpl<TransactionResponse> page = new PageImpl<>(responses,pageable,transactions.getTotalElements());
+        return commonResponse.builResponse(page,TransactionConstant.FIND_TRANSACTION_SUCCESSFUL,HttpStatus.OK);
+    }
+
+    @Override
+    public CommonResponse findAllTransactionsByCategory( Long transactionCategoryId, Pageable pageable) {
+        return null;
     }
 
     private TransactionCategory getTransactionCategory(Long id) {
@@ -67,11 +86,14 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private Transaction buildTransaction(TransactionRequest request,AppUser appUser,Wallet wallet, TransactionCategory transactionCategory){
-        Transaction transaction = modelMapper.map(request, Transaction.class);
+        Transaction transaction = new Transaction();
+        transaction.setAmount(request.getAmount());
+        transaction.setDescription(request.getDescription());
+        transaction.setTransactionDate(request.getTransactionDate());
         transaction.setTransactionCategory(transactionCategory);
         transaction.setAppUser(appUser);
         transaction.setWallet(wallet);
-
+        transactionRepository.save(transaction);
         return transaction;
     }
 
