@@ -1,6 +1,5 @@
 package com.codegym.finwallet.dto.payload.response;
 
-import com.codegym.finwallet.entity.TransactionCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,12 +12,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TransactionResponse {
-    private Long id;
+    private String sender;
+    private String recipient;
     private LocalDateTime transactionDate;
-    private double amount;
+    private double transactionAmount;
     private String description;
-    private String fullName;
-    private String walletName;
-    private String categoryName;
-    private String type;
 }
