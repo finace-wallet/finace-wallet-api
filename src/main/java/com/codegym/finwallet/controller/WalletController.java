@@ -6,6 +6,7 @@ import com.codegym.finwallet.dto.payload.request.AddMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.DisplayRecipientRequest;
 import com.codegym.finwallet.dto.payload.request.TransactionCategoryRequest;
 import com.codegym.finwallet.dto.payload.request.TransactionRequest;
+import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -130,5 +132,44 @@ public class WalletController {
         CommonResponse commonResponse = transactionService.saveTransaction(request,id);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
+
+    @GetMapping("/{id}/list-transaction")
+    public ResponseEntity<CommonResponse> getTransactionList(@PathVariable Long id ,
+                                                             @RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page,size);
+        CommonResponse commonResponse = transactionService.findAllTransactionsByWalletId(id,pageable);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
+
+    @GetMapping("/{id}/list-transaction/category")
+    public ResponseEntity<CommonResponse> getTransactionListByCategory(@PathVariable Long id,
+                                                                       @RequestParam Long categoryId,
+                                                                       @RequestParam(defaultValue = "0") int page,
+                                                                       @RequestParam(defaultValue = "5") int size
+                                                                       ){
+        Pageable pageable = PageRequest.of(page,size);
+        CommonResponse commonResponse = transactionService.findAllTransactionsByCategory(id,categoryId,pageable);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
+
+    @PatchMapping("/{id}/transaction-detail/delete")
+    public ResponseEntity<CommonResponse> deleteTransaction(@RequestParam Long transactionId){
+        CommonResponse commonResponse = transactionService.deleteTransaction(transactionId);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
+
+    @PatchMapping("/{id}/disable")
+    public ResponseEntity<CommonResponse> disableTransaction(@PathVariable Long id){
+        CommonResponse commonResponse = walletService.disableWallet(id);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
+
+    @PostMapping("/{id}/transfer-money")
+    public ResponseEntity<CommonResponse> transferMoney(@PathVariable Long id, @RequestBody TransferMoneyRequest request) {
+        CommonResponse commonResponse = transactionService.transferMoney(request,id);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
 }
+
 

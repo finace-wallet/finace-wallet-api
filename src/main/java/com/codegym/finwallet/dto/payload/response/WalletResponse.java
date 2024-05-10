@@ -17,7 +17,7 @@ public class WalletResponse {
     private double amount;
     private String currentType;
     private String description;
-    private boolean isDelete;
+    private boolean isActive;
     private String ownership;
     private Set<TransactionCategoryResponse> transactionCategory;
 }

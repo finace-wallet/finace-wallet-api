@@ -39,6 +39,7 @@
         private String currentType;
         private String description;
         private boolean isDelete;
+        private boolean isActive = true;
 
         @OneToMany(mappedBy = "wallet")
         private List<WalletOwnership> walletOwnerships = new ArrayList<>();
@@ -46,5 +47,4 @@
         @OneToMany(mappedBy = "wallet")
         @JsonBackReference
         private Set<TransactionCategory> transactionCategories;
-
     }
