@@ -257,6 +257,7 @@ public class WalletServiceImpl implements WalletService {
         TransactionCategory transactionCategory = new TransactionCategory();
         transactionCategory.setName(transactionCategoryDefault.getName());
         transactionCategory.setDelete(transactionCategoryDefault.isDelete());
+        transactionCategory.setType(transactionCategoryDefault.getType());
 
         return transactionCategory;
     }
