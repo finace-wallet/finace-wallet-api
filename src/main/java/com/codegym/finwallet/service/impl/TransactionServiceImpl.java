@@ -1,8 +1,10 @@
 package com.codegym.finwallet.service.impl;
 
 import com.codegym.finwallet.constant.TransactionConstant;
+import com.codegym.finwallet.constant.WalletConstant;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.TransactionRequest;
+import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.response.TransactionResponse;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Profile;
@@ -25,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,10 +46,11 @@ public class TransactionServiceImpl implements TransactionService {
     public CommonResponse saveTransaction(TransactionRequest request, Long walletId) {
         String email = userExtractor.getUsernameFromAuth();
         TransactionCategory transactionCategory = getTransactionCategory(request.getTransactionCategoryId());
+        boolean isExpense = isTransactionCateGoryExpense(transactionCategory);
         AppUser appUser = getUser(email);
         Wallet wallet = getWallet(walletId);
         if (transactionCategory != null && appUser != null && wallet != null) {
-            Transaction transaction = buildTransaction(request,appUser,wallet,transactionCategory);
+            Transaction transaction = buildTransaction(request,appUser,wallet,transactionCategory,isExpense);
             TransactionResponse transactionResponse = buildResponse(transaction,email);
 
             return commonResponse.builResponse(transactionResponse, TransactionConstant.CREATE_TRANSACTION_SUCCESSFUL, HttpStatus.CREATED);
@@ -87,6 +91,25 @@ public class TransactionServiceImpl implements TransactionService {
         return commonResponse.builResponse(null,TransactionConstant.DELETE_TRANSACTION_FAILED,HttpStatus.BAD_REQUEST);
     }
 
+    @Override
+    public CommonResponse transferMoney(TransferMoneyRequest request, Long walletId) {
+        try {
+            Wallet receiverWallet = plusMoney(request);
+            Wallet senderWallet = deductMoney(walletId,request);
+            String email = userExtractor.getUsernameFromAuth();
+            AppUser appUser = getUser(email);
+            Transaction senderTransaction = buildTransactionForDeductWallet(request,appUser,senderWallet);
+            Transaction receiverTransaction = buildTransactionForReceiverWallet(request,appUser,receiverWallet);
+
+            TransactionResponse transactionResponse = modelMapper.map(senderTransaction,TransactionResponse.class);
+            transactionResponse.setFullName(getProfile(email).getFullName());
+            return commonResponse.builResponse(transactionResponse, WalletConstant.TRANSFER_MONEY_SUCCESS,HttpStatus.CREATED);
+        }catch (Exception e){
+            return commonResponse.builResponse(null,WalletConstant.TRANSFER_MONEY_FAILED, HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
     private TransactionCategory getTransactionCategory(Long id) {
         Optional<TransactionCategory> transactionCategory = transactionCategoryRepository.findById(id);
         return transactionCategory.orElse(null);
@@ -102,7 +125,8 @@ public class TransactionServiceImpl implements TransactionService {
         return walletOptional.orElse(null);
     }
 
-    private Transaction buildTransaction(TransactionRequest request,AppUser appUser,Wallet wallet, TransactionCategory transactionCategory){
+    private Transaction buildTransaction(TransactionRequest request,AppUser appUser,Wallet wallet,
+                                         TransactionCategory transactionCategory, boolean isExpense){
         Transaction transaction = new Transaction();
         transaction.setAmount(request.getAmount());
         transaction.setDescription(request.getDescription());
@@ -110,6 +134,7 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setTransactionCategory(transactionCategory);
         transaction.setAppUser(appUser);
         transaction.setWallet(wallet);
+        transaction.setExpense(isExpense);
         transactionRepository.save(transaction);
         return transaction;
     }
@@ -137,4 +162,59 @@ public class TransactionServiceImpl implements TransactionService {
     private Transaction getTransaction(Long transactionId){
         return transactionRepository.findById(transactionId).orElse(null);
     }
+
+    private Wallet plusMoney(TransferMoneyRequest request){
+        Wallet wallet = getWallet(request.getDestinationWalletId());
+        double inputAmount = request.getAmount();
+        double currentAmount = wallet.getAmount();
+        double newAmount = currentAmount + inputAmount;
+        wallet.setAmount(newAmount);
+        walletRepository.save(wallet);
+        return wallet;
+    }
+
+    private Wallet deductMoney(Long walletId, TransferMoneyRequest request){
+        Wallet wallet = getWallet(walletId);
+        double currentAmount = wallet.getAmount();
+        double newAmount = currentAmount - request.getAmount();
+        wallet.setAmount(newAmount);
+        walletRepository.save(wallet);
+        return wallet;
+    }
+
+    private Transaction buildTransactionForDeductWallet(TransferMoneyRequest request, AppUser appUser, Wallet wallet){
+        Transaction transaction = new Transaction();
+        transaction.setAmount(request.getAmount());
+        transaction.setDescription(request.getDescription());
+        transaction.setTransfer(true);
+        transaction.setExpense(true);
+        transaction.setTransactionDate(LocalDate.now());
+        transaction.setAppUser(appUser);
+        transaction.setWallet(wallet);
+
+        transactionRepository.save(transaction);
+        return transaction;
+    }
+
+    private Transaction buildTransactionForReceiverWallet(TransferMoneyRequest request, AppUser appUser, Wallet wallet){
+        Transaction transaction = new Transaction();
+        transaction.setAmount(request.getAmount());
+        transaction.setDescription(request.getDescription());
+        transaction.setTransfer(true);
+        transaction.setExpense(false);
+        transaction.setTransactionDate(LocalDate.now());
+        transaction.setAppUser(appUser);
+        transaction.setWallet(wallet);
+
+        transactionRepository.save(transaction);
+        return transaction;
+    }
+
+    private boolean isTransactionCateGoryExpense(TransactionCategory transactionCategory){
+        if (transactionCategory.getType().equals("EXPENSE")){
+            return true;
+        }
+        return false;
+    }
+
 }

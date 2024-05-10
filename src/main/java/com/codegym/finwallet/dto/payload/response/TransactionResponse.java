@@ -21,4 +21,6 @@ public class TransactionResponse {
     private String walletName;
     private String categoryName;
     private String type;
+    private boolean isExpense;
+    private boolean isTransfer;
 }

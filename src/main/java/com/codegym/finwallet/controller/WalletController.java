@@ -6,6 +6,7 @@ import com.codegym.finwallet.dto.payload.request.AddMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.DisplayRecipientRequest;
 import com.codegym.finwallet.dto.payload.request.TransactionCategoryRequest;
 import com.codegym.finwallet.dto.payload.request.TransactionRequest;
+import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.request.WalletRequest;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
@@ -155,6 +156,18 @@ public class WalletController {
     @PatchMapping("/{id}/transaction-detail/delete")
     public ResponseEntity<CommonResponse> deleteTransaction(@RequestParam Long transactionId){
         CommonResponse commonResponse = transactionService.deleteTransaction(transactionId);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
+
+    @PatchMapping("/{id}/disable")
+    public ResponseEntity<CommonResponse> disableTransaction(@PathVariable Long id){
+        CommonResponse commonResponse = walletService.disableWallet(id);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
+
+    @PostMapping("/{id}/transfer-money")
+    public ResponseEntity<CommonResponse> transferMoney(@PathVariable Long id, @RequestBody TransferMoneyRequest request) {
+        CommonResponse commonResponse = transactionService.transferMoney(request,id);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 }

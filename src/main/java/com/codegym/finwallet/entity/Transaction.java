@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,10 +25,12 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDateTime transactionDate;
+    private LocalDate transactionDate;
     private double amount;
     private String description;
     private boolean isDelete;
+    private boolean isTransfer = false;
+    private boolean isExpense;
     @ManyToOne
     @JoinColumn(name = "wallet_id")
     private Wallet wallet;

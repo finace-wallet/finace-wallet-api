@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class TransactionRequest {
     private double amount;
-    private LocalDateTime transactionDate;
+    private LocalDate transactionDate;
     private Long transactionCategoryId;
     private String description;
 }

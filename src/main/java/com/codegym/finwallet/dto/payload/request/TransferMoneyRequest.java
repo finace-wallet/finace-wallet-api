@@ -10,9 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class TransferMoneyRequest {
-    private Long sourceWalletId;
     private Long destinationWalletId;
-    private String destinationEmail;
     private double amount;
     private String description;
 }
