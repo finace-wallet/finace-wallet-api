@@ -2,10 +2,12 @@ package com.codegym.finwallet.service.impl;
 
 import com.codegym.finwallet.constant.TransactionConstant;
 import com.codegym.finwallet.constant.WalletConstant;
+import com.codegym.finwallet.converter.TransactionSummaryConvert;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.TransactionRequest;
 import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.response.TransactionResponse;
+import com.codegym.finwallet.dto.payload.response.TransactionSummaryResponse;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Profile;
 import com.codegym.finwallet.entity.Transaction;
@@ -42,6 +44,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final WalletRepository walletRepository;
     private final BuildCommonResponse commonResponse;
     private final ProfileRepository profileRepository;
+    private final TransactionSummaryConvert convert;
     @Override
     public CommonResponse saveTransaction(TransactionRequest request, Long walletId) {
         String email = userExtractor.getUsernameFromAuth();
@@ -122,6 +125,13 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
         return commonResponse.builResponse(null,TransactionConstant.FIND_TRANSACTION_FAILED,HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public CommonResponse getAllTransactionsAndAmount(Long categoryId,Long walletId) {
+        List<Object[]> transactions = transactionRepository.getTotalTransactionAndAmountByTransactionCategory(categoryId,walletId);
+        TransactionSummaryResponse transactionSummaryResponse = convert.convertToResponse(transactions);
+        return commonResponse.builResponse(transactionSummaryResponse,TransactionConstant.FIND_TRANSACTION_SUCCESSFUL,HttpStatus.OK);
     }
 
     private TransactionCategory getTransactionCategory(Long id) {
