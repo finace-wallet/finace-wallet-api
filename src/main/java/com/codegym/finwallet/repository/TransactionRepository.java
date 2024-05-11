@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
@@ -20,4 +21,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "AND t.wallet.id = :walletId " +
             "AND t.isDelete = false")
     List<Object[]> getTotalTransactionAndAmountByTransactionCategory(Long categoryId, Long walletId);
+
+    @Query("SELECT t FROM Transaction t " +
+            "WHERE t.transactionDate >= :startDate AND t.transactionDate <= :endDate AND t.wallet.id = :walletId " +
+            "AND t.isDelete = false")
+    List<Transaction> findByTransactionInDay(LocalDate startDate, LocalDate endDate, Long walletId);
 }

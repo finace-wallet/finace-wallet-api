@@ -6,6 +6,7 @@ import com.codegym.finwallet.converter.TransactionSummaryConvert;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.TransactionRequest;
 import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
+import com.codegym.finwallet.dto.payload.response.DateResponse;
 import com.codegym.finwallet.dto.payload.response.TransactionResponse;
 import com.codegym.finwallet.dto.payload.response.TransactionSummaryResponse;
 import com.codegym.finwallet.entity.AppUser;
@@ -29,9 +30,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static com.codegym.finwallet.constant.TimeConstant.DAY;
+import static com.codegym.finwallet.constant.TimeConstant.MONTH;
+import static com.codegym.finwallet.constant.TimeConstant.WEEK;
 
 @Service
 @RequiredArgsConstructor
@@ -132,6 +140,25 @@ public class TransactionServiceImpl implements TransactionService {
         List<Object[]> transactions = transactionRepository.getTotalTransactionAndAmountByTransactionCategory(categoryId,walletId);
         TransactionSummaryResponse transactionSummaryResponse = convert.convertToResponse(transactions);
         return commonResponse.builResponse(transactionSummaryResponse,TransactionConstant.FIND_TRANSACTION_SUCCESSFUL,HttpStatus.OK);
+    }
+
+    @Override
+    public List<Transaction> getAllTransactionsPeriod(Long walletId, LocalDate startDate, LocalDate endDate, String timeType) {
+        List<Transaction> transactions = new ArrayList<>();
+        switch (timeType){
+            case DAY:
+                transactions = getTransactionsForToday(walletId);
+                break;
+            case WEEK:
+                transactions = getTransactionsForWeek(walletId);
+                break;
+            case MONTH:
+                transactions = getTransactionsForMonth(walletId);
+                break;
+            default:
+                break;
+        }
+        return transactions;
     }
 
     private TransactionCategory getTransactionCategory(Long id) {
@@ -269,9 +296,39 @@ public class TransactionServiceImpl implements TransactionService {
         return newAmount;
     }
 
+    private DateResponse getDateInWeek(){
+        return DateResponse.builder()
+                .startDate(LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)))
+                .endDate(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)))
+                .build();
+    }
+
+    private DateResponse getDateInMonth(){
+        return DateResponse.builder()
+                .startDate(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()))
+                .endDate(LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()))
+                .build();
+    }
+
     private boolean checkSufficientFunds(TransactionRequest request, Wallet wallet){
         double currentAmount = wallet.getAmount();
         double inputAmount = request.getAmount();
         return currentAmount >= inputAmount;
     }
+
+    private List<Transaction> getTransactionsForToday(Long walletId){
+        LocalDate today = LocalDate.now();
+        return transactionRepository.findByTransactionInDay(today,today,walletId);
+    }
+
+    private List<Transaction> getTransactionsForWeek(Long walletId){
+        DateResponse dateResponse = getDateInWeek();
+        return transactionRepository.findByTransactionInDay(dateResponse.getStartDate(),dateResponse.getEndDate(),walletId);
+    }
+
+    private List<Transaction> getTransactionsForMonth(Long walletId){
+        DateResponse dateResponse = getDateInMonth();
+        return transactionRepository.findByTransactionInDay(dateResponse.getStartDate(),dateResponse.getEndDate(),walletId);
+    }
+
 }
