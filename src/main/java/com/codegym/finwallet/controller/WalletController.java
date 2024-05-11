@@ -170,6 +170,21 @@ public class WalletController {
         CommonResponse commonResponse = transactionService.transferMoney(request,id);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
+
+    @PutMapping("/{id}/edit-transaction")
+    public ResponseEntity<CommonResponse> editTransaction(@PathVariable Long id,
+                                                          @RequestBody TransactionRequest request,
+                                                          @RequestParam Long transactionId) {
+        CommonResponse commonResponse = transactionService.editTransaction(request,id,transactionId);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
+
+    @GetMapping("/{id}/total-transactions")
+    public ResponseEntity<CommonResponse> getTotalTransaction(@RequestParam(required = false) Long categoryId,
+                                                              @PathVariable Long id){
+        CommonResponse commonResponse = transactionService.getAllTransactionsAndAmount(categoryId, id);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
 }
 
 

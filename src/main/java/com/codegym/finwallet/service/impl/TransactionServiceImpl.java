@@ -2,10 +2,12 @@ package com.codegym.finwallet.service.impl;
 
 import com.codegym.finwallet.constant.TransactionConstant;
 import com.codegym.finwallet.constant.WalletConstant;
+import com.codegym.finwallet.converter.TransactionSummaryConvert;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.TransactionRequest;
 import com.codegym.finwallet.dto.payload.request.TransferMoneyRequest;
 import com.codegym.finwallet.dto.payload.response.TransactionResponse;
+import com.codegym.finwallet.dto.payload.response.TransactionSummaryResponse;
 import com.codegym.finwallet.entity.AppUser;
 import com.codegym.finwallet.entity.Profile;
 import com.codegym.finwallet.entity.Transaction;
@@ -42,6 +44,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final WalletRepository walletRepository;
     private final BuildCommonResponse commonResponse;
     private final ProfileRepository profileRepository;
+    private final TransactionSummaryConvert convert;
     @Override
     public CommonResponse saveTransaction(TransactionRequest request, Long walletId) {
         String email = userExtractor.getUsernameFromAuth();
@@ -49,7 +52,7 @@ public class TransactionServiceImpl implements TransactionService {
         boolean isExpense = isTransactionCateGoryExpense(transactionCategory);
         AppUser appUser = getUser(email);
         Wallet wallet = getWallet(walletId);
-        if (transactionCategory != null && appUser != null && wallet != null) {
+        if (appUser != null && wallet != null && buildTransaction(request,appUser,wallet,transactionCategory,isExpense) != null) {
             Transaction transaction = buildTransaction(request,appUser,wallet,transactionCategory,isExpense);
             TransactionResponse transactionResponse = buildResponse(transaction,email);
 
@@ -110,6 +113,27 @@ public class TransactionServiceImpl implements TransactionService {
 
     }
 
+    @Override
+    public CommonResponse editTransaction(TransactionRequest request, Long walletId, Long transactionId) {
+        if (isTransactionInWallet(walletId, transactionId)) {
+            Transaction transaction = getTransaction(transactionId);
+            if (transaction != null) {
+                transaction = modelMapper.map(request,Transaction.class);
+                transactionRepository.save(transaction);
+                TransactionResponse transactionResponse = modelMapper.map(transaction,TransactionResponse.class);
+                return commonResponse.builResponse(transactionResponse,TransactionConstant.EDIT_TRANSACTION_SUCCESS,HttpStatus.OK);
+            }
+        }
+        return commonResponse.builResponse(null,TransactionConstant.FIND_TRANSACTION_FAILED,HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public CommonResponse getAllTransactionsAndAmount(Long categoryId,Long walletId) {
+        List<Object[]> transactions = transactionRepository.getTotalTransactionAndAmountByTransactionCategory(categoryId,walletId);
+        TransactionSummaryResponse transactionSummaryResponse = convert.convertToResponse(transactions);
+        return commonResponse.builResponse(transactionSummaryResponse,TransactionConstant.FIND_TRANSACTION_SUCCESSFUL,HttpStatus.OK);
+    }
+
     private TransactionCategory getTransactionCategory(Long id) {
         Optional<TransactionCategory> transactionCategory = transactionCategoryRepository.findById(id);
         return transactionCategory.orElse(null);
@@ -125,18 +149,29 @@ public class TransactionServiceImpl implements TransactionService {
         return walletOptional.orElse(null);
     }
 
-    private Transaction buildTransaction(TransactionRequest request,AppUser appUser,Wallet wallet,
+    private Transaction buildTransaction(TransactionRequest request,AppUser appUser, Wallet wallet,
                                          TransactionCategory transactionCategory, boolean isExpense){
         Transaction transaction = new Transaction();
-        transaction.setAmount(request.getAmount());
-        transaction.setDescription(request.getDescription());
-        transaction.setTransactionDate(request.getTransactionDate());
-        transaction.setTransactionCategory(transactionCategory);
-        transaction.setAppUser(appUser);
-        transaction.setWallet(wallet);
-        transaction.setExpense(isExpense);
-        transactionRepository.save(transaction);
-        return transaction;
+        if (isTransactionCateGoryExpense(transactionCategory)){
+            transaction.setAmount(-request.getAmount());
+        }else {
+            transaction.setAmount(request.getAmount());
+        }
+        if (checkSufficientFunds(request,wallet)){
+            wallet.setAmount(minusMoney(request,wallet));
+            transaction.setDescription(request.getDescription());
+            transaction.setTransactionDate(request.getTransactionDate());
+            transaction.setTransactionCategory(transactionCategory);
+            transaction.setAppUser(appUser);
+            transaction.setWallet(wallet);
+            transaction.setExpense(isExpense);
+            transaction.setCurrency(request.getCurrency());
+            transactionRepository.save(transaction);
+            return transaction;
+        }else {
+            return null;
+        }
+
     }
 
     private TransactionResponse convertToResponse(Transaction transaction){
@@ -149,7 +184,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     private TransactionResponse buildResponse(Transaction transaction, String email){
         Profile profile = getProfile(email);
-
         TransactionResponse transactionResponse = convertToResponse(transaction);
         transactionResponse.setFullName(profile.getFullName());
         transactionResponse.setWalletName(transaction.getWallet().getName());
@@ -217,4 +251,27 @@ public class TransactionServiceImpl implements TransactionService {
         return false;
     }
 
+    private boolean isTransactionInWallet(Long transactionId, Long walletId){
+        Wallet wallet = getWallet(walletId);
+        Transaction transaction = getTransaction(transactionId);
+
+        if (transaction!= null && wallet != null ){
+            return true;
+        }
+        return false;
+    }
+
+    private double minusMoney(TransactionRequest request, Wallet wallet){
+        double currentMoney = wallet.getAmount();
+        double newAmount = currentMoney - request.getAmount();
+        wallet.setAmount(newAmount);
+        walletRepository.save(wallet);
+        return newAmount;
+    }
+
+    private boolean checkSufficientFunds(TransactionRequest request, Wallet wallet){
+        double currentAmount = wallet.getAmount();
+        double inputAmount = request.getAmount();
+        return currentAmount >= inputAmount;
+    }
 }

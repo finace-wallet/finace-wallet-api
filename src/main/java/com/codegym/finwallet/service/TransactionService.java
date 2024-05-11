@@ -13,4 +13,6 @@ public interface TransactionService {
     CommonResponse findAllTransactionsByCategory(Long walletId, Long transactionCategoryId, Pageable pageable);
     CommonResponse deleteTransaction(Long transactionId);
     CommonResponse transferMoney(TransferMoneyRequest request, Long walletId);
+    CommonResponse editTransaction(TransactionRequest request, Long walletId, Long transactionId);
+    CommonResponse getAllTransactionsAndAmount(Long categoryId,Long walletID);
 }

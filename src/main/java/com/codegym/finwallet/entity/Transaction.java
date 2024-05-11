@@ -42,4 +42,5 @@ public class Transaction {
     @JoinColumn(name = "transaction_category_id")
     @JsonBackReference
     private TransactionCategory transactionCategory;
+    private String currency;
 }

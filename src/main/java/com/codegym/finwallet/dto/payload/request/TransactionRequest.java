@@ -16,4 +16,5 @@ public class TransactionRequest {
     private LocalDate transactionDate;
     private Long transactionCategoryId;
     private String description;
+    private String currency;
 }
