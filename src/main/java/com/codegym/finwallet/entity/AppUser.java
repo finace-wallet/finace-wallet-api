@@ -62,5 +62,9 @@ public class AppUser {
     private TokenBlackList tokenBlackList;
 
     @OneToMany(mappedBy = "appUser")
+    @JsonBackReference
     private Set<Transaction> transactions;
+
+    @OneToOne(mappedBy = "appUser")
+    private AppUserSetting appUserSetting;
 }

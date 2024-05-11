@@ -12,10 +12,12 @@ import com.codegym.finwallet.dto.payload.request.RegisterRequest;
 import com.codegym.finwallet.dto.payload.response.LoginResponse;
 import com.codegym.finwallet.dto.payload.response.RoleResponse;
 import com.codegym.finwallet.entity.AppUser;
+import com.codegym.finwallet.entity.AppUserSetting;
 import com.codegym.finwallet.entity.Profile;
 import com.codegym.finwallet.entity.Role;
 import com.codegym.finwallet.entity.TokenBlackList;
 import com.codegym.finwallet.repository.AppUserRepository;
+import com.codegym.finwallet.repository.AppUserSettingRepository;
 import com.codegym.finwallet.repository.ProfileRepository;
 import com.codegym.finwallet.repository.RoleRepository;
 import com.codegym.finwallet.repository.TokenBlackListRepository;
@@ -60,6 +62,8 @@ public class AppUserServiceImpl implements AppUserService {
     private final ProfileRepository profileRepository;
     private final TokenBlackListRepository tokenBlackListRepository;
     private final SpringTemplateEngine templateEngine;
+    private final AppUserSettingRepository settingRepository;
+    private final AppUserSettingRepository appUserSettingRepository;
 
     @Override
     public CommonResponse createUser(RegisterRequest request) {
@@ -76,8 +80,11 @@ public class AppUserServiceImpl implements AppUserService {
             appUser.setRoles(Collections.singletonList(role));
             Profile profile = new Profile();
             profile.setAppUser(appUser);
+            AppUserSetting appUserSetting = new AppUserSetting();
+            appUserSetting.setAppUser(appUser);
             appUserRepository.save(appUser);
             profileRepository.save(profile);
+            appUserSettingRepository.save(appUserSetting);
             otp = generateOtp();
             saveOtpAndEmail(otp, email);
             try {
