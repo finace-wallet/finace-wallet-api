@@ -40,6 +40,8 @@
         private String description;
         private boolean isDelete;
         private boolean isActive = true;
+        private double initialAmount;
+        private double spentAmount = 0.0;
 
         @OneToMany(mappedBy = "wallet")
         private List<WalletOwnership> walletOwnerships = new ArrayList<>();

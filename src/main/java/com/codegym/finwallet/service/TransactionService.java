@@ -17,5 +17,4 @@ public interface TransactionService {
     CommonResponse transferMoney(TransferMoneyRequest request, Long walletId);
     CommonResponse editTransaction(TransactionRequest request, Long walletId, Long transactionId);
     CommonResponse getAllTransactionsAndAmount(Long categoryId,Long walletID);
-    List<Transaction> getAllTransactionsPeriod(Long walletId, LocalDate startDate, LocalDate endDate, String timeType);
 }
