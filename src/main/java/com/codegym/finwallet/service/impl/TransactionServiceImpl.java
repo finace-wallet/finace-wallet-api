@@ -1,5 +1,6 @@
 package com.codegym.finwallet.service.impl;
 
+import com.codegym.finwallet.constant.MailConstant;
 import com.codegym.finwallet.constant.TransactionConstant;
 import com.codegym.finwallet.constant.WalletConstant;
 import com.codegym.finwallet.converter.TransactionSummaryConvert;
@@ -15,6 +16,7 @@ import com.codegym.finwallet.entity.Transaction;
 import com.codegym.finwallet.entity.TransactionCategory;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.AppUserRepository;
+import com.codegym.finwallet.repository.AppUserSettingRepository;
 import com.codegym.finwallet.repository.ProfileRepository;
 import com.codegym.finwallet.repository.TransactionCategoryRepository;
 import com.codegym.finwallet.repository.TransactionRepository;
@@ -22,24 +24,31 @@ import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.TransactionService;
 import com.codegym.finwallet.util.AuthUserExtractor;
 import com.codegym.finwallet.util.BuildCommonResponse;
+import com.codegym.finwallet.util.CreateExcelFile;
+import com.codegym.finwallet.util.EmailContentGenerator;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-
-import static com.codegym.finwallet.constant.TimeConstant.DAY;
-import static com.codegym.finwallet.constant.TimeConstant.MONTH;
-import static com.codegym.finwallet.constant.TimeConstant.WEEK;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +62,11 @@ public class TransactionServiceImpl implements TransactionService {
     private final BuildCommonResponse commonResponse;
     private final ProfileRepository profileRepository;
     private final TransactionSummaryConvert convert;
+    private final AppUserSettingRepository appUserSettingRepository;
+    private final JavaMailSender mailSender;
+    private final EmailContentGenerator mailContentGenerator;
+    private final CreateExcelFile createExcelFile;
+
     @Override
     public CommonResponse saveTransaction(TransactionRequest request, Long walletId) {
         String email = userExtractor.getUsernameFromAuth();
@@ -60,7 +74,7 @@ public class TransactionServiceImpl implements TransactionService {
         boolean isExpense = isTransactionCateGoryExpense(transactionCategory);
         AppUser appUser = getUser(email);
         Wallet wallet = getWallet(walletId);
-        if (appUser != null && wallet != null && buildTransaction(request,appUser,wallet,transactionCategory,isExpense) != null) {
+        if (appUser != null && wallet != null) {
             Transaction transaction = buildTransaction(request,appUser,wallet,transactionCategory,isExpense);
             TransactionResponse transactionResponse = buildResponse(transaction,email);
 
@@ -142,24 +156,6 @@ public class TransactionServiceImpl implements TransactionService {
         return commonResponse.builResponse(transactionSummaryResponse,TransactionConstant.FIND_TRANSACTION_SUCCESSFUL,HttpStatus.OK);
     }
 
-    @Override
-    public List<Transaction> getAllTransactionsPeriod(Long walletId, LocalDate startDate, LocalDate endDate, String timeType) {
-        List<Transaction> transactions = new ArrayList<>();
-        switch (timeType){
-            case DAY:
-                transactions = getTransactionsForToday(walletId);
-                break;
-            case WEEK:
-                transactions = getTransactionsForWeek(walletId);
-                break;
-            case MONTH:
-                transactions = getTransactionsForMonth(walletId);
-                break;
-            default:
-                break;
-        }
-        return transactions;
-    }
 
     private TransactionCategory getTransactionCategory(Long id) {
         Optional<TransactionCategory> transactionCategory = transactionCategoryRepository.findById(id);
@@ -226,19 +222,25 @@ public class TransactionServiceImpl implements TransactionService {
 
     private Wallet plusMoney(TransferMoneyRequest request){
         Wallet wallet = getWallet(request.getDestinationWalletId());
+        double currentSpentAmount = wallet.getSpentAmount();
+        double newSpentAmount = currentSpentAmount + request.getAmount();
         double inputAmount = request.getAmount();
         double currentAmount = wallet.getAmount();
         double newAmount = currentAmount + inputAmount;
         wallet.setAmount(newAmount);
+        wallet.setSpentAmount(newSpentAmount);
         walletRepository.save(wallet);
         return wallet;
     }
 
     private Wallet deductMoney(Long walletId, TransferMoneyRequest request){
         Wallet wallet = getWallet(walletId);
+        double currentSpentAmount = wallet.getSpentAmount();
+        double newSpentAmount = currentSpentAmount - request.getAmount();
         double currentAmount = wallet.getAmount();
         double newAmount = currentAmount - request.getAmount();
         wallet.setAmount(newAmount);
+        wallet.setSpentAmount(newSpentAmount);
         walletRepository.save(wallet);
         return wallet;
     }
@@ -291,7 +293,9 @@ public class TransactionServiceImpl implements TransactionService {
     private double minusMoney(TransactionRequest request, Wallet wallet){
         double currentMoney = wallet.getAmount();
         double newAmount = currentMoney - request.getAmount();
+        wallet.setSpentAmount(request.getAmount());
         wallet.setAmount(newAmount);
+
         walletRepository.save(wallet);
         return newAmount;
     }
@@ -318,17 +322,87 @@ public class TransactionServiceImpl implements TransactionService {
 
     private List<Transaction> getTransactionsForToday(Long walletId){
         LocalDate today = LocalDate.now();
-        return transactionRepository.findByTransactionInDay(today,today,walletId);
+        return transactionRepository.findTransactionForTime(today,today,walletId);
     }
 
     private List<Transaction> getTransactionsForWeek(Long walletId){
         DateResponse dateResponse = getDateInWeek();
-        return transactionRepository.findByTransactionInDay(dateResponse.getStartDate(),dateResponse.getEndDate(),walletId);
+        return transactionRepository.findTransactionForTime(dateResponse.getStartDate(),dateResponse.getEndDate(),walletId);
     }
 
     private List<Transaction> getTransactionsForMonth(Long walletId){
         DateResponse dateResponse = getDateInMonth();
-        return transactionRepository.findByTransactionInDay(dateResponse.getStartDate(),dateResponse.getEndDate(),walletId);
+        return transactionRepository.findTransactionForTime(dateResponse.getStartDate(),dateResponse.getEndDate(),walletId);
     }
 
+    @Scheduled(cron = "0 55 23 L * ?")
+    private void sendScheduledEmailsForMonth(){
+        List<String> emails = appUserSettingRepository.getListEmailTypeWeek();
+        LocalDate startWeekDay = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate endWeekDay = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth());
+        DateResponse response = new DateResponse(startWeekDay, endWeekDay);
+        sendScheduledEmails(emails,MailConstant.MONTH_SUBJECT,response);
+    }
+
+    @Scheduled(cron = "0 55 23 ? * SAT")
+    private void sendScheduledEmailsForWeek(){
+        List<String> emails = appUserSettingRepository.getListEmailTypeWeek();
+        LocalDate startWeekDay = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate endWeekDay = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        DateResponse response = new DateResponse(startWeekDay, endWeekDay);
+        sendScheduledEmails(emails,MailConstant.WEEK_SUBJECT,response);
+    }
+
+//    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "0 55 23 * * ?")
+    private void sendScheduledEmailsForDay(){
+        List<String> emails = appUserSettingRepository.getListEmailTypeDay();
+        DateResponse dateResponse = new DateResponse(LocalDate.now(),LocalDate.now());
+        sendScheduledEmails(emails,MailConstant.DAY_SUBJECT,dateResponse);
+    }
+
+    private List<Wallet> getAllWalletByEmail(String email){
+        return walletRepository.findWalletByEmail(email);
+    }
+
+    private void sendScheduledEmails(List<String> emailList, String subject, DateResponse response) {
+        LocalDate startDate = response.getStartDate();
+        LocalDate endDate = response.getEndDate();
+        List<Profile> profiles = new ArrayList<>();
+        for (String email : emailList) {
+            try {
+                List<Wallet> wallets = getAllWalletByEmail(email);
+                Profile profile = getProfileByEmail(email);
+                profiles.add(profile);
+                if (wallets.isEmpty()) {
+                    continue;
+                }
+
+                Map<Wallet, List<Transaction>> walletTransactionsMap = new HashMap<>();
+                for (Wallet wallet : wallets) {
+                    List<Transaction> transactions = transactionRepository.findTransactionForTime(startDate,endDate,wallet.getId());
+                    walletTransactionsMap.put(wallet, transactions);
+                }
+
+                String excelFilePath = createExcelFile.createExcelFile(walletTransactionsMap);
+
+                String emailContent = mailContentGenerator.generateEmailContent(email, wallets,excelFilePath);
+
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
+                messageHelper.setTo(email);
+                messageHelper.setSubject(subject);
+                messageHelper.setText(emailContent, true);
+
+                mailSender.send(message);
+
+            } catch (MessagingException | IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private Profile getProfileByEmail(String email){
+        return profileRepository.findProfileByEmail(email).orElse(null);
+    }
 }

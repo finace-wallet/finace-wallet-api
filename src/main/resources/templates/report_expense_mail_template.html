@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Weekly Spending Report</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width:100%;
+            display: flex;
+            justify-content: center;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        table tr:first-child th {
+            background-color: transparent;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<h1 th:text="'Hello, ' + ${email} + '!'"></h1>
+<p th:text="${intro}"></p>
+
+<table>
+    <tr>
+        <th>Wallet Name</th>
+        <th>Initial Balance</th>
+        <th>Amount Spent</th>
+        <th>Current Balance</th>
+        <th>ExcelFile</th>
+    </tr>
+    <tr th:each="wallet : ${wallets}">
+        <td th:text="${wallet.name}"></td>
+        <td th:text="${wallet.initialAmount}"></td>
+        <td th:text="${wallet.spentAmount}"></td>
+        <td th:text="${wallet.amount}"></td>
+        <td>
+            <a th:href="@{'http://localhost:8080/api/v1/download/' + ${#strings.replace(excelFileName, ' ', '')}}" download th:text="'Download Excel'"></a>
+        </td>
+    </tr>
+</table>
+
+<p th:text="${closing}"></p>
+</body>
+</html>
