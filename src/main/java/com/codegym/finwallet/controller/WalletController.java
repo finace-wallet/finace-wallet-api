@@ -185,6 +185,12 @@ public class WalletController {
         CommonResponse commonResponse = transactionService.getAllTransactionsAndAmount(categoryId, id);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
+
+    @GetMapping("/{id}/transaction-category/type-income")
+    public ResponseEntity<CommonResponse> getTransactionCategoryTypeIncome(@PathVariable Long id){
+        CommonResponse commonResponse = transactionCategoryService.getAllCategoryTypeIncome(id);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
+    }
 }
 
 

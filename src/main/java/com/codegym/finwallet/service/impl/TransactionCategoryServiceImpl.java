@@ -15,7 +15,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,5 +38,23 @@ public class TransactionCategoryServiceImpl implements TransactionCategoryServic
             return commonResponse.builResponse(response, TransactionCategoryConstant.CREATE_TRANSACTION_CATEGORY_SUCCESS, HttpStatus.CREATED);
         }
         return commonResponse.builResponse(null,TransactionCategoryConstant.CREATE_TRANSACTION_CATEGORY_FAILURE,HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public CommonResponse getAllCategoryTypeIncome(Long walletId) {
+        List<TransactionCategory> transactionCategories = transactionCategoryRepository.findAllByWalletIdAndType(walletId, TransactionCategoryConstant.CATEGORY_TYPE_INCOME);
+        List<TransactionCategoryResponse> responses = transactionCategories.stream()
+                .map(transactionCategory -> modelMapper.map(transactionCategory,TransactionCategoryResponse.class))
+                .collect(Collectors.toList());
+       return commonResponse.builResponse(responses,TransactionCategoryConstant.GET_LIST_TRANSACTION_CATEGORY_SUCCESS,HttpStatus.OK);
+    }
+
+    @Override
+    public CommonResponse getAllCategoryTypeExpense(Long walletId) {
+        List<TransactionCategory> transactionCategories = transactionCategoryRepository.findAllByWalletIdAndType(walletId, TransactionCategoryConstant.CATEGORY_TYPE_EXPENSE);
+        List<TransactionCategoryResponse> responses = transactionCategories.stream()
+                .map(transactionCategory -> modelMapper.map(transactionCategory,TransactionCategoryResponse.class))
+                .collect(Collectors.toList());
+        return commonResponse.builResponse(responses,TransactionCategoryConstant.GET_LIST_TRANSACTION_CATEGORY_SUCCESS,HttpStatus.OK);
     }
 }
