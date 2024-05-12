@@ -1,11 +1,11 @@
 INSERT INTO role (role_type, is_delete)
 VALUES
-    ('ADMIN', FALSE),
-    ('USER', FALSE);
+    ('ROLE_ADMIN', FALSE),
+    ('ROLE_USER', FALSE);
 
 INSERT INTO app_user (password, email, is_delete, is_active)
 VALUES
-    ('$2a$12$O6sUrez7mEg3w8KBuMMc1OAnAsqiQLVbf1VpbA7H8Eap0L1xmpHXS', 'sn050920@gmail.com.com', FALSE, TRUE),
+    ('$2a$12$O6sUrez7mEg3w8KBuMMc1OAnAsqiQLVbf1VpbA7H8Eap0L1xmpHXS', 'john.smith@example.com', FALSE, TRUE),
     ('$2a$12$N7OB5iwQ7dFlkFDwTonEwuakQst.7PKRMAR4spdqsbjtmD2vZ8fEG', 'jane.smith@example.com', FALSE, TRUE),
     ('$2a$12$owu6Ly6GmG.lef12ItyI2.5rzYrCY0FtnGhX1.Ba5ZOyJt3jpbIVK', 'mike.jackson@example.com', FALSE, TRUE);
 

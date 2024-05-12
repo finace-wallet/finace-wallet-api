@@ -7,4 +7,6 @@ import com.codegym.finwallet.entity.Wallet;
 
 public interface TransactionCategoryService {
     CommonResponse createTransactionCategory(TransactionCategoryRequest request, Long walletId);
+    CommonResponse getAllCategoryTypeIncome(Long walletId);
+    CommonResponse getAllCategoryTypeExpense(Long walletId);
 }

@@ -189,7 +189,10 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setAmount(request.getAmount());
         }
         if (checkSufficientFunds(request,wallet)){
-            wallet.setAmount(minusMoney(request,wallet));
+            double walletAmount = wallet.getAmount();
+            double requestAmount = request.getAmount();
+            double newAmount = walletAmount + requestAmount;
+            wallet.setAmount(newAmount);
             transaction.setDescription(request.getDescription());
             transaction.setTransactionDate(request.getTransactionDate());
             transaction.setTransactionCategory(transactionCategory);

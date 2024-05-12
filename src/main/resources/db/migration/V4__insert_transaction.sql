@@ -1,8 +1,16 @@
 INSERT INTO transaction_category_default (name, type, is_delete)
 VALUES
-    ('Groceries', 'Expense', FALSE),
-    ('Salary', 'Income', FALSE),
-    ('Transportation', 'Expense', FALSE);
+    ('Food&Drink', 'EXPENSE', FALSE),
+    ('Shopping', 'EXPENSE', FALSE),
+    ('Home', 'EXPENSE', FALSE),
+    ('Fees', 'EXPENSE', FALSE),
+    ('Entertainment', 'EXPENSE', FALSE),
+    ('Salary', 'INCOME', FALSE),
+    ('Loan', 'INCOME', FALSE),
+    ('Business', 'INCOME', FALSE),
+    ('Insurance', 'INCOME', FALSE),
+    ('Other', 'INCOME', FALSE),
+    ('Transport', 'EXPENSE', FALSE);
 
 INSERT INTO transaction_category (name, is_delete, wallet_id, type)
 VALUES
