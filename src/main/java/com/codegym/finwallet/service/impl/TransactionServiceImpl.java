@@ -3,6 +3,7 @@ package com.codegym.finwallet.service.impl;
 import com.codegym.finwallet.constant.MailConstant;
 import com.codegym.finwallet.constant.TransactionConstant;
 import com.codegym.finwallet.constant.WalletConstant;
+import com.codegym.finwallet.converter.TransactionConvert;
 import com.codegym.finwallet.converter.TransactionSummaryConvert;
 import com.codegym.finwallet.dto.CommonResponse;
 import com.codegym.finwallet.dto.payload.request.TransactionRequest;
@@ -30,7 +31,6 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -66,6 +66,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final JavaMailSender mailSender;
     private final EmailContentGenerator mailContentGenerator;
     private final CreateExcelFile createExcelFile;
+    private final TransactionConvert transactionConvert;
 
     @Override
     public CommonResponse saveTransaction(TransactionRequest request, Long walletId) {
@@ -139,8 +140,9 @@ public class TransactionServiceImpl implements TransactionService {
     public CommonResponse editTransaction(TransactionRequest request, Long walletId, Long transactionId) {
         if (isTransactionInWallet(walletId, transactionId)) {
             Transaction transaction = getTransaction(transactionId);
-            if (transaction != null) {
-                transaction = modelMapper.map(request,Transaction.class);
+            if (transaction != null && isRequestAmountAvailable(request,transaction)) {
+                updateAmountWallet(request,transaction);
+                transaction = transactionConvert.convertRequestToTransaction(request,transaction);
                 transactionRepository.save(transaction);
                 TransactionResponse transactionResponse = modelMapper.map(transaction,TransactionResponse.class);
                 return commonResponse.builResponse(transactionResponse,TransactionConstant.EDIT_TRANSACTION_SUCCESS,HttpStatus.OK);
@@ -404,5 +406,34 @@ public class TransactionServiceImpl implements TransactionService {
 
     private Profile getProfileByEmail(String email){
         return profileRepository.findProfileByEmail(email).orElse(null);
+    }
+
+    private void updateAmountWallet(TransactionRequest request, Transaction transaction){
+        Wallet wallet = transaction.getWallet();
+        double requestAmount = request.getAmount();
+        double transactionAmount = transaction.getAmount();
+        double currentAmount = wallet.getAmount();
+        double newAmount = 0;
+        if (requestAmount > transactionAmount) {
+            newAmount = requestAmount - transactionAmount;
+            currentAmount -= newAmount;
+        }else {
+            newAmount = transactionAmount - requestAmount;
+            currentAmount += newAmount;
+        }
+        wallet.setAmount(currentAmount);
+        walletRepository.save(wallet);
+    }
+
+    private boolean isRequestAmountAvailable(TransactionRequest request, Transaction transaction){
+        Wallet wallet = transaction.getWallet();
+        double walletAmount = wallet.getAmount();
+        double transactionAmount = transaction.getAmount();
+        double requestAmount = request.getAmount();
+        double totalAmount = walletAmount + transactionAmount;
+        if (requestAmount > totalAmount){
+            return false;
+        }
+        return true;
     }
 }
