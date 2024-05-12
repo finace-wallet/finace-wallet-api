@@ -436,9 +436,6 @@ public class TransactionServiceImpl implements TransactionService {
         double transactionAmount = transaction.getAmount();
         double requestAmount = request.getAmount();
         double totalAmount = walletAmount + transactionAmount;
-        if (requestAmount > totalAmount){
-            return false;
-        }
-        return true;
+        return requestAmount <= totalAmount;
     }
 }
