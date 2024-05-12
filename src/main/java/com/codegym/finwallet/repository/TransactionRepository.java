@@ -25,5 +25,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("SELECT t FROM Transaction t " +
             "WHERE t.transactionDate >= :startDate AND t.transactionDate <= :endDate AND t.wallet.id = :walletId " +
             "AND t.isDelete = false")
-    List<Transaction> findByTransactionInDay(LocalDate startDate, LocalDate endDate, Long walletId);
+    List<Transaction> findTransactionForTime(LocalDate startDate, LocalDate endDate, Long walletId);
 }

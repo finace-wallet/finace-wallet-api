@@ -34,9 +34,9 @@ public interface WalletRepository extends JpaRepository<Wallet,Long> {
 
     Optional<Wallet> findById(Long id);
 
-    @Query("SELECT w FROM Wallet w JOIN w.walletOwnerships wo JOIN wo.appUser u WHERE u.email = :appUserEmail")
+    @Query("SELECT w FROM Wallet w JOIN w.walletOwnerships wo JOIN wo.appUser u WHERE u.email = :appUserEmail AND w.isDelete = false ")
     List<Wallet>findWalletByEmail(String appUserEmail);
 
-
-
+    @Query("SELECT SUM(w.amount) FROM Wallet w JOIN w.walletOwnerships wo JOIN wo.appUser u WHERE u.email = :email AND w.isDelete = false")
+    Double getWalletAmountByEmail(String email);
 }

@@ -230,6 +230,7 @@ public class WalletServiceImpl implements WalletService {
 
     private Wallet saveWallet(WalletRequest walletRequest) {
         Wallet wallet = modelMapper.map(walletRequest, Wallet.class);
+        wallet.setInitialAmount(walletRequest.getAmount());
         walletRepository.save(wallet);
         return wallet;
     }
