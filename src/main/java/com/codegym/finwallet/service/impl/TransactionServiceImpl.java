@@ -345,7 +345,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Scheduled(cron = "0 55 23 L * ?")
-    private void sendScheduledEmailsForMonth(){
+    public void sendScheduledEmailsForMonth(){
         List<String> emails = appUserSettingRepository.getListEmailTypeWeek();
         LocalDate startWeekDay = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
         LocalDate endWeekDay = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth());
@@ -354,7 +354,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Scheduled(cron = "0 55 23 ? * SAT")
-    private void sendScheduledEmailsForWeek(){
+    public void sendScheduledEmailsForWeek(){
         List<String> emails = appUserSettingRepository.getListEmailTypeWeek();
         LocalDate startWeekDay = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endWeekDay = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
@@ -364,7 +364,7 @@ public class TransactionServiceImpl implements TransactionService {
 
 //    @Scheduled(cron = "0 * * * * ?")
     @Scheduled(cron = "0 55 23 * * ?")
-    private void sendScheduledEmailsForDay(){
+    public void sendScheduledEmailsForDay(){
         List<String> emails = appUserSettingRepository.getListEmailTypeDay();
         DateResponse dateResponse = new DateResponse(LocalDate.now(),LocalDate.now());
         sendScheduledEmails(emails,MailConstant.DAY_SUBJECT,dateResponse);
