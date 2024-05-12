@@ -414,14 +414,19 @@ public class TransactionServiceImpl implements TransactionService {
         double transactionAmount = transaction.getAmount();
         double currentAmount = wallet.getAmount();
         double newAmount = 0;
+        double newSpentAmount = 0;
+        double spentAmount = wallet.getSpentAmount();
         if (requestAmount > transactionAmount) {
             newAmount = requestAmount - transactionAmount;
             currentAmount -= newAmount;
+            newSpentAmount = spentAmount + newAmount;
         }else {
             newAmount = transactionAmount - requestAmount;
             currentAmount += newAmount;
+            newSpentAmount = spentAmount - newAmount;
         }
         wallet.setAmount(currentAmount);
+        wallet.setSpentAmount(newSpentAmount);
         walletRepository.save(wallet);
     }
 
