@@ -29,6 +29,7 @@ import com.codegym.finwallet.util.CreateExcelFile;
 import com.codegym.finwallet.util.EmailContentGenerator;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -69,14 +70,15 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionConvert transactionConvert;
 
     @Override
+    @Transactional
     public CommonResponse saveTransaction(TransactionRequest request, Long walletId) {
         String email = userExtractor.getUsernameFromAuth();
         TransactionCategory transactionCategory = getTransactionCategory(request.getTransactionCategoryId());
         boolean isExpense = isTransactionCateGoryExpense(transactionCategory);
-        AppUser appUser = getUser(email);
-        Wallet wallet = getWallet(walletId);
-        if (appUser != null && wallet != null) {
-            Transaction transaction = buildTransaction(request,appUser,wallet,transactionCategory,isExpense);
+        Optional<AppUser> appUserOptional = getUser(email);
+        Optional<Wallet> walletOptional = getWallet(walletId);
+        if (appUserOptional.isPresent() && walletOptional.isPresent()) {
+            Transaction transaction = buildTransaction(request, appUserOptional.get(), walletOptional.get(),transactionCategory,isExpense);
             TransactionResponse transactionResponse = buildResponse(transaction,email);
 
             return commonResponse.builResponse(transactionResponse, TransactionConstant.CREATE_TRANSACTION_SUCCESSFUL, HttpStatus.CREATED);
@@ -108,8 +110,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public CommonResponse deleteTransaction(Long transactionId) {
-        Transaction transaction = getTransaction(transactionId);
-        if (transaction != null) {
+        Optional<Transaction> transactionOptional = getTransaction(transactionId);
+        if (transactionOptional.isPresent()) {
+            Transaction transaction = transactionOptional.get();
             transaction.setDelete(true);
             transactionRepository.save(transaction);
             return commonResponse.builResponse(null,TransactionConstant.DELETE_TRANSACTION_SUCCESSFUL,HttpStatus.OK);
@@ -123,25 +126,30 @@ public class TransactionServiceImpl implements TransactionService {
             Wallet receiverWallet = plusMoney(request);
             Wallet senderWallet = deductMoney(walletId,request);
             String email = userExtractor.getUsernameFromAuth();
-            AppUser appUser = getUser(email);
-            Transaction senderTransaction = buildTransactionForDeductWallet(request,appUser,senderWallet);
-            Transaction receiverTransaction = buildTransactionForReceiverWallet(request,appUser,receiverWallet);
+            Optional<AppUser> appUserOptional = getUser(email);
+            if (appUserOptional.isPresent()) {
+                AppUser appUser = appUserOptional.get();
+                Transaction senderTransaction = buildTransactionForDeductWallet(request,appUser,senderWallet);
+                Transaction receiverTransaction = buildTransactionForReceiverWallet(request,appUser,receiverWallet);
 
-            TransactionResponse transactionResponse = modelMapper.map(senderTransaction,TransactionResponse.class);
-            transactionResponse.setFullName(getProfile(email).getFullName());
-            return commonResponse.builResponse(transactionResponse, WalletConstant.TRANSFER_MONEY_SUCCESS,HttpStatus.CREATED);
+                TransactionResponse transactionResponse = modelMapper.map(senderTransaction,TransactionResponse.class);
+                transactionResponse.setFullName(getProfile(email).getFullName());
+                return commonResponse.builResponse(transactionResponse, WalletConstant.TRANSFER_MONEY_SUCCESS,HttpStatus.CREATED);
+            }
         }catch (Exception e){
             return commonResponse.builResponse(null,WalletConstant.TRANSFER_MONEY_FAILED, HttpStatus.BAD_REQUEST);
         }
+        return commonResponse.builResponse(null,WalletConstant.TRANSFER_MONEY_FAILED, HttpStatus.BAD_REQUEST);
 
     }
 
     @Override
     public CommonResponse editTransaction(TransactionRequest request, Long walletId, Long transactionId) {
         if (isTransactionInWallet(walletId, transactionId)) {
-            Transaction transaction = getTransaction(transactionId);
-            if (transaction != null && isRequestAmountAvailable(request,transaction)) {
-                updateAmountWallet(request,transaction);
+            Optional<Transaction> transactionOptional = getTransaction(transactionId);
+            if (transactionOptional.isPresent() && isRequestAmountAvailable(request,transactionOptional.get())) {
+                Transaction transaction = transactionOptional.get();
+                updateAmountWalletTypeExpense(request,transaction);
                 transaction = transactionConvert.convertRequestToTransaction(request,transaction);
                 transactionRepository.save(transaction);
                 TransactionResponse transactionResponse = modelMapper.map(transaction,TransactionResponse.class);
@@ -164,14 +172,12 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionCategory.orElse(null);
     }
 
-    private AppUser getUser(String email){
-        Optional<AppUser> appUserOptional = appUserRepository.findAppUserByEmail(email);
-        return appUserOptional.orElse(null);
+    private Optional<AppUser> getUser(String email){
+        return appUserRepository.findAppUserByEmail(email);
     }
 
-    private Wallet getWallet(Long walletId){
-        Optional<Wallet> walletOptional = walletRepository.findById(walletId);
-        return walletOptional.orElse(null);
+    private Optional<Wallet> getWallet(Long walletId){
+        return walletRepository.findById(walletId);
     }
 
     private Transaction buildTransaction(TransactionRequest request,AppUser appUser, Wallet wallet,
@@ -218,33 +224,41 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionResponse;
     }
 
-    private Transaction getTransaction(Long transactionId){
-        return transactionRepository.findById(transactionId).orElse(null);
+    private Optional<Transaction> getTransaction(Long transactionId){
+        return transactionRepository.findById(transactionId);
     }
 
     private Wallet plusMoney(TransferMoneyRequest request){
-        Wallet wallet = getWallet(request.getDestinationWalletId());
-        double currentSpentAmount = wallet.getSpentAmount();
-        double newSpentAmount = currentSpentAmount + request.getAmount();
-        double inputAmount = request.getAmount();
-        double currentAmount = wallet.getAmount();
-        double newAmount = currentAmount + inputAmount;
-        wallet.setAmount(newAmount);
-        wallet.setSpentAmount(newSpentAmount);
-        walletRepository.save(wallet);
-        return wallet;
+        Optional<Wallet> walletOptional = getWallet(request.getDestinationWalletId());
+        if (walletOptional.isPresent()) {
+            Wallet wallet = walletOptional.get();
+            double currentSpentAmount = wallet.getSpentAmount();
+            double newSpentAmount = currentSpentAmount + request.getAmount();
+            double inputAmount = request.getAmount();
+            double currentAmount = wallet.getAmount();
+            double newAmount = currentAmount + inputAmount;
+            wallet.setAmount(newAmount);
+            wallet.setSpentAmount(newSpentAmount);
+            walletRepository.save(wallet);
+            return wallet;
+        }
+        return null;
     }
 
     private Wallet deductMoney(Long walletId, TransferMoneyRequest request){
-        Wallet wallet = getWallet(walletId);
-        double currentSpentAmount = wallet.getSpentAmount();
-        double newSpentAmount = currentSpentAmount - request.getAmount();
-        double currentAmount = wallet.getAmount();
-        double newAmount = currentAmount - request.getAmount();
-        wallet.setAmount(newAmount);
-        wallet.setSpentAmount(newSpentAmount);
-        walletRepository.save(wallet);
-        return wallet;
+        Optional<Wallet> walletOptional = getWallet(walletId);
+        if (walletOptional.isPresent()) {
+            Wallet wallet = walletOptional.get();
+            double currentSpentAmount = wallet.getSpentAmount();
+            double newSpentAmount = currentSpentAmount - request.getAmount();
+            double currentAmount = wallet.getAmount();
+            double newAmount = currentAmount - request.getAmount();
+            wallet.setAmount(newAmount);
+            wallet.setSpentAmount(newSpentAmount);
+            walletRepository.save(wallet);
+            return wallet;
+        }
+        return null;
     }
 
     private Transaction buildTransactionForDeductWallet(TransferMoneyRequest request, AppUser appUser, Wallet wallet){
@@ -276,20 +290,13 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private boolean isTransactionCateGoryExpense(TransactionCategory transactionCategory){
-        if (transactionCategory.getType().equals("EXPENSE")){
-            return true;
-        }
-        return false;
+        return transactionCategory.getType().equals("EXPENSE");
     }
 
     private boolean isTransactionInWallet(Long transactionId, Long walletId){
-        Wallet wallet = getWallet(walletId);
-        Transaction transaction = getTransaction(transactionId);
-
-        if (transaction!= null && wallet != null ){
-            return true;
-        }
-        return false;
+        Optional<Wallet> wallet = getWallet(walletId);
+        Optional<Transaction> transaction = getTransaction(transactionId);
+        return transaction.isPresent() && wallet.isPresent();
     }
 
     private double minusMoney(TransactionRequest request, Wallet wallet){
@@ -408,7 +415,8 @@ public class TransactionServiceImpl implements TransactionService {
         return profileRepository.findProfileByEmail(email).orElse(null);
     }
 
-    private void updateAmountWallet(TransactionRequest request, Transaction transaction){
+
+    private void updateAmountWalletTypeExpense(TransactionRequest request, Transaction transaction){
         Wallet wallet = transaction.getWallet();
         double requestAmount = request.getAmount();
         double transactionAmount = transaction.getAmount();
