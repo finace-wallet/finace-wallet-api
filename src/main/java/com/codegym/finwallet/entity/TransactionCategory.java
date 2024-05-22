@@ -38,10 +38,4 @@ public class TransactionCategory {
     @OneToMany(mappedBy = "transactionCategory")
     @JsonBackReference
     private List<Transaction> transactions;
-    private String note;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    @JsonIgnore
-    private AppUser appUser;
 }

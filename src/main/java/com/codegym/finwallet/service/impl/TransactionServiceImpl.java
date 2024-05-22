@@ -92,8 +92,8 @@ public class TransactionServiceImpl implements TransactionService {
                 try {
                     Context emailContext = new Context();
                     emailContext.setVariable("categoryName", transactionCategory.getName());
-                    emailContext.setVariable("budgetLimit", transactionCategory.getBudget() + totalSpent);
-                    emailContext.setVariable("totalSpent", totalSpent);
+                    emailContext.setVariable("budgetLimit", Math.abs(transactionCategory.getBudget() + totalSpent));
+                    emailContext.setVariable("totalSpent", Math.abs(totalSpent));
                     sendBudgetAlertEmails(email, emailContext);
                 } catch (MessagingException e) {
                     e.getMessage();
