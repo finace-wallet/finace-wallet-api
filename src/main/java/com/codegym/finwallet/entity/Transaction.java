@@ -26,7 +26,7 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDate transactionDate;
-    private double amount;
+    private Double amount;
     private String description;
     private boolean isDelete;
     private boolean isTransfer = false;

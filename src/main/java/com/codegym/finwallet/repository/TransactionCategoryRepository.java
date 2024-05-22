@@ -11,4 +11,6 @@ public interface TransactionCategoryRepository extends JpaRepository<Transaction
     Optional <TransactionCategory> findByName(String name);
     @Query("SELECT tc FROM TransactionCategory tc WHERE tc.wallet.id = :walletId AND tc.type = :categoryType")
     List<TransactionCategory> findAllByWalletIdAndType(Long walletId, String categoryType);
+    List<TransactionCategory> findAllByWalletId(Long id);
+    Optional<TransactionCategory> findById(Long categoryId);
 }
