@@ -7,26 +7,13 @@ import com.codegym.finwallet.dto.payload.response.TransactionCategoryResponse;
 import com.codegym.finwallet.entity.TransactionCategory;
 import com.codegym.finwallet.entity.Wallet;
 import com.codegym.finwallet.repository.TransactionCategoryRepository;
-import com.codegym.finwallet.repository.TransactionRepository;
 import com.codegym.finwallet.repository.WalletRepository;
 import com.codegym.finwallet.service.TransactionCategoryService;
-import com.codegym.finwallet.util.AuthUserExtractor;
 import com.codegym.finwallet.util.BuildCommonResponse;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -87,6 +74,6 @@ public class TransactionCategoryServiceImpl implements TransactionCategoryServic
             transactionCategoryRepository.save(transactionCategory);
             return commonResponse.builResponse(transactionCategory, TransactionCategoryConstant.CREATE_SUCCESSFUL_BUDGET, HttpStatus.CREATED);
         }
-       return null;
+        return null;
     }
 }

@@ -27,7 +27,7 @@ public class TransactionCategoryController {
 
     @PostMapping("/{walletId}/{categoryId}/add-budget")
     public ResponseEntity<CommonResponse> createBudgetForTransactionCategory(@RequestParam double budget, @PathVariable Long walletId, @PathVariable Long categoryId) {
-        CommonResponse commonResponse = transactionCategoryService.createBudget( walletId, categoryId, budget);
+        CommonResponse commonResponse = transactionCategoryService.createBudget(walletId, categoryId, budget);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
 }
