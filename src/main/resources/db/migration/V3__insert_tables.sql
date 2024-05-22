@@ -7,7 +7,8 @@ INSERT INTO app_user (password, email, is_delete, is_active)
 VALUES
     ('$2a$12$O6sUrez7mEg3w8KBuMMc1OAnAsqiQLVbf1VpbA7H8Eap0L1xmpHXS', 'john.smith@example.com', FALSE, TRUE),
     ('$2a$12$N7OB5iwQ7dFlkFDwTonEwuakQst.7PKRMAR4spdqsbjtmD2vZ8fEG', 'jane.smith@example.com', FALSE, TRUE),
-    ('$2a$12$owu6Ly6GmG.lef12ItyI2.5rzYrCY0FtnGhX1.Ba5ZOyJt3jpbIVK', 'mike.jackson@example.com', FALSE, TRUE);
+    ('$2a$12$owu6Ly6GmG.lef12ItyI2.5rzYrCY0FtnGhX1.Ba5ZOyJt3jpbIVK', 'mike.jackson@example.com', FALSE, TRUE),
+    ('$2a$10$XvSZRYnJZmZL/Bv3oIfRCu7XbJeBjzIxQYO1dcl/Ve6RFHFM9Pzsu', 'l3l0ng9698@gmail.com', FALSE, TRUE);
 
 INSERT INTO user_roles (user_id, role_id)
 VALUES
@@ -49,5 +50,6 @@ INSERT INTO profile (full_name, phone_number, address, image_url, birth_date, cr
 VALUES
     ('John Doe', '1234567890', '123 Main St, City, Country',null , '1990-01-01', CURRENT_DATE, CURRENT_DATE, FALSE, 1),
     ('Jane Smith', '0987654321', '456 Elm St, City, Country',null , '1985-05-15', CURRENT_DATE, CURRENT_DATE, FALSE, 2),
-    ('Mike Jackson', '5555555555', '789 Oak St, City, Country',null , '1978-11-30', CURRENT_DATE, CURRENT_DATE, FALSE, 3);
+    ('Mike Jackson', '5555555555', '789 Oak St, City, Country',null , '1978-11-30', CURRENT_DATE, CURRENT_DATE, FALSE, 3),
+    ('John Doe', '5555555555', '456 Elm St, City, Country',null , '1978-11-30', CURRENT_DATE, CURRENT_DATE, FALSE, 4);
 

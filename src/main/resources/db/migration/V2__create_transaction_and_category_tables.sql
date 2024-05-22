@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS transaction_category_default (
 CREATE TABLE IF NOT EXISTS transaction_category (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    budget DOUBLE,
     is_delete BOOLEAN DEFAULT FALSE,
     wallet_id BIGINT,
     type VARCHAR(255) NOT NULL,

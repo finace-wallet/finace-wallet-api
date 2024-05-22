@@ -122,7 +122,7 @@ public class WalletController {
     }
 
     @PostMapping("/{id}/create-transaction-category")
-    public ResponseEntity<CommonResponse> createTransactionCategory(@PathVariable Long id, @RequestBody TransactionCategoryRequest request) {
+    public ResponseEntity<CommonResponse> createTransactionCategory(@PathVariable("id") Long id, @RequestBody TransactionCategoryRequest request) {
         CommonResponse commonResponse = transactionCategoryService.createTransactionCategory(request,id);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
@@ -191,6 +191,12 @@ public class WalletController {
         CommonResponse commonResponse = transactionCategoryService.getAllCategoryTypeIncome(id);
         return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);
     }
-}
+
+    @GetMapping("/{id}/transaction-category")
+    public ResponseEntity<CommonResponse> getTransactionCategoryType(@PathVariable Long id) {
+        CommonResponse commonResponse = transactionCategoryService.getAllCategory(id);
+        return ResponseEntity.status(commonResponse.getStatus()).body(commonResponse);}
+    }
+
 
 

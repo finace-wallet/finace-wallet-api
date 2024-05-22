@@ -1,6 +1,7 @@
 package com.codegym.finwallet.service.impl;
 
 import com.codegym.finwallet.constant.MailConstant;
+import com.codegym.finwallet.constant.TransactionCategoryConstant;
 import com.codegym.finwallet.constant.TransactionConstant;
 import com.codegym.finwallet.constant.WalletConstant;
 import com.codegym.finwallet.converter.TransactionConvert;
@@ -40,6 +41,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.io.IOException;
 import java.time.DayOfWeek;
@@ -68,6 +71,8 @@ public class TransactionServiceImpl implements TransactionService {
     private final EmailContentGenerator mailContentGenerator;
     private final CreateExcelFile createExcelFile;
     private final TransactionConvert transactionConvert;
+    private final SpringTemplateEngine templateEngine;
+
 
     @Override
     @Transactional
@@ -80,10 +85,34 @@ public class TransactionServiceImpl implements TransactionService {
         if (appUserOptional.isPresent() && walletOptional.isPresent()) {
             Transaction transaction = buildTransaction(request, appUserOptional.get(), walletOptional.get(),transactionCategory,isExpense);
             TransactionResponse transactionResponse = buildResponse(transaction,email);
+            transactionRepository.save(transaction);
 
+            Double totalSpent = transactionRepository.getTotalSpendForCategory(transactionCategory.getId());
+            if (Math.abs(totalSpent) >= transactionCategory.getBudget()) {
+                try {
+                    Context emailContext = new Context();
+                    emailContext.setVariable("categoryName", transactionCategory.getName());
+                    emailContext.setVariable("budgetLimit", Math.abs(transactionCategory.getBudget() + totalSpent));
+                    emailContext.setVariable("totalSpent", Math.abs(totalSpent));
+                    sendBudgetAlertEmails(email, emailContext);
+                } catch (MessagingException e) {
+                    e.getMessage();
+                }
+            }
             return commonResponse.builResponse(transactionResponse, TransactionConstant.CREATE_TRANSACTION_SUCCESSFUL, HttpStatus.CREATED);
         }
         return commonResponse.builResponse(null, TransactionConstant.CREATE_TRANSACTION_FAILED, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public void sendBudgetAlertEmails(String email, Context context) throws MessagingException {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+        mimeMessageHelper.setTo(email);
+        mimeMessageHelper.setSubject(TransactionCategoryConstant.OVERSPENDING_WARNINGS);
+        String emailContext = templateEngine.process("budget-warning-email-template", context);
+        mimeMessageHelper.setText(emailContext, true);
+        mailSender.send(mimeMessage);
     }
 
     @Override

@@ -5,7 +5,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -26,4 +28,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "WHERE t.transactionDate >= :startDate AND t.transactionDate <= :endDate AND t.wallet.id = :walletId " +
             "AND t.isDelete = false")
     List<Transaction> findTransactionForTime(LocalDate startDate, LocalDate endDate, Long walletId);
+
+    @Query("SELECT COALESCE(SUM(t.amount), 0.0) FROM Transaction t WHERE t.transactionCategory.id = :categoryId AND t.isExpense = true")
+    Double getTotalSpendForCategory(@Param("categoryId") Long categoryId);
 }

@@ -2,6 +2,8 @@ package com.codegym.finwallet.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,7 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.List;
 
 @Data
@@ -25,12 +26,14 @@ public class TransactionCategory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private String type;
+    private Double budget;
     private boolean isDelete = false;
+
     @ManyToOne
     @JoinColumn(name = "wallet_id")
     @JsonBackReference
     private Wallet wallet;
-    private String type;
 
     @OneToMany(mappedBy = "transactionCategory")
     @JsonBackReference
